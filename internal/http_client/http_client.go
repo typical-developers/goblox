@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -64,7 +63,7 @@ func (c *HTTPClient) BuildRequest(method string, path string, body *interface{})
 	return req, nil
 }
 
-func (c *HTTPClient) Request(req *http.Request) (result any, err error) {
+func (c *HTTPClient) Request(req *http.Request) (result *ResponseResult, err error) {
 	// Set headers
 	if len(c.Headers) > 0 {
 		for k, v := range c.Headers {
@@ -88,16 +87,17 @@ func (c *HTTPClient) Request(req *http.Request) (result any, err error) {
 		return nil, err
 	}
 
-	contentType := res.Header.Get("Content-Type")
-	if strings.HasPrefix(contentType, "application/json") {
-		err = json.Unmarshal(body, &result)
+	return &ResponseResult{
+		StatusCode: res.StatusCode,
+		Body:       body,
+	}, nil
+}
 
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		return nil, nil
-	}
+type ResponseResult struct {
+	StatusCode int
+	Body       []byte
+}
 
-	return result, nil
+func (r *ResponseResult) DecodeResult(result interface{}) error {
+	return json.Unmarshal(r.Body, &result)
 }

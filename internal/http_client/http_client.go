@@ -95,9 +95,6 @@ func (c *HTTPClient) Request(method string, path string, reqBody interface{}, qu
 
 	if res.StatusCode != http.StatusOK {
 		// TODO: Better error handling later.
-		b, _ := io.ReadAll(res.Body)
-		println(string(b))
-
 		return nil, fmt.Errorf("HTTP error: %s", res.Status)
 	}
 

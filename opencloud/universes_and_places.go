@@ -3,6 +3,8 @@ package opencloud
 import (
 	"fmt"
 	"net/http"
+
+	http_client "github.com/typical-developers/goblox/internal/http_client"
 )
 
 // https://create.roblox.com/docs/en-us/cloud/reference/Instance#Get-Instance
@@ -14,13 +16,7 @@ func GetInstance(universeId string, placeId string, instanceId string) (result *
 		return nil, err
 	}
 
-	instance := new(Instance)
-	err = res.DecodeResult(instance)
-	if err != nil {
-		return nil, err
-	}
-
-	return instance, nil
+	return http_client.DecodeResult[Instance](res)
 }
 
 // TODO: Implement this method.
@@ -41,13 +37,7 @@ func ListInstanceChildren(universeId string, placeId string, instanceId string, 
 		return
 	}
 
-	children := new(ListInstance)
-	err = res.DecodeResult(children)
-	if err != nil {
-		return
-	}
-
-	return children, nil
+	return http_client.DecodeResult[ListInstance](res)
 }
 
 // https://create.roblox.com/docs/en-us/cloud/reference/Place#Get-Place
@@ -59,13 +49,7 @@ func GetPlace(universeId string, placeId string) (result *Place, err error) {
 		return nil, err
 	}
 
-	place := new(Place)
-	err = res.DecodeResult(place)
-	if err != nil {
-		return nil, err
-	}
-
-	return place, nil
+	return http_client.DecodeResult[Place](res)
 }
 
 // https://create.roblox.com/docs/en-us/cloud/reference/Place#Update-Place
@@ -81,13 +65,7 @@ func UpdatePlace(universeId string, placeId string, data PlaceUpdate) (result *P
 		return nil, err
 	}
 
-	place := new(Place)
-	err = res.DecodeResult(place)
-	if err != nil {
-		return nil, err
-	}
-
-	return place, nil
+	return http_client.DecodeResult[Place](res)
 }
 
 // https://create.roblox.com/docs/en-us/cloud/reference/Universe#Get-Universe
@@ -98,13 +76,7 @@ func GetUniverse(universeId string) (result *Universe, err error) {
 		return nil, err
 	}
 
-	universe := new(Universe)
-	err = res.DecodeResult(universe)
-	if err != nil {
-		return nil, err
-	}
-
-	return universe, nil
+	return http_client.DecodeResult[Universe](res)
 }
 
 // https://create.roblox.com/docs/en-us/cloud/reference/Universe#Update-Universe
@@ -115,13 +87,7 @@ func UpdateUniverse(universeId string, data UniverseUpdate) (result *Universe, e
 		return nil, err
 	}
 
-	universe := new(Universe)
-	err = res.DecodeResult(universe)
-	if err != nil {
-		return nil, err
-	}
-
-	return universe, nil
+	return http_client.DecodeResult[Universe](res)
 }
 
 // https://create.roblox.com/docs/en-us/cloud/reference/Universe#Publish-Universe-Message

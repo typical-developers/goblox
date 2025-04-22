@@ -114,6 +114,11 @@ type ResponseResult struct {
 	Body       []byte
 }
 
-func (r *ResponseResult) DecodeResult(result interface{}) error {
-	return json.Unmarshal(r.Body, &result)
+func DecodeResult[T interface{}](r *ResponseResult) (result *T, err error) {
+	err = json.Unmarshal(r.Body, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }

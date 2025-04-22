@@ -34,7 +34,7 @@ func (c *HTTPClient) RemoveHeader(key string) {
 	delete(c.Headers, key)
 }
 
-func (c *HTTPClient) BuildRequest(method string, path string, body interface{}) (*http.Request, error) {
+func (c *HTTPClient) buildRequest(method string, path string, body interface{}) (*http.Request, error) {
 	url := url.URL{
 		Scheme: "https",
 		Host:   c.BaseURL,
@@ -65,7 +65,12 @@ func (c *HTTPClient) BuildRequest(method string, path string, body interface{}) 
 	return req, nil
 }
 
-func (c *HTTPClient) Request(req *http.Request) (result *ResponseResult, err error) {
+func (c *HTTPClient) Request(method string, path string, reqBody interface{}) (result *ResponseResult, err error) {
+	req, err := c.buildRequest(method, path, reqBody)
+	if err != nil {
+		return nil, err
+	}
+
 	// Set headers
 	if len(c.Headers) > 0 {
 		for k, v := range c.Headers {
@@ -81,17 +86,20 @@ func (c *HTTPClient) Request(req *http.Request) (result *ResponseResult, err err
 
 	if res.StatusCode != http.StatusOK {
 		// TODO: Better error handling later.
+		b, _ := io.ReadAll(res.Body)
+		println(string(b))
+
 		return nil, fmt.Errorf("HTTP error: %s", res.Status)
 	}
 
-	body, err := io.ReadAll(res.Body)
+	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	return &ResponseResult{
 		StatusCode: res.StatusCode,
-		Body:       body,
+		Body:       resBody,
 	}, nil
 }
 

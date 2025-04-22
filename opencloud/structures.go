@@ -7,9 +7,6 @@ import (
 )
 
 // -- General
-type ExperienceOwner struct {
-}
-
 type ExperienceSocialLink struct {
 	Title string `json:"title"`
 	URI   string `json:"uri"`

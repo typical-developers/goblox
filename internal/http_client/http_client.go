@@ -90,7 +90,6 @@ func (c *HTTPClient) Request(req *http.Request) (result any, err error) {
 
 	contentType := res.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
-		println(string(body))
 		err = json.Unmarshal(body, &result)
 
 		if err != nil {

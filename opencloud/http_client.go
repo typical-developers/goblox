@@ -5,7 +5,7 @@ import http_client "github.com/typical-developers/goblox/internal/http_client"
 var HTTP *http_client.HTTPClient
 
 func init() {
-	HTTP = http_client.NewHTTPClient("https://apis.roblox.com/cloud")
+	HTTP = http_client.NewHTTPClient("apis.roblox.com")
 }
 
 func SetAPIToken(apiToken string) {

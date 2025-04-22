@@ -34,7 +34,7 @@ func (c *HTTPClient) RemoveHeader(key string) {
 	delete(c.Headers, key)
 }
 
-func (c *HTTPClient) BuildRequest(method string, path string, body *interface{}) (*http.Request, error) {
+func (c *HTTPClient) BuildRequest(method string, path string, body interface{}) (*http.Request, error) {
 	url := url.URL{
 		Scheme: "https",
 		Host:   c.BaseURL,
@@ -51,6 +51,8 @@ func (c *HTTPClient) BuildRequest(method string, path string, body *interface{})
 		if err != nil {
 			return nil, err
 		}
+
+		req.Header.Set("Content-Type", "application/json")
 
 		return req, nil
 	}

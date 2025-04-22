@@ -65,7 +65,7 @@ func (c *HTTPClient) buildRequest(method string, path string, body interface{}) 
 	return req, nil
 }
 
-func (c *HTTPClient) Request(method string, path string, reqBody interface{}, query *map[string]string) (result *ResponseResult, err error) {
+func (c *HTTPClient) Request(method string, path string, reqBody interface{}, query map[string]string) (result *ResponseResult, err error) {
 	req, err := c.buildRequest(method, path, reqBody)
 	if err != nil {
 		return nil, err
@@ -78,9 +78,9 @@ func (c *HTTPClient) Request(method string, path string, reqBody interface{}, qu
 		}
 	}
 
-	if len(*query) > 0 {
+	if len(query) > 0 {
 		q := req.URL.Query()
-		for k, v := range *query {
+		for k, v := range query {
 			q.Set(k, v)
 		}
 

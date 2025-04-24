@@ -3,6 +3,7 @@ package opencloud
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 )
 
@@ -167,4 +168,69 @@ func (m *UniverseMessage) Validate(topic string) error {
 	}
 
 	return nil
+}
+
+// -- Users and Groups
+
+// https://create.roblox.com/docs/en-us/cloud/reference/User#User
+type User struct {
+	Path                  string `json:"path"`
+	CreateTime            string `json:"createTime"`
+	ID                    string `json:"id"`
+	Name                  string `json:"name"`
+	DisplayName           string `json:"displayName"`
+	About                 string `json:"about"`
+	Locale                string `json:"locale"`
+	Premium               bool   `json:"premium"`
+	IDVerified            bool   `json:"idVerified"`
+	SocialNetworkProfiles struct {
+		Facebook string `json:"facebook"`
+		Twitter  string `json:"twitter"`
+		YouTube  string `json:"youtube"`
+		Twitch   string `json:"twitch"`
+		Guilded  string `json:"guilded"`
+		// Possible values:
+		// "SOCIAL_NETWORK_VISIBILITY_UNSPECIFIED" | "NO_ONE" | "FRIENDS" | "FRIENDS_AND_FOLLOWING" | "FRIENDS_FOLLOWING_AND_FOLLOWERS" | "EVERYONE"
+		Visbility string `json:"visibility"`
+	} `json:"socialNetworkProfiles"`
+}
+
+type UserThumbnail struct {
+	ImageURI string `json:"imageUri"`
+}
+
+type GenerateUserThumbnailQuery struct {
+	Size   *int    `json:"size"`
+	Format *string `json:"format"`
+	Shape  *string `json:"shape"`
+}
+
+func (query *GenerateUserThumbnailQuery) Validate() error {
+	supportedSizes := []int{
+		48, 50, 60, 75, 100, 110, 150, 180, 352, 420, 720,
+	}
+
+	if !slices.Contains(supportedSizes, *query.Size) {
+		return fmt.Errorf("GenerateUserThumbnailQuery: Size must be one of the following: %v", supportedSizes)
+	}
+
+	return nil
+}
+
+func (query *GenerateUserThumbnailQuery) ConvertToStringMap() map[string]string {
+	result := make(map[string]string)
+
+	if query.Size != nil {
+		result["size"] = strconv.Itoa(*query.Size)
+	}
+
+	if query.Format != nil {
+		result["format"] = *query.Format
+	}
+
+	if query.Shape != nil {
+		result["shape"] = *query.Shape
+	}
+
+	return result
 }

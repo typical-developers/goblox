@@ -28,3 +28,25 @@ func (s *Session) GenerateUserThumbnail(userId string, query *GenerateUserThumbn
 
 	return http_client.DecodeResult[UserThumbnail](res)
 }
+
+// https://create.roblox.com/docs/cloud/reference/UserRestriction#List-User-Restrictions
+func (s *Session) ListUserRestrictions(universeId string) (result *UserRestrictionsList, err error) {
+	path := fmt.Sprintf("/cloud/v2/universes/%s/user-restrictions", universeId)
+	res, err := s.Client.Do(http.MethodGet, path, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return http_client.DecodeResult[UserRestrictionsList](res)
+}
+
+// https://create.roblox.com/docs/cloud/reference/UserRestriction#Get-User-Restriction
+func (s *Session) GetUserRestriction(universeId string, userId string) (result *UserRestriction, err error) {
+	path := fmt.Sprintf("/cloud/v2/universes/%s/user-restrictions/%s", universeId, userId)
+	res, err := s.Client.Do(http.MethodGet, path, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return http_client.DecodeResult[UserRestriction](res)
+}

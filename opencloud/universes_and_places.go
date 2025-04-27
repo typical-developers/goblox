@@ -10,7 +10,7 @@ import (
 // https://create.roblox.com/docs/en-us/cloud/reference/Instance#Get-Instance
 func GetInstance(universeId string, placeId string, instanceId string) (result *Instance, err error) {
 	path := fmt.Sprintf("/cloud/v2/universes/%s/places/%s/instances/%s", universeId, placeId, instanceId)
-	res, err := HTTP.Request(http.MethodGet, path, nil, nil)
+	res, err := Client.Request(http.MethodGet, path, nil, nil)
 
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func UpdateInstance() error {
 // https://create.roblox.com/docs/en-us/cloud/reference/Instance#List-Instance-Children
 func ListInstanceChildren(universeId string, placeId string, instanceId string, query *ListInstanceQuery) (result *ListInstance, err error) {
 	path := fmt.Sprintf("/cloud/v2/universes/%s/places/%s/instances/%s:listChildren", universeId, placeId, instanceId)
-	res, err := HTTP.Request(http.MethodGet, path, nil, query.ConvertToStringMap())
+	res, err := Client.Request(http.MethodGet, path, nil, query.ConvertToStringMap())
 
 	if err != nil {
 		return
@@ -43,7 +43,7 @@ func ListInstanceChildren(universeId string, placeId string, instanceId string, 
 // https://create.roblox.com/docs/en-us/cloud/reference/Place#Get-Place
 func GetPlace(universeId string, placeId string) (result *Place, err error) {
 	path := fmt.Sprintf("/cloud/v2/universes/%s/places/%s", universeId, placeId)
-	res, err := HTTP.Request(http.MethodGet, path, nil, nil)
+	res, err := Client.Request(http.MethodGet, path, nil, nil)
 
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func UpdatePlace(universeId string, placeId string, data PlaceUpdate) (result *P
 	}
 
 	path := fmt.Sprintf("/cloud/v2/universes/%s/places/%s", universeId, placeId)
-	res, err := HTTP.Request(http.MethodPatch, path, data, nil)
+	res, err := Client.Request(http.MethodPatch, path, data, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func UpdatePlace(universeId string, placeId string, data PlaceUpdate) (result *P
 // https://create.roblox.com/docs/en-us/cloud/reference/Universe#Get-Universe
 func GetUniverse(universeId string) (result *Universe, err error) {
 	path := fmt.Sprintf("/cloud/v2/universes/%s", universeId)
-	res, err := HTTP.Request(http.MethodGet, path, nil, nil)
+	res, err := Client.Request(http.MethodGet, path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func GetUniverse(universeId string) (result *Universe, err error) {
 // https://create.roblox.com/docs/en-us/cloud/reference/Universe#Update-Universe
 func UpdateUniverse(universeId string, data UniverseUpdate) (result *Universe, err error) {
 	path := fmt.Sprintf("/cloud/v2/universes/%s", universeId)
-	res, err := HTTP.Request(http.MethodPatch, path, data, nil)
+	res, err := Client.Request(http.MethodPatch, path, data, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func UpdateUniverse(universeId string, data UniverseUpdate) (result *Universe, e
 // https://create.roblox.com/docs/en-us/cloud/reference/Universe#Publish-Universe-Message
 func PublishUniverseMessage(universeId string, data UniverseMessage) (err error) {
 	path := fmt.Sprintf("/cloud/v2/universes/%s:publishMessage", universeId)
-	_, err = HTTP.Request(http.MethodPost, path, data, nil)
+	_, err = Client.Request(http.MethodPost, path, data, nil)
 	if err != nil {
 		return err
 	}
@@ -104,7 +104,7 @@ func PublishUniverseMessage(universeId string, data UniverseMessage) (err error)
 // https://create.roblox.com/docs/en-us/cloud/reference/Universe#Restart-Universe-Servers
 func RestartUniverseServers(universeId string) (err error) {
 	path := fmt.Sprintf("/cloud/v2/universes/%s:restartServers", universeId)
-	_, err = HTTP.Request(http.MethodPost, path, nil, nil)
+	_, err = Client.Request(http.MethodPost, path, nil, nil)
 	if err != nil {
 		return err
 	}

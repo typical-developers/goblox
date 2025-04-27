@@ -2,12 +2,12 @@ package opencloud
 
 import http_client "github.com/typical-developers/goblox/internal/http_client"
 
-var HTTP *http_client.HTTPClient
+var Client *http_client.HTTPClient
 
 func init() {
-	HTTP = http_client.NewHTTPClient("apis.roblox.com")
+	Client = http_client.NewHTTPClient("apis.roblox.com")
 }
 
 func SetAPIToken(apiToken string) {
-	HTTP.SetHeader("x-api-key", apiToken)
+	Client.SetHeader("x-api-key", apiToken)
 }

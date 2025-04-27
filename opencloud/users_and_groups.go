@@ -10,7 +10,7 @@ import (
 // https://create.roblox.com/docs/en-us/cloud/reference/User#Get-User
 func GetUser(userId string) (result *User, err error) {
 	path := fmt.Sprintf("/cloud/v2/users/%s", userId)
-	res, err := HTTP.Request(http.MethodGet, path, nil, nil)
+	res, err := Client.Request(http.MethodGet, path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +21,7 @@ func GetUser(userId string) (result *User, err error) {
 // https://create.roblox.com/docs/en-us/cloud/reference/User#Generate-User-Thumbnail
 func GenerateUserThumbnail(userId string, query *GenerateUserThumbnailQuery) (resuilt *UserThumbnail, err error) {
 	path := fmt.Sprintf("/cloud/v2/users/%s:generateThumbnail", userId)
-	res, err := HTTP.Request(http.MethodPost, path, nil, query.ConvertToStringMap())
+	res, err := Client.Request(http.MethodPost, path, nil, query.ConvertToStringMap())
 	if err != nil {
 		return nil, err
 	}

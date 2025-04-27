@@ -220,6 +220,10 @@ func (query *GenerateUserThumbnailQuery) Validate() error {
 func (query *GenerateUserThumbnailQuery) ConvertToStringMap() map[string]string {
 	result := make(map[string]string)
 
+	if query == nil {
+		return result
+	}
+
 	if query.Size != nil {
 		result["size"] = strconv.Itoa(*query.Size)
 	}

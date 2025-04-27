@@ -65,7 +65,7 @@ func (c *HTTPClient) buildRequest(method string, path string, body interface{}) 
 	return req, nil
 }
 
-func (c *HTTPClient) Request(method string, path string, reqBody interface{}, query map[string]string) (result *ResponseResult, err error) {
+func (c *HTTPClient) Do(method string, path string, reqBody interface{}, query map[string]string) (result *ResponseResult, err error) {
 	req, err := c.buildRequest(method, path, reqBody)
 	if err != nil {
 		return nil, err

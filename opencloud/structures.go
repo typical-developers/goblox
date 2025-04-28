@@ -240,13 +240,13 @@ func (query *GenerateUserThumbnailQuery) ConvertToStringMap() map[string]string 
 }
 
 type GameJoinRestriction struct {
-	Active             bool   `json:"active"`
-	StartTime          string `json:"startTime"`
-	Duration           int    `json:"duration"`
-	PrivateReason      string `json:"privateReason"`
-	DisplayReason      string `json:"displayReason"`
-	ExcludeAltAccounts bool   `json:"excludeAltAccounts"`
-	Inherited          bool   `json:"inherited"`
+	Active             bool    `json:"active"`
+	StartTime          string  `json:"startTime"`
+	Duration           *string `json:"duration"`
+	PrivateReason      string  `json:"privateReason"`
+	DisplayReason      string  `json:"displayReason"`
+	ExcludeAltAccounts bool    `json:"excludeAltAccounts"`
+	Inherited          bool    `json:"inherited"`
 }
 
 type UserRestriction struct {

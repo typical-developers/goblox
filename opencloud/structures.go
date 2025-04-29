@@ -249,6 +249,14 @@ type GameJoinRestriction struct {
 	Inherited          bool    `json:"inherited"`
 }
 
+type UpdateGameJoinRestriction struct {
+	Active             *bool   `json:"active,omitempty"`
+	Duration           *string `json:"duration,omitempty"`
+	PrivateReason      *string `json:"privateReason,omitempty"`
+	DisplayReason      *string `json:"displayReason,omitempty"`
+	ExcludeAltAccounts *bool   `json:"excludeAltAccounts,omitempty"`
+}
+
 type UserRestriction struct {
 	Path                 string              `json:"path"`
 	UpdateTime           string              `json:"updateTime"`

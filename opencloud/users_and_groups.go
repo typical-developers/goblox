@@ -30,8 +30,14 @@ func (s *Session) GenerateUserThumbnail(userId string, query *GenerateUserThumbn
 }
 
 // https://create.roblox.com/docs/cloud/reference/UserRestriction#List-User-Restrictions
-func (s *Session) ListUserRestrictions(universeId string) (result *UserRestrictionsList, err error) {
-	path := fmt.Sprintf("/cloud/v2/universes/%s/user-restrictions", universeId)
+func (s *Session) ListUserRestrictions(universeId string, placeId *string) (result *UserRestrictionsList, err error) {
+	var path string
+	if placeId != nil {
+		path = fmt.Sprintf("/cloud/v2/universes/%s/places/%s/user-restrictions", universeId, *placeId)
+	} else {
+		path = fmt.Sprintf("/cloud/v2/universes/%s/user-restrictions", universeId)
+	}
+
 	res, err := s.Client.Do(http.MethodGet, path, nil, nil)
 	if err != nil {
 		return nil, err
@@ -41,8 +47,15 @@ func (s *Session) ListUserRestrictions(universeId string) (result *UserRestricti
 }
 
 // https://create.roblox.com/docs/cloud/reference/UserRestriction#Get-User-Restriction
-func (s *Session) GetUserRestriction(universeId string, userId string) (result *UserRestriction, err error) {
-	path := fmt.Sprintf("/cloud/v2/universes/%s/user-restrictions/%s", universeId, userId)
+func (s *Session) GetUserRestriction(universeId string, placeId *string, userId string) (result *UserRestriction, err error) {
+	var path string
+
+	if placeId != nil {
+		path = fmt.Sprintf("/cloud/v2/universes/%s/places/%s/user-restrictions/%s", universeId, *placeId, userId)
+	} else {
+		path = fmt.Sprintf("/cloud/v2/universes/%s/user-restrictions/%s", universeId, userId)
+	}
+
 	res, err := s.Client.Do(http.MethodGet, path, nil, nil)
 	if err != nil {
 		return nil, err

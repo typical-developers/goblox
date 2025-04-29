@@ -3,11 +3,12 @@ package http_client
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/typical-developers/goblox/http_error"
 )
 
 type HTTPClient struct {
@@ -93,14 +94,13 @@ func (c *HTTPClient) Do(method string, path string, reqBody interface{}, query m
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
-		// TODO: Better error handling later.
-		return nil, fmt.Errorf("HTTP error: %s", res.Status)
-	}
-
 	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return nil, http_error.NewHTTPResponseError(res, resBody)
 	}
 
 	return &ResponseResult{

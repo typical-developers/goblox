@@ -240,28 +240,48 @@ func (query *GenerateUserThumbnailQuery) ConvertToStringMap() map[string]string 
 }
 
 type GameJoinRestriction struct {
-	Active             bool    `json:"active"`
-	StartTime          string  `json:"startTime"`
-	Duration           *string `json:"duration"`
-	PrivateReason      string  `json:"privateReason"`
-	DisplayReason      string  `json:"displayReason"`
-	ExcludeAltAccounts bool    `json:"excludeAltAccounts"`
-	Inherited          bool    `json:"inherited"`
-}
-
-type UpdateGameJoinRestriction struct {
 	Active             *bool   `json:"active,omitempty"`
+	StartTime          *string `json:"startTime,omitempty"`
 	Duration           *string `json:"duration,omitempty"`
 	PrivateReason      *string `json:"privateReason,omitempty"`
 	DisplayReason      *string `json:"displayReason,omitempty"`
 	ExcludeAltAccounts *bool   `json:"excludeAltAccounts,omitempty"`
+	Inherited          *bool   `json:"inherited,omitempty"`
+}
+
+func (r *GameJoinRestriction) SetActive(active bool) {
+	r.Active = &active
+}
+
+func (r *GameJoinRestriction) SetDuration(duration string) {
+	r.Duration = &duration
+}
+
+func (r *GameJoinRestriction) SetPrivateReason(reason string) {
+	r.PrivateReason = &reason
+}
+
+func (r *GameJoinRestriction) SetDisplayReason(reason string) {
+	r.DisplayReason = &reason
+}
+
+func (r *GameJoinRestriction) SetExcludeAltAccounts(exclude bool) {
+	r.ExcludeAltAccounts = &exclude
+}
+
+func (r *GameJoinRestriction) validateUpdate() error {
+	if r.Active == nil && r.Duration == nil && r.PrivateReason == nil && r.DisplayReason == nil && r.ExcludeAltAccounts == nil {
+		return errors.New("GameJoinRestriction: At least one field must be set")
+	}
+
+	return nil
 }
 
 type UserRestriction struct {
-	Path                 string              `json:"path"`
-	UpdateTime           string              `json:"updateTime"`
-	User                 string              `json:"user"`
-	GameJoinRestrictions GameJoinRestriction `json:"gameJoinRestriction"`
+	Path                string              `json:"path,omitempty"`
+	UpdateTime          string              `json:"updateTime,omitempty"`
+	User                string              `json:"user,omitempty"`
+	GameJoinRestriction GameJoinRestriction `json:"gameJoinRestriction,omitempty"`
 }
 
 type UserRestrictionsList struct {

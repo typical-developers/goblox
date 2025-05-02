@@ -98,7 +98,7 @@ func (data *PlaceUpdate) SetServerSize(size int) {
 	data.ServerSize = &size
 }
 
-func (data *PlaceUpdate) Validate() error {
+func (data *PlaceUpdate) validate() error {
 	if data.DisplayName == nil && data.Description == nil && data.ServerSize == nil {
 		return fmt.Errorf("PlaceUpdate: At least one field must be set")
 	}
@@ -158,8 +158,8 @@ type UniverseMessage struct {
 	Message string `json:"message"`
 }
 
-func (m *UniverseMessage) Validate(topic string) error {
-	if len(topic) < 1 || len(topic) > 80 {
+func (m *UniverseMessage) validate() error {
+	if len(m.Topic) < 1 || len(m.Topic) > 80 {
 		return fmt.Errorf("UniverseMessage: Topic must be between 1 and 80 characters.")
 	}
 
@@ -205,7 +205,7 @@ type GenerateUserThumbnailQuery struct {
 	Shape  *string `json:"shape"`
 }
 
-func (query *GenerateUserThumbnailQuery) Validate() error {
+func (query *GenerateUserThumbnailQuery) validate() error {
 	supportedSizes := []int{
 		48, 50, 60, 75, 100, 110, 150, 180, 352, 420, 720,
 	}
@@ -266,7 +266,7 @@ type UserRestrictionUpdate struct {
 	} `json:"gameJoinRestriction"`
 }
 
-func (data *UserRestrictionUpdate) validateUpdate() error {
+func (data *UserRestrictionUpdate) validate() error {
 	r := data.GameJoinRestriction
 
 	if r.Active == nil && r.Duration == nil && r.PrivateReason == nil && r.DisplayReason == nil && r.ExcludeAltAccounts == nil {

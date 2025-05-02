@@ -54,8 +54,7 @@ func (s *Session) GetPlace(universeId string, placeId string) (result *Place, er
 
 // https://create.roblox.com/docs/en-us/cloud/reference/Place#Update-Place
 func (s *Session) UpdatePlace(universeId string, placeId string, data PlaceUpdate) (result *Place, err error) {
-	err = data.Validate()
-	if err != nil {
+	if err := data.validate(); err != nil {
 		return nil, err
 	}
 
@@ -92,6 +91,10 @@ func (s *Session) UpdateUniverse(universeId string, data UniverseUpdate) (result
 
 // https://create.roblox.com/docs/en-us/cloud/reference/Universe#Publish-Universe-Message
 func (s *Session) PublishUniverseMessage(universeId string, data UniverseMessage) (err error) {
+	if err := data.validate(); err != nil {
+		return err
+	}
+
 	path := fmt.Sprintf("/cloud/v2/universes/%s:publishMessage", universeId)
 	_, err = s.Client.Do(http.MethodPost, path, data, nil)
 	if err != nil {

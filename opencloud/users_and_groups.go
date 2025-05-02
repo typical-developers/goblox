@@ -65,7 +65,7 @@ func (s *Session) GetUserRestriction(universeId string, placeId *string, userId 
 }
 
 // https://create.roblox.com/docs/en-us/cloud/reference/UserRestriction#Update-User-Restriction
-func (s *Session) UpdateUserRestriction(universeId string, placeId *string, userId string, data GameJoinRestriction) (result *UserRestriction, err error) {
+func (s *Session) UpdateUserRestriction(universeId string, placeId *string, userId string, data UserRestrictionUpdate) (result *UserRestriction, err error) {
 	if err := data.validateUpdate(); err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (s *Session) UpdateUserRestriction(universeId string, placeId *string, user
 		path = fmt.Sprintf("/cloud/v2/universes/%s/user-restrictions/%s", universeId, userId)
 	}
 
-	res, err := s.Client.Do(http.MethodPatch, path, UserRestriction{GameJoinRestriction: data}, nil)
+	res, err := s.Client.Do(http.MethodPatch, path, data, nil)
 	if err != nil {
 		return nil, err
 	}

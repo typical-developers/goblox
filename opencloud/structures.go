@@ -240,48 +240,68 @@ func (query *GenerateUserThumbnailQuery) ConvertToStringMap() map[string]string 
 }
 
 type GameJoinRestriction struct {
-	Active             *bool   `json:"active,omitempty"`
-	StartTime          *string `json:"startTime,omitempty"`
-	Duration           *string `json:"duration,omitempty"`
-	PrivateReason      *string `json:"privateReason,omitempty"`
-	DisplayReason      *string `json:"displayReason,omitempty"`
-	ExcludeAltAccounts *bool   `json:"excludeAltAccounts,omitempty"`
-	Inherited          *bool   `json:"inherited,omitempty"`
+	Active             bool   `json:"active"`
+	StartTime          string `json:"startTime"`
+	Duration           string `json:"duration"`
+	PrivateReason      string `json:"privateReason"`
+	DisplayReason      string `json:"displayReason"`
+	ExcludeAltAccounts bool   `json:"excludeAltAccounts"`
+	Inherited          bool   `json:"inherited"`
 }
 
-func (r *GameJoinRestriction) SetActive(active bool) {
-	r.Active = &active
+type UserRestriction struct {
+	Path                string              `json:"path"`
+	UpdateTime          string              `json:"updateTime"`
+	User                string              `json:"user"`
+	GameJoinRestriction GameJoinRestriction `json:"gameJoinRestriction"`
 }
 
-func (r *GameJoinRestriction) SetDuration(duration string) {
-	r.Duration = &duration
+type UserRestrictionUpdate struct {
+	GameJoinRestriction struct {
+		Active             *bool   `json:"active,omitempty"`
+		Duration           *string `json:"duration,omitempty"`
+		PrivateReason      *string `json:"privateReason,omitempty"`
+		DisplayReason      *string `json:"displayReason,omitempty"`
+		ExcludeAltAccounts *bool   `json:"excludeAltAccounts,omitempty"`
+	} `json:"gameJoinRestriction"`
 }
 
-func (r *GameJoinRestriction) SetPrivateReason(reason string) {
-	r.PrivateReason = &reason
-}
+func (data *UserRestrictionUpdate) validateUpdate() error {
+	r := data.GameJoinRestriction
 
-func (r *GameJoinRestriction) SetDisplayReason(reason string) {
-	r.DisplayReason = &reason
-}
-
-func (r *GameJoinRestriction) SetExcludeAltAccounts(exclude bool) {
-	r.ExcludeAltAccounts = &exclude
-}
-
-func (r *GameJoinRestriction) validateUpdate() error {
 	if r.Active == nil && r.Duration == nil && r.PrivateReason == nil && r.DisplayReason == nil && r.ExcludeAltAccounts == nil {
-		return errors.New("GameJoinRestriction: At least one field must be set")
+		return fmt.Errorf("UserRestrictionUpdate: At least one update field must be set")
+	}
+
+	if r.PrivateReason != nil && len([]byte(*r.PrivateReason)) > 400 {
+		return fmt.Errorf("UserRestrictionUpdate: PrivateReason can't be more than 400 characters.")
+	}
+
+	if r.DisplayReason != nil && len([]byte(*r.DisplayReason)) > 400 {
+		return fmt.Errorf("UserRestrictionUpdate: DisplayReason can't be more than 400 characters.")
 	}
 
 	return nil
 }
 
-type UserRestriction struct {
-	Path                string              `json:"path,omitempty"`
-	UpdateTime          string              `json:"updateTime,omitempty"`
-	User                string              `json:"user,omitempty"`
-	GameJoinRestriction GameJoinRestriction `json:"gameJoinRestriction,omitempty"`
+func (data *UserRestrictionUpdate) SetActive(active bool) {
+	data.GameJoinRestriction.Active = &active
+}
+
+func (data *UserRestrictionUpdate) SetDuration(duration string) {
+	data.GameJoinRestriction.Duration = &duration
+}
+
+func (data *UserRestrictionUpdate) SetPrivateReason(privateReason string) {
+	data.GameJoinRestriction.PrivateReason = &privateReason
+}
+
+func (data *UserRestrictionUpdate) SetDisplayReason(displayReason string) {
+	data.GameJoinRestriction.DisplayReason = &displayReason
+}
+
+func (data *UserRestrictionUpdate) SetExcludeAltAccounts(excludeAltAccounts bool) {
+	data.GameJoinRestriction.ExcludeAltAccounts = &excludeAltAccounts
 }
 
 type UserRestrictionsList struct {

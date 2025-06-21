@@ -55,7 +55,14 @@ type LuauExecutionTask struct {
 	Output              *LuauExecutionTaskOutput `json:"output"`
 	BinaryInput         string                   `json:"binaryInput"`
 	EnabledBinaryOutput bool                     `json:"enabledBinaryOutput"`
-	BinaryOutput        string                   `json:"binaryOutput"`
+	BinaryOutputURI     string                   `json:"binaryOutputUri"`
+}
+
+type LuauExecutionTaskCreate struct {
+	Script              *string `json:"script,omitempty"`
+	Timeout             *string `json:"timeout,omitempty"`
+	BinaryInput         *string `json:"binaryInput,omitempty"`
+	EnabledBinaryOutput *bool   `json:"enabledBinaryOutput,omitempty"`
 }
 
 // CreateLuauExecutionSessionTask will execute a Luau script on a specific place.
@@ -68,13 +75,13 @@ type LuauExecutionTask struct {
 // [POST] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-session-tasks
 //
 // [POST] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-session-tasks/{version_id}
-func (s *LuauExecutionService) CreateLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId *string) (*LuauExecutionTask, *Response, error) {
+func (s *LuauExecutionService) CreateLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId *string, data LuauExecutionTaskCreate) (*LuauExecutionTask, *Response, error) {
 	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s/luau-execution-session-tasks", universeId, placeId)
 	if versionId != nil {
 		u = fmt.Sprintf("/cloud/v2/universes/%s/places/%s/luau-execution-session-tasks/%s", universeId, placeId, *versionId)
 	}
 
-	req, err := s.client.NewRequest(http.MethodPost, u, nil)
+	req, err := s.client.NewRequest(http.MethodPost, u, data)
 	if err != nil {
 		return nil, nil, err
 	}

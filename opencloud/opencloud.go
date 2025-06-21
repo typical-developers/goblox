@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -90,10 +89,6 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v any) (*Response, e
 		return nil, err
 	}
 	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("RAW BODY:", string(body))          // <- crucial
-	resp.Body = io.NopCloser(bytes.NewReader(body)) // rewind body
 
 	response := &Response{Response: resp}
 	err = json.NewDecoder(resp.Body).Decode(v)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -20,12 +21,31 @@ type service struct {
 	client *Client
 }
 
+type APIKeyRoundTripper struct {
+	APIKey    string
+	Transport http.RoundTripper
+}
+
+func (c *APIKeyRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("X-API-KEY", c.APIKey)
+	return c.Transport.RoundTrip(req)
+}
+
+type OAuthRoundTripper struct {
+	OAuthToken string
+	Transport  http.RoundTripper
+}
+
+func (c *OAuthRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.OAuthToken))
+	return c.Transport.RoundTrip(req)
+}
+
 type Client struct {
 	client *http.Client
 	common service
 
 	BaseURL *url.URL
-	APIKey  string
 
 	// v2 Opencloud API services
 	LuauExecution     *LuauExecutionService
@@ -38,15 +58,44 @@ type Response struct {
 	*http.Response
 }
 
-// NewClient will return a new Opencloud API client.
-// Authorizing with a key is mandatory; the API cannot be accessed without authentication.
-func NewClient(apiKey string) *Client {
-	c := &Client{client: http.DefaultClient}
+// NewClientWithAPIKey will use an API key to authenticate with the Opencloud API.
+//
+// You can create a new API key at: https://create.roblox.com/dashboard/credentials?activeTab=ApiKeysTab
+func NewClientWithAPIKey(apiKey string) *Client {
+	c := &Client{
+		client: &http.Client{
+			Transport: &APIKeyRoundTripper{
+				APIKey:    apiKey,
+				Transport: http.DefaultTransport,
+			},
+		},
+	}
 
+	return c.init()
+}
+
+// TODO: Implement automatic OAuth token refreshing.
+//
+// NewClientWithOAuth will use an OAuth token to authenticate with the Opencloud API.
+//
+// The token must be from the user that authenticated.
+func NewClientWithOAuth(token string) *Client {
+	c := &Client{
+		client: &http.Client{
+			Transport: &OAuthRoundTripper{
+				OAuthToken: token,
+				Transport:  http.DefaultTransport,
+			},
+		},
+	}
+
+	return c.init()
+}
+
+func (c *Client) init() *Client {
 	c.common.client = c
 
 	c.BaseURL, _ = url.Parse(baseURL)
-	c.APIKey = apiKey
 
 	c.LuauExecution = (*LuauExecutionService)(&c.common)
 	c.Monetization = (*MonetizationService)(&c.common)
@@ -85,8 +134,6 @@ func (c *Client) NewRequest(method, urlString string, body any) (*http.Request, 
 
 func (c *Client) Do(ctx context.Context, req *http.Request, v any) (*Response, error) {
 	req = req.WithContext(ctx)
-
-	req.Header.Set("X-API-KEY", c.APIKey)
 
 	resp, err := c.client.Do(req)
 	if err != nil {

@@ -28,6 +28,7 @@ type Client struct {
 	APIKey  string
 
 	// Different OpenCloud API services.
+	LuauExecution     *LuauExecutionService
 	UniverseAndPlaces *UniverseAndPlacesService
 	UserAndGroups     *UserAndGroupsService
 }
@@ -46,6 +47,7 @@ func NewClient(apiKey string) *Client {
 	c.BaseURL, _ = url.Parse(baseURL)
 	c.APIKey = apiKey
 
+	c.LuauExecution = (*LuauExecutionService)(&c.common)
 	c.UniverseAndPlaces = (*UniverseAndPlacesService)(&c.common)
 	c.UserAndGroups = (*UserAndGroupsService)(&c.common)
 

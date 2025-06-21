@@ -25,7 +25,6 @@ func PollMethod[T any](method func() *T, handler func(*T, func()), interval *tim
 		for {
 			select {
 			case <-finished:
-
 				return
 			default:
 				d := method()

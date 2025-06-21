@@ -1,27 +1,6 @@
-# goblox
-A Golang wrapper for the Roblox API. Supports Opencloud and Legacy APIs.
+# Goblox
+Goblox is a Go library for accessing the Roblox Open Cloud API & Roblox Legacy API.
 
-## Examples 📝
-### Opencloud
-```go
-package main
-
-import (
-	"github.com/typical-developers/goblox/opencloud"
-)
-
-func main() {
-    // Set your opencloud API token
-    opencloud.SetAPIToken("YOUR_API_TOKEN")
-
-    // In this example, we will be fetching information for a Universe.
-    // Your scopes must have universe.place:write for this to work.
-    universe, _ := opencloud.GetUniverse("UNIVERSE_ID")
-    println(universe.DisplayName) // Name of the Universe.
-}
-```
-### Legacy API
-Legacy API is a work in progress.
-
-## Other Features ✨
-Coming soon!
+> [!CAUTION]
+> This library is still in development and is not considered stable.
+> If you want to contribute, feel free to open a PR.

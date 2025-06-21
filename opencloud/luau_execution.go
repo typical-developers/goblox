@@ -88,15 +88,9 @@ func getInfo(path string) map[string]string {
 // This is useful for GetLuauExecutionSessionTask when polling the method.
 //
 // universeId, placeId, and taskId will always be present.
-// versionId and sessionId may or may not be present.
-//
-// Values return in this order:
-// (universeId, placeId, *versionId, *sessionId, taskId)
-func (t *LuauExecutionTask) TaskInfo() (string, string, *string, *string, string) {
+// versionId and sessionId may or may not be nil.
+func (t *LuauExecutionTask) TaskInfo() (universeId, placeId string, versionId, sessionId *string, taskId string) {
 	info := getInfo(t.Path)
-
-	var universeId, placeId, taskId string
-	var versionId, sessionId *string
 
 	for key, value := range info {
 		switch key {

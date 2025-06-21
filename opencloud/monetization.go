@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// UniverseAndPlacesService will handle communciation with the actions related to the API.
+// MonetizationService will handle communciation with the actions related to the API.
 //
 // Roblox Open Cloud API Docs: https://create.roblox.com/docs/en-us/cloud
 type MonetizationService service

@@ -48,7 +48,7 @@ type LuauExecutionTask struct {
 	CreateTime          string                   `json:"createTime"`
 	UpdateTime          string                   `json:"updateTime"`
 	User                string                   `json:"user"`
-	Status              LuauExecutionState       `json:"state"`
+	State               LuauExecutionState       `json:"state"`
 	Script              string                   `json:"script"`
 	Timeout             string                   `json:"timeout"`
 	Error               *LuauExecutionTaskError  `json:"error"`
@@ -59,10 +59,10 @@ type LuauExecutionTask struct {
 }
 
 type LuauExecutionTaskCreate struct {
-	Script              *string `json:"script,omitempty"`
-	Timeout             *string `json:"timeout,omitempty"`
-	BinaryInput         *string `json:"binaryInput,omitempty"`
-	EnabledBinaryOutput *bool   `json:"enabledBinaryOutput,omitempty"`
+	Script              string `json:"script,omitempty"`
+	Timeout             string `json:"timeout,omitempty"`
+	BinaryInput         string `json:"binaryInput,omitempty"`
+	EnabledBinaryOutput bool   `json:"enabledBinaryOutput,omitempty"`
 }
 
 // CreateLuauExecutionSessionTask will execute a Luau script on a specific place.
@@ -105,9 +105,25 @@ func (s *LuauExecutionService) CreateLuauExecutionSessionTask(ctx context.Contex
 //
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/LuauExecutionSessionTask#Cloud_GetLuauExecutionSessionTask
 //
-// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-sessions/{luau_execution_session_id}/tasks/{task_id}
-func (s *LuauExecutionService) GetLuauExecutionSessionTask(ctx context.Context, universeId, placeId, versionId, taskId string) (*LuauExecutionTask, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s/versions/%s/luau-execution-sessions/%s/tasks/%s", universeId, placeId, versionId, taskId, taskId)
+// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-tasks/{task_id}
+//
+// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-tasks/{task_id}
+//
+// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-sessions/{session_id}/tasks/{task_id}
+//
+// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-sessions/{session_id}/tasks/{task_id}
+func (s *LuauExecutionService) GetLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId, sessionId *string, taskId string) (*LuauExecutionTask, *Response, error) {
+	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s", universeId, placeId)
+
+	if versionId != nil {
+		u += fmt.Sprintf("/versions/%s", *versionId)
+	}
+
+	if sessionId != nil {
+		u += fmt.Sprintf("/luau-execution-sessions/%s/tasks/%s", *sessionId, taskId)
+	} else {
+		u += fmt.Sprintf("/luau-execution-tasks/%s", taskId)
+	}
 
 	req, err := s.client.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
@@ -159,9 +175,25 @@ type LuauExecutionTaskLogs struct {
 //
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/LuauExecutionSessionTaskLog#Cloud_ListLuauExecutionSessionTaskLogs
 //
-// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-sessions/{luau_execution_session_id}/tasks/{task_id}/logs
-func (s *LuauExecutionService) ListLuauExecutionSessionTaskLogs(ctx context.Context, universeId, placeId, versionId, taskId string, opts *Options) (*LuauExecutionTaskLogs, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s/versions/%s/luau-execution-sessions/%s/tasks/%s/logs", universeId, placeId, versionId, taskId, taskId)
+// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-tasks/{task_id}/logs
+//
+// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-tasks/{task_id}/logs
+//
+// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-sessions/{session_id}/tasks/{task_id}/logs
+//
+// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-sessions/{session_id}/tasks/{task_id}/logs
+func (s *LuauExecutionService) ListLuauExecutionSessionTaskLogs(ctx context.Context, universeId, placeId string, versionId, sessionId *string, taskId string, opts *Options) (*LuauExecutionTaskLogs, *Response, error) {
+	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s", universeId, placeId)
+
+	if versionId != nil {
+		u += fmt.Sprintf("/versions/%s", *versionId)
+	}
+
+	if sessionId != nil {
+		u += fmt.Sprintf("/luau-execution-sessions/%s/tasks/%s", *sessionId, taskId)
+	} else {
+		u += fmt.Sprintf("/luau-execution-tasks/%s", taskId)
+	}
 
 	u, err := addOpts(u, opts)
 	if err != nil {

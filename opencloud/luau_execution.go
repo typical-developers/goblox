@@ -4,6 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"regexp"
+)
+
+var (
+	// https://regex101.com/r/8SofBV/1
+	LuauExecutionTaskPathRegex = regexp.MustCompile(`universes/(?<UniverseID>\d+)\/places\/(?<PlaceID>\d+)\/(versions\/(?<VersionID>\d+)\/)?(luau-execution-sessions\/(?<SessionID>.+)?\/tasks\/(?<TaskID>.+)|(luau-execution-session-tasks\/(?<TaskID>.+)))`)
 )
 
 // LuauExecutionService will handle communciation with the actions related to the API.
@@ -56,6 +62,58 @@ type LuauExecutionTask struct {
 	BinaryInput         string                   `json:"binaryInput"`
 	EnabledBinaryOutput bool                     `json:"enabledBinaryOutput"`
 	BinaryOutputURI     string                   `json:"binaryOutputUri"`
+}
+
+func getInfo(path string) map[string]string {
+	match := LuauExecutionTaskPathRegex.FindStringSubmatch(path)
+	results := make(map[string]string)
+
+	if match == nil {
+		return results
+	}
+
+	for i, name := range LuauExecutionTaskPathRegex.SubexpNames() {
+		value := match[i]
+		if value == "" {
+			continue
+		}
+
+		results[name] = value
+	}
+
+	return results
+}
+
+// TaskInfo will return information from the URL path for the task.
+// This is useful for GetLuauExecutionSessionTask when polling the method.
+//
+// universeId, placeId, and taskId will always be present.
+// versionId and sessionId may or may not be present.
+//
+// Values return in this order:
+// (universeId, placeId, *versionId, *sessionId, taskId)
+func (t *LuauExecutionTask) TaskInfo() (string, string, *string, *string, string) {
+	info := getInfo(t.Path)
+
+	var universeId, placeId, taskId string
+	var versionId, sessionId *string
+
+	for key, value := range info {
+		switch key {
+		case "UniverseID":
+			universeId = value
+		case "PlaceID":
+			placeId = value
+		case "VersionID":
+			versionId = &value
+		case "SessionID":
+			sessionId = &value
+		case "TaskID":
+			taskId = value
+		}
+	}
+
+	return universeId, placeId, versionId, sessionId, taskId
 }
 
 type LuauExecutionTaskCreate struct {

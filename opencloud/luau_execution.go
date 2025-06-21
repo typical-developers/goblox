@@ -74,7 +74,7 @@ func getInfo(path string) map[string]string {
 
 	for i, name := range LuauExecutionTaskPathRegex.SubexpNames() {
 		value := match[i]
-		if value == "" {
+		if name == "" || value == "" {
 			continue
 		}
 

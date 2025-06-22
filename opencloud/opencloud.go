@@ -152,16 +152,6 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v any) (*Response, e
 	return response, err
 }
 
-type Options struct {
-	MaxPageSize int    `url:"maxPageSize,omitempty"`
-	PageToken   string `url:"pageToken,omitempty"`
-}
-
-type OptionsWithFilter struct {
-	Options
-	Filter string `url:"filter,omitempty"`
-}
-
 func addOpts(urlString string, opts any) (string, error) {
 	v := reflect.ValueOf(opts)
 	if v.Kind() == reflect.Ptr && v.IsNil() {
@@ -180,15 +170,4 @@ func addOpts(urlString string, opts any) (string, error) {
 
 	u.RawQuery = q.Encode()
 	return u.String(), nil
-}
-
-type OperationResponse map[string]any
-
-type OperationMetadata map[string]any
-
-type Operation struct {
-	Path     string            `json:"path"`
-	Done     bool              `json:"done"`
-	Response OperationResponse `json:"response"`
-	Metadata OperationMetadata `json:"metadata"`
 }

@@ -57,7 +57,7 @@ func main() {
         // Processing means the task is currently being executed.
         // 
         // Only handle the data if the task is done being executed.
-        if task.State != LuauExecutionStateProcessing && task.State != LuauExecutionStateQueued {
+        if task.State != opencloud.LuauExecutionStateProcessing && task.State != opencloud.LuauExecutionStateQueued {
             if task.Output != nil && len(task.Output.Results) > 0 {
                 result = task.Output.Results[0].(int)
             }

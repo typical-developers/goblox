@@ -41,7 +41,7 @@ func main() {
 
     // Finally, we poll the task until it's complete and set the reuslt / error in our variables above.
 	methodutil.PollMethod(func(done func()) {
-		task, resp, err := Opencloud.LuauExecution.GetLuauExecutionSessionTask(ctx, universeId, placeId, versionId, sessionId, taskId)
+		task, resp, err := client.LuauExecution.GetLuauExecutionSessionTask(ctx, universeId, placeId, versionId, sessionId, taskId)
         if err != nil {
             taskError = err
             done()

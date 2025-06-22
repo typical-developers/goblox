@@ -48,10 +48,11 @@ type Client struct {
 	BaseURL *url.URL
 
 	// v2 Opencloud API services
-	LuauExecution     *LuauExecutionService
-	Monetization      *MonetizationService
-	UniverseAndPlaces *UniverseAndPlacesService
-	UserAndGroups     *UserAndGroupsService
+	DataAndMemoryStore *DataAndMemoryStoreService
+	LuauExecution      *LuauExecutionService
+	Monetization       *MonetizationService
+	UniverseAndPlaces  *UniverseAndPlacesService
+	UserAndGroups      *UserAndGroupsService
 }
 
 type Response struct {
@@ -97,6 +98,7 @@ func (c *Client) init() *Client {
 
 	c.BaseURL, _ = url.Parse(baseURL)
 
+	c.DataAndMemoryStore = (*DataAndMemoryStoreService)(&c.common)
 	c.LuauExecution = (*LuauExecutionService)(&c.common)
 	c.Monetization = (*MonetizationService)(&c.common)
 	c.UniverseAndPlaces = (*UniverseAndPlacesService)(&c.common)
@@ -178,4 +180,15 @@ func addOpts(urlString string, opts any) (string, error) {
 
 	u.RawQuery = q.Encode()
 	return u.String(), nil
+}
+
+type OperationResponse map[string]any
+
+type OperationMetadata map[string]any
+
+type Operation struct {
+	Path     string            `json:"path"`
+	Done     bool              `json:"done"`
+	Response OperationResponse `json:"response"`
+	Metadata OperationMetadata `json:"metadata"`
 }

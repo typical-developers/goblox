@@ -48,12 +48,16 @@ func main() {
             return
         }
 
-        // Keep polling if the ratelimit is exhausted.
+        // Keeps polling if the ratelimit is exhausted.
         if resp.StatusCode == 429 {
             return
         }
 
-        if task.State == opencloud.LuauExecutionStateComplete {
+        // Queued means the task is still pending to be executed.
+        // Processing means the task is currently being executed.
+        // 
+        // Only handle the data if the task is done being executed.
+        if task.State != LuauExecutionStateProcessing && task.State != LuauExecutionStateQueued {
             if task.Output != nil && len(task.Output.Results) > 0 {
                 result = task.Output.Results[0].(int)
             }

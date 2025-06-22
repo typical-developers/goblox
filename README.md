@@ -23,7 +23,7 @@ func main() {
     ctx := context.Background()
     client := opencloud.NewClientWithAPIKey("YOUR_API_KEY")
 
-    user, resp, err := client.UserandGroups.GetUser(ctx, "UNIVERSE_ID", "USER_ID")
+    user, resp, err := client.UserandGroups.GetUser(ctx, "USER_ID")
     if err != nil {
         panic(err)
     }
@@ -47,7 +47,7 @@ func main() {
     ctx := context.Background()
     client := opencloud.NewClientWithOAuth("YOUR_OAUTH_TOKEN")
 
-    user, resp, err := client.UserandGroups.GetUser(ctx, "UNIVERSE_ID", "USER_ID")
+    user, resp, err := client.UserandGroups.GetUser(ctx, "USER_ID")
     if err != nil {
         panic(err)
     }

@@ -406,9 +406,9 @@ type MemoryStoreQueueItem struct {
 }
 
 type MemoryStoreQueueItemCreate struct {
-	Data     any    `json:"data"`
-	Priority int    `json:"priority"`
-	TTL      string `json:"ttl"`
+	Data     any    `json:"data,omitempty"`
+	Priority int    `json:"priority,omitempty"`
+	TTL      string `json:"ttl,omitempty"`
 }
 
 // CreateMemoryStoreQueueItem will create a new item in the memory store queue for a specific universe.
@@ -718,7 +718,7 @@ func (s *DataAndMemoryStoreService) ListOrderedDataStoreEntries(ctx context.Cont
 }
 
 type OrderedDataStoreEntryCreate struct {
-	Value int `json:"value"`
+	Value int `json:"value,omitempty"`
 }
 
 type OrderedDataStoreEntryCreateOptions struct {

@@ -1,27 +1,60 @@
 # goblox
-A Golang wrapper for the Roblox API. Supports Opencloud and Legacy APIs.
+Goblox is a Go library for accessing Roblox's Open Cloud & Legacy APIs.
 
-## Examples 📝
-### Opencloud
+> [!CAUTION]
+> This library is still in development and is not considered stable.
+> If you want to contribute, feel free to open a PR.
+
+## ☁️ Opencloud Basic Usage
+More in-depth documentation will be added sometime in the future.
+
+### With API Key
 ```go
 package main
 
 import (
-	"github.com/typical-developers/goblox/opencloud"
+    "context"
+    "fmt"
+
+    "github.com/typical-developers/goblox/opencloud"
 )
 
 func main() {
-    // Set your opencloud API token
-    opencloud.SetAPIToken("YOUR_API_TOKEN")
+    ctx := context.Background()
+    client := opencloud.NewClientWithAPIKey("YOUR_API_KEY")
 
-    // In this example, we will be fetching information for a Universe.
-    // Your scopes must have universe.place:write for this to work.
-    universe, _ := opencloud.GetUniverse("UNIVERSE_ID")
-    println(universe.DisplayName) // Name of the Universe.
+    user, resp, err := client.UserandGroups.GetUser(ctx, "UNIVERSE_ID", "USER_ID")
+    if err != nil {
+        panic(err)
+    }
+
+    fmt.Println(user, resp.StatusCode)
 }
 ```
-### Legacy API
-Legacy API is a work in progress.
 
-## Other Features ✨
-Coming soon!
+### With OAuth Token
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+
+    "github.com/typical-developers/goblox/opencloud"
+)
+
+func main() {
+    ctx := context.Background()
+    client := opencloud.NewClientWithOAuth("YOUR_OAUTH_TOKEN")
+
+    user, resp, err := client.UserandGroups.GetUser(ctx, "UNIVERSE_ID", "USER_ID")
+    if err != nil {
+        panic(err)
+    }
+
+    fmt.Println(user, resp.StatusCode)
+}
+```
+
+## 📥 Legacy API Basic Usage
+Legacy API support will be added in the future.

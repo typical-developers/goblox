@@ -1,11 +1,11 @@
-# Goblox
-Goblox is a Go library for accessing the Roblox Open Cloud API & Roblox Legacy API.
+# goblox
+Goblox is a Go library for accessing Roblox's Open Cloud & Legacy APIs.
 
 > [!CAUTION]
 > This library is still in development and is not considered stable.
 > If you want to contribute, feel free to open a PR.
 
-## Basic Usage
+## ☁️ Opencloud Basic Usage
 More in-depth documentation will be added sometime in the future.
 
 ### With API Key
@@ -55,3 +55,6 @@ func main() {
     fmt.Println(user, resp.StatusCode)
 }
 ```
+
+## 📥 Legacy API Basic Usage
+Legacy API support will be added in the future.

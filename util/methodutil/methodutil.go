@@ -9,8 +9,8 @@ import (
 // The method will be called at a specified interval. The data returned should be a pointer.
 // The handler will return a function method to be called when the desired condition is met.
 //
-// If the interval is nil or 0, it will default to 5 seconds.
-func PollMethod[T any](method func() *T, handler func(*T, func()), interval time.Duration) {
+// If the interval is 0, it will default to 5 seconds.
+func PollMethod(method func(func()), interval time.Duration) {
 	if interval == 0 {
 		interval = 5 * time.Second
 	}
@@ -26,8 +26,7 @@ func PollMethod[T any](method func() *T, handler func(*T, func()), interval time
 	for {
 		select {
 		case <-ticker.C:
-			data := method()
-			handler(data, done)
+			method(done)
 		case <-finished:
 			return
 		}

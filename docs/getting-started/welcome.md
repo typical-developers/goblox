@@ -3,6 +3,10 @@ Goblox is a Go library that makes accessing Roblox's OpenCloud & Legacy APIs wit
 
 It supports ALL OpenCloud V2 APIs with V1 OpenCloud APIs & Legacy APIs coming sometime in the future.
 
+::: warning
+This library is still in development and should not be considered stable. If you want to contribute, feel free to open a PR!
+:::
+
 ## Installation
 ::: info
 Go 1.18 or newer is required.

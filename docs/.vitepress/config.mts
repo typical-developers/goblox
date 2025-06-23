@@ -14,8 +14,8 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Introduction', link: '/getting-started/welcome' },
-      { text: 'Documentation', link: '/documentation/opencloud/common' },
       { text: 'Guides', link: '/guides/authorizing/opencloud-authentication' },
+      { text: 'Documentation', link: '/documentation/opencloud/common' },
     ],
 
     sidebar: [

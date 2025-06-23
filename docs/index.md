@@ -10,12 +10,12 @@ hero:
     - theme: brand
       text: What is Goblox?
       link: /getting-started/welcome
-    # - theme: alt
-    #   text: Guides
-    #   link: /guides/opencloud/client
     - theme: alt
-      text: Packages
-      link: /packages/methodutil
+      text: Guides
+      link: /guides/authorizing/opencloud-authentication
+    - theme: alt
+      text: Documentation
+      link: /documentation/opencloud/common
 
 features:
   # - icon: ☁️

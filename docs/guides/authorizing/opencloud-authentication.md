@@ -50,7 +50,7 @@ func main() {
     ctx := context.Background()
     authedClient := client.WithOAuthToken("YOUR_OAUTH_TOKEN")
 
-    user, resp, err := client.UserAndGroups.GetUser(ctx, "USER_ID")
+    user, resp, err := authedClient.UserAndGroups.GetUser(ctx, "USER_ID")
     if err != nil {
         panic(err)
     }

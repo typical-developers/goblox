@@ -23,7 +23,7 @@ import (
 
 func main() {
     ctx := context.Background()
-    client := opencloud.NewClientWithAPIKey("YOUR_API_KEY")
+    client := opencloud.NewClient().WithAPIKey("YOUR_API_KEY")
 
     var result int
     var taskError error

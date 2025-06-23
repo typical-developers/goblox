@@ -28,6 +28,6 @@ import (
 )
 
 func main() {
-    client := opencloud.NewClientWithAPIKey("YOUR_API_KEY")
+    client := opencloud.NewClient().WithAPIKey("YOUR_API_KEY")
 }
 ```

@@ -7,16 +7,55 @@ Scripts can run engine methods regardless of the scopes granted. For example, it
 
 ## Variables
 ### `LuauExecutionTaskPathRegex`
-This regex is used to parse the URL of a path to grab the `UniverseID`, `PlaceID`, `VersionID`, `SessionID`, and `TaskID`. It is used by the [`TaskInfo`](/documentation/opencloud/luau-execution#luauexecutiontask) utility method, but is exposed for anyone to use it.
+This regex is used to parse the URL of a path to grab the `UniverseID`, `PlaceID`, `VersionID`, `SessionID`, and `TaskID`. It is used by the [`LuauExecutionTask.TaskInfo()`](#taskinfo) method.
 ```go
 regexp.MustCompile(`universes/(?<UniverseID>\d+)\/places\/(?<PlaceID>\d+)\/(versions\/(?<VersionID>\d+)\/)?(luau-execution-sessions\/(?<SessionID>.+)?\/tasks\/(?<TaskID>.+)|(luau-execution-session-tasks\/(?<TaskID>.+)))`)
 ```
 
-## Constants
-### `LuauExecutionState`
+## Methods
+### `CreateLuauExecutionSessionTask` <Badge type="info" text="universe.place.luau-execution-session:write" />
 ```go
-type LuauExecutionState string
+func CreateLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId *string, data LuauExecutionTaskCreate) (*LuauExecutionTask, *Response, error)
+```
+##### Parameters
+| Parameter | Value | Description | Required |
+|-----------|-------|-------------| -------- |
+| ctx | context.Context | The background context. | true |
+| universeId | string | The Universe ID of the experience. | true |
+| placeId | string | The Place ID for the universe. | true |
+| versionId | string | The Version ID of the place. | false |
+| data | [LuauExecutionTaskCreate](#luauexecutiontaskcreate) | The data to send to the API. | true |
+### `GetLuauExecutionSessionTask` <Badge type="info" text="universe.place.luau-execution-session:read" />
+```go
+func GetLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId, sessionId *string, taskId string) (*LuauExecutionTask, *Response, error)
+```
+##### Parameters
+| Parameter | Value | Description | Required |
+|-----------|-------|-------------| -------- |
+| ctx | context.Context | The background context. | true |
+| universeId | string | The Universe ID of the experience. | true |
+| placeId | string | The Place ID for the universe. | true |
+| versionId | string | The Version ID of the place. | false |
+| sessionId | string | The Session ID of the task. | false |
+| taskId | string | The Task ID of the task. | true |
+### `ListLuauExecutionSessionTaskLogs` <Badge type="info" text="universe.place.luau-execution-session:read" />
+```go
+func ListLuauExecutionSessionTaskLogs(ctx context.Context, universeId, placeId string, versionId, sessionId *string, taskId string, opts *Options) (*LuauExecutionTaskLogs, *Response, error)
+```
+##### Parameters
+| Parameter | Value | Description | Required |
+|-----------|-------|-------------| -------- |
+| ctx | context.Context | The background context. | true |
+| universeId | string | The Universe ID of the experience. | true |
+| placeId | string | The Place ID for the universe. | true |
+| versionId | string | The Version ID of the place. | false |
+| sessionId | string | The Session ID of the task. | false |
+| taskId | string | The Task ID of the task. | true |
+| opts | [Options](/documentation/opencloud/common.html#options) | The options to send to the API. | false |
 
+## Constants
+### `LuauExecutionState` <Badge type="tip" text="string" />
+```go
 const (
 	LuauExecutionStateUnspecified LuauExecutionState = "STATE_UNSPECIFIED"
 	LuauExecutionStateQueued      LuauExecutionState = "QUEUED"
@@ -26,10 +65,8 @@ const (
 	LuauExecutionStateFailed      LuauExecutionState = "FAILED"
 )
 ```
-### `LuauExecutionErrorCode`
+### `LuauExecutionErrorCode` <Badge type="tip" text="string" />
 ```go
-type LuauExecutionErrorCode string
-
 const (
 	LuauExecutionErrorCodeUnspecified             LuauExecutionErrorCode = "ERROR_CODE_UNSPECIFIED"
 	LuauExecutionErrorCodeScriptError             LuauExecutionErrorCode = "SCRIPT_ERROR"
@@ -38,10 +75,8 @@ const (
 	LuauExecutionErrorCodeInternalError           LuauExecutionErrorCode = "INTERNAL_ERROR"
 )
 ```
-### `StructuredMessageType`
+### `StructuredMessageType` <Badge type="tip" text="string" />
 ```go
-type StructuredMessageType string
-
 const (
 	StructuredMessageTypeUnspecified StructuredMessageType = "MESSAGE_TYPE_UNSPECIFIED"
 	StructuredMessageTypeOutput      StructuredMessageType = "OUTPUT"
@@ -81,14 +116,14 @@ type LuauExecutionTask struct {
 	EnabledBinaryOutput bool                     `json:"enabledBinaryOutput"`
 	BinaryOutputURI     string                   `json:"binaryOutputUri"`
 }
-
-// TaskInfo will return information from the URL path for the task.
-// This is useful for GetLuauExecutionSessionTask when polling the method.
-//
-// universeId, placeId, and taskId will always be present.
-// versionId and sessionId may or may not be nil.
+```
+#### `TaskInfo`
+This method will return information from the URL path for the task.
+This is useful for [`GetLuauExecutionSessionTask`](#getluauexecutionsessiontask) when polling the method.
+```go
 func (t *LuauExecutionTask) TaskInfo() (universeId string, placeId string, versionId *string, sessionId *string, taskId string)
 ```
+
 ### `LuauExecutionTaskCreate`
 ```go
 type LuauExecutionTaskCreate struct {

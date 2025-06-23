@@ -44,6 +44,7 @@ export default defineConfig({
             text: "OpenCloud",
             items: [
               { text: "Common", link: "/documentation/opencloud/common" },
+              { text: 'Luau Execution', link: '/documentation/opencloud/luau-execution' },
             ]
           }
         ]

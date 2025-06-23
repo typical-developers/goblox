@@ -19,7 +19,7 @@ import (
 
 func main() {
     ctx := context.Background()
-    client := opencloud.NewClientWithAPIKey("YOUR_API_KEY")
+    client := opencloud.NewClient().WithAPIKey("YOUR_API_KEY")
 
     user, resp, err := client.UserAndGroups.GetUser(ctx, "USER_ID")
     if err != nil {
@@ -42,9 +42,13 @@ import (
     "github.com/typical-developers/goblox/opencloud"
 )
 
+var (
+    client = opencloud.NewClient()
+)
+
 func main() {
     ctx := context.Background()
-    client := opencloud.NewClientWithOAuth("YOUR_OAUTH_TOKEN")
+    authedClient := client.WithOAuthToken("YOUR_OAUTH_TOKEN")
 
     user, resp, err := client.UserAndGroups.GetUser(ctx, "USER_ID")
     if err != nil {

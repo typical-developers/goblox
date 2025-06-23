@@ -15,7 +15,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Introduction', link: '/getting-started/welcome' },
       { text: 'Documentation', link: '/documentation/opencloud/common' },
-      { text: 'Guides', link: '/guides/authorizing' },
+      { text: 'Guides', link: '/guides/authorizing/opencloud-authentication' },
     ],
 
     sidebar: [

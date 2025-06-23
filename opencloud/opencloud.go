@@ -21,6 +21,20 @@ type service struct {
 	client *Client
 }
 
+type Client struct {
+	client *http.Client
+	common service
+
+	BaseURL *url.URL
+
+	// v2 Opencloud API services
+	DataAndMemoryStore *DataAndMemoryStoreService
+	LuauExecution      *LuauExecutionService
+	Monetization       *MonetizationService
+	UniverseAndPlaces  *UniverseAndPlacesService
+	UserAndGroups      *UserAndGroupsService
+}
+
 type APIKeyRoundTripper struct {
 	APIKey    string
 	Transport http.RoundTripper
@@ -41,53 +55,14 @@ func (c *OAuthRoundTripper) RoundTrip(req *http.Request) (*http.Response, error)
 	return c.Transport.RoundTrip(req)
 }
 
-type Client struct {
-	client *http.Client
-	common service
-
-	BaseURL *url.URL
-
-	// v2 Opencloud API services
-	DataAndMemoryStore *DataAndMemoryStoreService
-	LuauExecution      *LuauExecutionService
-	Monetization       *MonetizationService
-	UniverseAndPlaces  *UniverseAndPlacesService
-	UserAndGroups      *UserAndGroupsService
-}
-
-type Response struct {
-	*http.Response
-}
-
-// NewClientWithAPIKey will use an API key to authenticate with the Opencloud API.
+// NewClient will create a completely new client.
+// To authenticate with the Opencloud API, you can use the WithAPIKey or WithOAuthToken methods.
 //
-// You can create a new API key at: https://create.roblox.com/dashboard/credentials?activeTab=ApiKeysTab
-func NewClientWithAPIKey(apiKey string) *Client {
+// WithAPIKey will use an API key that you created for your experience.
+// WithOAuthToken should be used for OAuth applications that are athenticated.
+func NewClient() *Client {
 	c := &Client{
-		client: &http.Client{
-			Transport: &APIKeyRoundTripper{
-				APIKey:    apiKey,
-				Transport: http.DefaultTransport,
-			},
-		},
-	}
-
-	return c.init()
-}
-
-// TODO: Implement automatic OAuth token refreshing.
-//
-// NewClientWithOAuth will use an OAuth token to authenticate with the Opencloud API.
-//
-// The token must be from the user that authenticated.
-func NewClientWithOAuth(token string) *Client {
-	c := &Client{
-		client: &http.Client{
-			Transport: &OAuthRoundTripper{
-				OAuthToken: token,
-				Transport:  http.DefaultTransport,
-			},
-		},
+		client: http.DefaultClient,
 	}
 
 	return c.init()
@@ -103,6 +78,30 @@ func (c *Client) init() *Client {
 	c.Monetization = (*MonetizationService)(&c.common)
 	c.UniverseAndPlaces = (*UniverseAndPlacesService)(&c.common)
 	c.UserAndGroups = (*UserAndGroupsService)(&c.common)
+
+	return c
+}
+
+// WithAPIKey will use an API key to authenticate with the Opencloud API.
+//
+// You can create a new API key at: https://create.roblox.com/dashboard/credentials?activeTab=ApiKeysTab
+func (c *Client) WithAPIKey(apiKey string) *Client {
+	c.client.Transport = &APIKeyRoundTripper{
+		APIKey:    apiKey,
+		Transport: http.DefaultTransport,
+	}
+
+	return c
+}
+
+// WithOAuthToken will use an OAuth token to authenticate with the Opencloud API.
+//
+// You can create a new OAuth client at: https://create.roblox.com/dashboard/credentials?activeTab=OAuthTab
+func (c *Client) WithOAuthToken(token string) *Client {
+	c.client.Transport = &OAuthRoundTripper{
+		OAuthToken: token,
+		Transport:  http.DefaultTransport,
+	}
 
 	return c
 }
@@ -132,6 +131,10 @@ func (c *Client) NewRequest(method, urlString string, body any) (*http.Request, 
 	}
 
 	return req, nil
+}
+
+type Response struct {
+	*http.Response
 }
 
 func (c *Client) Do(ctx context.Context, req *http.Request, v any) (*Response, error) {

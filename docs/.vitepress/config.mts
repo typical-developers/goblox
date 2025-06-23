@@ -4,8 +4,16 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Goblox Documentation",
   description: "Documentation for the Goblox Go library.",
+
+  head: [
+    ['link', { rel: 'icon', href: '/assets/goblox_icon.png' }],
+  ],
+
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    siteTitle: "Goblox",
+    logo: '/assets/goblox_icon.png',
+
     search: {
       provider: 'local',
     },

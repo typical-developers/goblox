@@ -6,7 +6,7 @@ This is a utility method that allows you to poll a method until it returns a des
 
 This is useful for endpoints that asynchronously run. A good example of this is the [LuauExecutionSessionTask](https://create.roblox.com/docs/en-us/cloud/reference/LuauExecutionSessionTask) API for asynchronously running Luau code in your experience.
 
-Some APIs will return an `Operation` result with a path instead that you can poll until it's complete.
+Some APIs will return an [`Operation`](/documentation/opencloud/common#operation) result with a path instead that you can poll until it's complete.
 
 ### Example
 In this example, we will run Luau code in our experience that gets the sum of 1 + 2.

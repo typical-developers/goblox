@@ -6,11 +6,16 @@ export default defineConfig({
   description: "Documentation for the Goblox Go library.",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    search: {
+      provider: 'local',
+    },
+    outline: [2, 4],
+    
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Introduction', link: '/getting-started/welcome' },
-      { text: 'Guides', link: '/guides/opencloud/client' },
-      { text: 'Packages', link: '/getting-started/packages/methodutil' },
+      { text: 'Documentation', link: '/documentation/opencloud/common' },
+      { text: 'Guides', link: '/guides/authorizing' },
     ],
 
     sidebar: [
@@ -18,29 +23,35 @@ export default defineConfig({
         text: 'Introduction',
         items: [
           { text: 'About Goblox', link: '/getting-started/welcome' },
+        ],
+      },
+      {
+        text: 'Guides',
+        items: [
           {
             text: 'Authorizing',
             items: [
-              { text: 'Opencloud Authentication', link: '/getting-started/authorizing/opencloud-authentication' },
-              // { text: 'Legacy  Authentication', link: '/getting-started/authorizing/legacy-authentication' },
+              { text: 'Opencloud Authentication', link: '/guides/authorizing/opencloud-authentication' },
+              // { text: 'Legacy  Authentication', link: '/guides/authorizing/legacy-authentication' },
             ]
           }
-        ],
+        ]
       },
-      // {
-      //   text: 'Guides',
-      //   items: [
-      //     {
-      //       text: 'OpenCloud',
-      //       items: [
-      //       ]
-      //     },
-      //   ]
-      // },
+      {
+        text: "Documentation",
+        items: [
+          {
+            text: "OpenCloud",
+            items: [
+              { text: "Common", link: "/documentation/opencloud/common" },
+            ]
+          }
+        ]
+      },
       {
         text: 'Packages',
         items: [
-          { text: 'methodutil', link: '/getting-started/packages/methodutil' },
+          { text: 'methodutil', link: '/packages/methodutil' },
         ]
       }
     ],

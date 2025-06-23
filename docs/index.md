@@ -15,7 +15,7 @@ hero:
     #   link: /guides/opencloud/client
     - theme: alt
       text: Packages
-      link: /getting-started/packages/methodutil
+      link: /packages/methodutil
 
 features:
   # - icon: ☁️

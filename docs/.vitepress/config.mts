@@ -6,13 +6,13 @@ export default defineConfig({
   description: "Documentation for the Goblox Go library.",
 
   head: [
-    ['link', { rel: 'icon', href: '/assets/goblox_icon.png' }],
+    ['link', { rel: 'icon', href: '/goblox_icon.png' }],
   ],
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     siteTitle: "Goblox",
-    logo: '/assets/goblox_icon.png',
+    logo: '/goblox_icon.png',
 
     search: {
       provider: 'local',

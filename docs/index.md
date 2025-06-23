@@ -7,7 +7,7 @@ hero:
   text: "Roblox Opencloud & Legacy APIs."
   tagline: Easily integrate Roblox's APIs into your Go projects.
   image:
-    src: /assets/goblox_icon.png
+    src: /goblox_icon.png
     alt: Goblox
   actions:
     - theme: brand

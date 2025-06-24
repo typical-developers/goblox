@@ -2,13 +2,16 @@ package opencloud
 
 // --- Response Structures
 
-type OperationResponse map[string]any
+type OperationResponse any
 
-type OperationMetadata map[string]any
+type OperationError any
+
+type OperationMetadata any
 
 type Operation struct {
 	Path     string            `json:"path"`
 	Done     bool              `json:"done"`
+	Error    *OperationError   `json:"error,omitempty"`
 	Response OperationResponse `json:"response"`
 	Metadata OperationMetadata `json:"metadata"`
 }

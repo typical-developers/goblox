@@ -30,12 +30,20 @@ type AssetCreator struct {
 }
 
 type AssetCreationContext struct {
-	Creator       AssetCreator `json:"creator,omitempty"`
-	ExpectedPrice int          `json:"expectedPrice,omitempty"`
+	Creator       AssetCreator `json:"creator"`
+	ExpectedPrice int          `json:"expectedPrices"`
 }
 
+type AssetModerationState string
+
+const (
+	AssetModerationStateReviewing AssetModerationState = "Reviewing"
+	AssetModerationStateRejected  AssetModerationState = "Rejected"
+	AssetModerationStateApproved  AssetModerationState = "Approved"
+)
+
 type AssetModerationResult struct {
-	ModerationState string `json:"moderationState"`
+	ModerationState AssetModerationState `json:"moderationState"`
 }
 
 type AssetPreview struct {
@@ -49,15 +57,15 @@ type AssetSocialLink struct {
 }
 
 type AssetSocialLinks struct {
-	FacebookSocialLink *AssetSocialLink `json:"facebookSocialLink"`
-	TwitterSocialLink  *AssetSocialLink `json:"twitterSocialLink"`
-	YouTubeSocialLink  *AssetSocialLink `json:"youtubeSocialLink"`
-	TwitchSocialLink   *AssetSocialLink `json:"twitchSocialLink"`
-	DiscordSocialLink  *AssetSocialLink `json:"discordSocialLink"`
-	GitHubSocialLink   *AssetSocialLink `json:"githubSocialLink"`
-	RobloxSocialLink   *AssetSocialLink `json:"robloxSocialLink"`
-	GuildedSocialLink  *AssetSocialLink `json:"guildedSocialLink"`
-	DevForumSocialLink *AssetSocialLink `json:"devForumSocialLink"`
+	FacebookSocialLink *AssetSocialLink `json:"facebookSocialLink,omitempty"`
+	TwitterSocialLink  *AssetSocialLink `json:"twitterSocialLink,omitempty"`
+	YouTubeSocialLink  *AssetSocialLink `json:"youtubeSocialLink,omitempty"`
+	TwitchSocialLink   *AssetSocialLink `json:"twitchSocialLink,omitempty"`
+	DiscordSocialLink  *AssetSocialLink `json:"discordSocialLink,omitempty"`
+	GitHubSocialLink   *AssetSocialLink `json:"githubSocialLink,omitempty"`
+	RobloxSocialLink   *AssetSocialLink `json:"robloxSocialLink,omitempty"`
+	GuildedSocialLink  *AssetSocialLink `json:"guildedSocialLink,omitempty"`
+	DevForumSocialLink *AssetSocialLink `json:"devForumSocialLink,omitempty"`
 }
 
 type Asset struct {
@@ -77,10 +85,10 @@ type Asset struct {
 }
 
 type AssetCreate struct {
-	AssetType       AssetType            `json:"assetType,omitempty"`
-	DisplayAnme     string               `json:"displayName,omitempty"`
-	Description     string               `json:"description,omitempty"`
-	CreationContext AssetCreationContext `json:"creationContext,omitempty"`
+	AssetType       *AssetType            `json:"assetType,omitempty"`
+	DisplayAnme     *string               `json:"displayName,omitempty"`
+	Description     *string               `json:"description,omitempty"`
+	CreationContext *AssetCreationContext `json:"creationContext,omitempty"`
 }
 
 // CreateAsset will create a new asset.
@@ -175,17 +183,18 @@ func (s *AssetsService) GetAsset(ctx context.Context, assetId string, opts *Asse
 }
 
 type AssetUpdate struct {
-	AssetType       AssetType            `json:"assetType,omitempty"`
-	AssetID         string               `json:"assetId,omitempty"`
-	DisplayName     string               `json:"displayName,omitempty"`
-	Description     string               `json:"description,omitempty"`
-	CreationContext AssetCreationContext `json:"creationContext,omitempty"`
-	Previews        []AssetPreview       `json:"previews,omitempty"`
+	AssetType       *AssetType            `json:"assetType,omitempty"`
+	AssetID         *string               `json:"assetId,omitempty"`
+	DisplayName     *string               `json:"displayName,omitempty"`
+	Description     *string               `json:"description,omitempty"`
+	CreationContext *AssetCreationContext `json:"creationContext,omitempty"`
+	Previews        []*AssetPreview       `json:"previews,omitempty"`
+	AssetSocialLinks
 }
 
 type AssetUpdateOptions struct {
-	AssetID     string `url:"assetId,omitempty"`
-	UpdateMasdk string `url:"updateMask,omitempty"`
+	AssetID     *string `url:"assetId,omitempty"`
+	UpdateMasdk *string `url:"updateMask,omitempty"`
 }
 
 // UpdateAsset will update an asset's metadata or contents.
@@ -367,7 +376,7 @@ func (s *AssetsService) GetAssetVersions(ctx context.Context, assetId string, op
 }
 
 type AssetVersionRollback struct {
-	AssetVersion string `json:"assetVersion"`
+	AssetVersion *string `json:"assetVersion,omitempty"`
 }
 
 // RollbackAssetVersion will rollback an asset's version to a specified version.

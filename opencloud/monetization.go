@@ -42,10 +42,10 @@ type CreatorStoreProduct struct {
 }
 
 type CreatorStoreProductCreate struct {
-	BasePrice     CreatorStoreProductPrice `json:"basePrice,omitempty"`
-	PurchasePrice CreatorStoreProductPrice `json:"purchasePrice,omitempty"`
-	Published     bool                     `json:"published,omitempty"`
-	ModelAssetID  string                   `json:"modelAssetId,omitempty"`
+	BasePrice     *CreatorStoreProductPrice `json:"basePrice,omitempty"`
+	PurchasePrice *CreatorStoreProductPrice `json:"purchasePrice,omitempty"`
+	Published     *bool                     `json:"published,omitempty"`
+	ModelAssetID  *string                   `json:"modelAssetId,omitempty"`
 }
 
 // CreateCreatorStoreProduct will create a new store product on the creator store.
@@ -97,9 +97,9 @@ func (s *MonetizationService) GetCreatorStoreProduct(ctx context.Context, produc
 }
 
 type CreatorStoreProductUpdate struct {
-	BasePrice     CreatorStoreProductPrice `json:"basePrice,omitempty"`
-	PurchasePrice CreatorStoreProductPrice `json:"purchasePrice,omitempty"`
-	Published     bool                     `json:"published,omitempty"`
+	BasePrice     *CreatorStoreProductPrice `json:"basePrice,omitempty"`
+	PurchasePrice *CreatorStoreProductPrice `json:"purchasePrice,omitempty"`
+	Published     *bool                     `json:"published,omitempty"`
 }
 
 // UpdateCreatorStoreProduct will update information for a specificed store product.
@@ -194,7 +194,7 @@ const (
 )
 
 type SubscriptionOpts struct {
-	View SubscriptionView `url:"view,omitempty"`
+	View *SubscriptionView `url:"view,omitempty"`
 }
 
 // GetSubscription will fetch information on a specificed subscription.

@@ -170,7 +170,7 @@ type PlaceUpdate struct {
 }
 
 type PlaceUpdateOptions struct {
-	UpdateMask string `url:"updateMask,omitempty"`
+	UpdateMask *string `url:"updateMask,omitempty"`
 }
 
 // UpdatePlace will update information for a specified place.
@@ -279,12 +279,12 @@ type UniverseUpdate struct {
 	DisplayName             *string             `json:"displayName,omitempty"`
 	Description             *string             `json:"description,omitempty"`
 	Visibility              *UniverseVisibility `json:"visibility,omitempty"`
-	FacebookSocialLink      *UniverseSocialLink `json:"facebookSocialLink"`
-	TwitterSocialLink       *UniverseSocialLink `json:"twitterSocialLink"`
-	YoutubeSocialLink       *UniverseSocialLink `json:"youtubeSocialLink"`
-	TwitchSocialLink        *UniverseSocialLink `json:"twitchSocialLink"`
-	DiscordSocialLink       *UniverseSocialLink `json:"discordSocialLink"`
-	RobloxGroupSocialLink   *UniverseSocialLink `json:"robloxgroupSocialLink"`
+	FacebookSocialLink      *UniverseSocialLink `json:"facebookSocialLink,omitempty"`
+	TwitterSocialLink       *UniverseSocialLink `json:"twitterSocialLink,omitempty"`
+	YoutubeSocialLink       *UniverseSocialLink `json:"youtubeSocialLink,omitempty"`
+	TwitchSocialLink        *UniverseSocialLink `json:"twitchSocialLink,omitempty"`
+	DiscordSocialLink       *UniverseSocialLink `json:"discordSocialLink,omitempty"`
+	RobloxGroupSocialLink   *UniverseSocialLink `json:"robloxgroupSocialLink,omitempty"`
 	VoiceChatEnabled        *bool               `json:"voiceChatEnabled,omitempty"`
 	PrivateServerPriceRobux *int                `json:"privateServerPriceRobux,omitempty"`
 	DesktopEnabled          *bool               `json:"desktopEnabled,omitempty"`

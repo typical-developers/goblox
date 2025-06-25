@@ -308,7 +308,7 @@ func (s *UserAndGroupsService) ListGroupMemberships(ctx context.Context, groupId
 }
 
 type GroupMembershipUpdate struct {
-	Role string `json:"role,omitempty"`
+	Role *string `json:"role,omitempty"`
 }
 
 // UpdateGroupMemberships will update memberships for a user under a specificed group.
@@ -774,8 +774,8 @@ type UserNotification struct {
 }
 
 type UserNotificationCreate struct {
-	Source  UserNotificationSource  `json:"source,omitempty"`
-	Payload UserNotificationPayload `json:"payload,omitempty"`
+	Source  *UserNotificationSource  `json:"source,omitempty"`
+	Payload *UserNotificationPayload `json:"payload,omitempty"`
 }
 
 // CreateUserNotification will send a notification to a user.
@@ -803,13 +803,13 @@ func (s *UserAndGroupsService) CreateUserNotification(ctx context.Context, userI
 }
 
 type GameJoinRestriction struct {
-	Active             bool   `json:"active"`
-	StartTime          string `json:"startTime"`
-	Duration           string `json:"duration"`
-	PrivateReason      string `json:"privateReason"`
-	DisplayReason      string `json:"displayReason"`
-	ExcludeAltAccounts bool   `json:"excludeAltAccounts"`
-	Inherited          bool   `json:"inherited"`
+	Active             bool    `json:"active"`
+	StartTime          string  `json:"startTime"`
+	Duration           *string `json:"duration,omitempty"`
+	PrivateReason      string  `json:"privateReason"`
+	DisplayReason      string  `json:"displayReason"`
+	ExcludeAltAccounts bool    `json:"excludeAltAccounts"`
+	Inherited          bool    `json:"inherited"`
 }
 
 type UserRestriction struct {
@@ -888,21 +888,21 @@ func (s *UserAndGroupsService) GetUserRestriction(ctx context.Context, universeI
 }
 
 type GameJoinRestrictionUpdate struct {
-	Active             bool   `json:"active,omitempty"`
-	Duration           string `json:"duration,omitempty"`
-	PrivateReason      string `json:"privateReason,omitempty"`
-	DisplayReason      string `json:"displayReason,omitempty"`
-	ExcludeAltAccounts bool   `json:"excludeAltAccounts,omitempty"`
+	Active             *bool   `json:"active,omitempty"`
+	Duration           *string `json:"duration,omitempty"`
+	PrivateReason      *string `json:"privateReason,omitempty"`
+	DisplayReason      *string `json:"displayReason,omitempty"`
+	ExcludeAltAccounts *bool   `json:"excludeAltAccounts,omitempty"`
 }
 
 type UserRestrictionUpdate struct {
-	GameJoinRestriction GameJoinRestrictionUpdate `json:"gameJoinRestriction,omitempty"`
+	GameJoinRestriction *GameJoinRestrictionUpdate `json:"gameJoinRestriction,omitempty"`
 }
 
 type UserRestrictionUpdateOptions struct {
-	UpdateMask           string `url:"updateMask,omitempty"`
-	IdempotencyKey       string `url:"idempotencyKey.key,omitempty"`
-	IdempotencyFirstSent string `url:"idempotencyKey.firstSent,omitempty"`
+	UpdateMask           *string `url:"updateMask,omitempty"`
+	IdempotencyKey       *string `url:"idempotencyKey.key,omitempty"`
+	IdempotencyFirstSent *string `url:"idempotencyKey.firstSent,omitempty"`
 }
 
 // UpdateUserRestriction will update the current user restriction for the specified user under the specified universe or place.

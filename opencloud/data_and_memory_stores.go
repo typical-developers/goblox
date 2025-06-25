@@ -108,7 +108,7 @@ type DataStoreEntriesList struct {
 
 type ListDataStoreEntriesOptions struct {
 	OptionsWithFilter
-	ShowDeleted bool `url:"showDeleted,omitempty"`
+	ShowDeleted *bool `url:"showDeleted,omitempty"`
 }
 
 // ListDataStoreEntries will fetch a list of entries for a specific data store under a specific universe.
@@ -147,14 +147,14 @@ func (s *DataAndMemoryStoreService) ListDataStoreEntries(ctx context.Context, un
 }
 
 type DataStoreEntryCreate struct {
-	Etag       string         `json:"etag,omitempty"`
-	Value      any            `json:"value,omitempty"`
-	Users      []string       `json:"users,omitempty"`
-	Attributes map[string]any `json:"attributes,omitempty"`
+	Etag       *string         `json:"etag,omitempty"`
+	Value      *any            `json:"value,omitempty"`
+	Users      *[]string       `json:"users,omitempty"`
+	Attributes *map[string]any `json:"attributes,omitempty"`
 }
 
 type DataStoreEntryCreateOptions struct {
-	ID string `url:"id,omitempty"`
+	ID *string `url:"id,omitempty"`
 }
 
 // CreateDataStoreEntry will create a new entry for the specified datastore under a specific universe.
@@ -252,14 +252,14 @@ func (s *DataAndMemoryStoreService) DeleteDataStoreEntry(ctx context.Context, un
 }
 
 type DataStoreEntryUpdate struct {
-	Etag       string         `json:"etag,omitempty"`
-	Value      any            `json:"value,omitempty"`
-	Users      []string       `json:"users,omitempty"`
-	Attributes map[string]any `json:"attributes,omitempty"`
+	Etag       *string         `json:"etag,omitempty"`
+	Value      *any            `json:"value,omitempty"`
+	Users      *[]string       `json:"users,omitempty"`
+	Attributes *map[string]any `json:"attributes,omitempty"`
 }
 
 type DataStoreEntryUpdateOpts struct {
-	AllowMissing bool `url:"allowMissing,omitempty"`
+	AllowMissing *bool `url:"allowMissing,omitempty"`
 }
 
 // UpdateDataStoreEntry will update a specified entry for the specified datastore under a specific universe.
@@ -298,9 +298,9 @@ func (s *DataAndMemoryStoreService) UpdateDataStoreEntry(ctx context.Context, un
 }
 
 type DataStoreEntryIncrement struct {
-	Amount     int            `json:"amount,omitempty"`
-	Users      []string       `json:"users,omitempty"`
-	Attributes map[string]any `json:"attributes,omitempty"`
+	Amount     *int            `json:"amount,omitempty"`
+	Users      *[]string       `json:"users,omitempty"`
+	Attributes *map[string]any `json:"attributes,omitempty"`
 }
 
 // IncrementDataStoreEntry will increment the value for a specified entry for the specified datastore under a specific universe.
@@ -406,9 +406,9 @@ type MemoryStoreQueueItem struct {
 }
 
 type MemoryStoreQueueItemCreate struct {
-	Data     any    `json:"data,omitempty"`
-	Priority int    `json:"priority,omitempty"`
-	TTL      string `json:"ttl,omitempty"`
+	Data     *any    `json:"data,omitempty"`
+	Priority *int    `json:"priority,omitempty"`
+	TTL      *string `json:"ttl,omitempty"`
 }
 
 // CreateMemoryStoreQueueItem will create a new item in the memory store queue for a specific universe.
@@ -468,9 +468,9 @@ type MemoryStoreQueueItems struct {
 }
 
 type MemoryStoreQueueItemsOptions struct {
-	Count              int    `url:"count,omitempty"`
-	AllOrNothing       bool   `url:"allOrNothing,omitempty"`
-	InvisibilityWindow string `url:"invisibilityWindow,omitempty"`
+	Count              *int    `url:"count,omitempty"`
+	AllOrNothing       *bool   `url:"allOrNothing,omitempty"`
+	InvisibilityWindow *string `url:"invisibilityWindow,omitempty"`
 }
 
 // ReadMemoryStoreQueueItems will fetch specific item(s) in the memory store queue for a specific universe.
@@ -507,8 +507,8 @@ type MemoryStoreSortedMapItem struct {
 	Value          any     `json:"value"`
 	Etag           string  `json:"etag"`
 	ID             string  `json:"id"`
-	StringSortKey  *string `json:"stringSortKey"`
-	NumericSortKey *int    `json:"numericSortKey"`
+	StringSortKey  *string `json:"stringSortKey,omitempty"`
+	NumericSortKey *int    `json:"numericSortKey,omitempty"`
 }
 
 type MemoryStoreSortedMapList struct {
@@ -518,7 +518,7 @@ type MemoryStoreSortedMapList struct {
 
 type MemoryStoreSortedMapItemListOptions struct {
 	OptionsWithFilter
-	OrderBy string `url:"orderBy,omitempty"`
+	OrderBy *string `url:"orderBy,omitempty"`
 }
 
 // ListMemoryStoreSortedMapItems will fetch a list of memory store map items for a specific sorted map under a specific universe.
@@ -551,10 +551,10 @@ func (s *DataAndMemoryStoreService) ListMemoryStoreSortedMapItems(ctx context.Co
 }
 
 type MemoryStoreSortedMapItemCreate struct {
-	Value         any    `json:"value,omitempty"`
-	TTL           string `json:"ttl,omitempty"`
-	ID            string `json:"id,omitempty"`
-	StringSortKey string `json:"stringSortKey,omitempty"`
+	Value         *any    `json:"value,omitempty"`
+	TTL           *string `json:"ttl,omitempty"`
+	ID            *string `json:"id,omitempty"`
+	StringSortKey *string `json:"stringSortKey,omitempty"`
 }
 
 type MemoryStoreSortedMapItemCreateOptions struct {
@@ -638,10 +638,10 @@ func (s *DataAndMemoryStoreService) DeleteMemoryStoreSortedMapItem(ctx context.C
 }
 
 type MemoryStoreSortedMapItemUpdate struct {
-	Value         any    `json:"value,omitempty"`
-	TTL           string `json:"ttl,omitempty"`
-	ID            string `json:"id,omitempty"`
-	StringSortKey string `json:"stringSortKey,omitempty"`
+	Value         *any    `json:"value,omitempty"`
+	TTL           *string `json:"ttl,omitempty"`
+	ID            *string `json:"id,omitempty"`
+	StringSortKey *string `json:"stringSortKey,omitempty"`
 }
 
 type MemoryStoreSortedMapItemUpdateOpts struct {
@@ -718,11 +718,11 @@ func (s *DataAndMemoryStoreService) ListOrderedDataStoreEntries(ctx context.Cont
 }
 
 type OrderedDataStoreEntryCreate struct {
-	Value int `json:"value,omitempty"`
+	Value *int `json:"value,omitempty"`
 }
 
 type OrderedDataStoreEntryCreateOptions struct {
-	ID string `url:"id,omitempty"`
+	ID *string `url:"id,omitempty"`
 }
 
 // -
@@ -802,11 +802,11 @@ func (s *DataAndMemoryStoreService) DeleteOrderedDataStoreEntry(ctx context.Cont
 }
 
 type OrderedDataStoreEntryUpdate struct {
-	Value int `json:"value,omitempty"`
+	Value *int `json:"value,omitempty"`
 }
 
 type OrderedDataStoreEntryUpdateOpts struct {
-	AllowMissing bool `url:"allowMissing,omitempty"`
+	AllowMissing *bool `url:"allowMissing,omitempty"`
 }
 
 // -
@@ -839,7 +839,7 @@ func (s *DataAndMemoryStoreService) UpdateOrderedDataStoreEntry(ctx context.Cont
 }
 
 type OrderedDataStoreEntryIncrement struct {
-	Amount int `json:"amount,omitempty"`
+	Amount *int `json:"amount,omitempty"`
 }
 
 // -

@@ -19,11 +19,17 @@ type Operation struct {
 // --- Query Options
 
 type Options struct {
-	MaxPageSize int    `url:"maxPageSize,omitempty"`
-	PageToken   string `url:"pageToken,omitempty"`
+	MaxPageSize *int    `url:"maxPageSize,omitempty"`
+	PageToken   *string `url:"pageToken,omitempty"`
 }
 
 type OptionsWithFilter struct {
 	Options
-	Filter string `url:"filter,omitempty"`
+	Filter *string `url:"filter,omitempty"`
+}
+
+/// --- Pointer
+
+func Pointer(v any) *any {
+	return &v
 }

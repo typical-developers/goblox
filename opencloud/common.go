@@ -30,6 +30,6 @@ type OptionsWithFilter struct {
 
 /// --- Pointer
 
-func Pointer(v any) *any {
+func Pointer[T any](v T) *T {
 	return &v
 }

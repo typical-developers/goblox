@@ -127,10 +127,10 @@ func (t *LuauExecutionTask) TaskInfo() (universeId string, placeId string, versi
 ### `LuauExecutionTaskCreate`
 ```go
 type LuauExecutionTaskCreate struct {
-	Script              string `json:"script,omitempty"`
-	Timeout             string `json:"timeout,omitempty"`
-	BinaryInput         string `json:"binaryInput,omitempty"`
-	EnabledBinaryOutput bool   `json:"enabledBinaryOutput,omitempty"`
+	Script              *string `json:"script,omitempty"`
+	Timeout             *string `json:"timeout,omitempty"`
+	BinaryInput         *string `json:"binaryInput,omitempty"`
+	EnabledBinaryOutput *bool   `json:"enabledBinaryOutput,omitempty"`
 }
 ```
 ### `LuauExecutionTaskLogStructuredMessage`

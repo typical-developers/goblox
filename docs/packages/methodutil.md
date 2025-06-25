@@ -30,7 +30,7 @@ func main() {
 
     // First, we create the task with the Luau execution API.
     task, _, err := client.LuauExecution.CreateLuauExecutionSessionTask(ctx, "UNIVERSE_ID", "PLACE_ID", nil, opencloud.LuauExecutionTaskCreate{
-        Script: "return 1 + 2",
+        Script: opencloud.Pointer("return 1 + 2"),
     })
     if err != nil {
         panic(err)

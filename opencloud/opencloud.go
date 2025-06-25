@@ -27,7 +27,12 @@ type Client struct {
 
 	BaseURL *url.URL
 
+	// v1 Opencloud API services
+
+	Assets *AssetsService
+
 	// v2 Opencloud API services
+
 	DataAndMemoryStore *DataAndMemoryStoreService
 	LuauExecution      *LuauExecutionService
 	Monetization       *MonetizationService
@@ -73,6 +78,10 @@ func (c *Client) init() *Client {
 
 	c.BaseURL, _ = url.Parse(baseURL)
 
+	// v1
+	c.Assets = (*AssetsService)(&c.common)
+
+	// v2
 	c.DataAndMemoryStore = (*DataAndMemoryStoreService)(&c.common)
 	c.LuauExecution = (*LuauExecutionService)(&c.common)
 	c.Monetization = (*MonetizationService)(&c.common)
@@ -130,6 +139,21 @@ func (c *Client) NewRequest(method, urlString string, body any) (*http.Request, 
 		req.Header.Set("Content-Type", "application/json")
 	}
 
+	return req, nil
+}
+
+func (c *Client) NewMultipartRequest(method, urlString string, body *bytes.Buffer, contentType string) (*http.Request, error) {
+	u, err := c.BaseURL.Parse(urlString)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(method, u.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", contentType)
 	return req, nil
 }
 

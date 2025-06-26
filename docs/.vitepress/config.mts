@@ -22,7 +22,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Introduction', link: '/getting-started/welcome' },
-      { text: 'Guides', link: '/guides/authorizing/opencloud-authentication' },
+      { text: 'Guides', link: '/guides/opencloud/authentication' },
       { text: 'Documentation', link: '/documentation/opencloud/common' },
     ],
 
@@ -37,15 +37,9 @@ export default defineConfig({
         text: 'Guides',
         items: [
           {
-            text: 'Authorizing',
-            items: [
-              { text: 'Opencloud Authentication', link: '/guides/authorizing/opencloud-authentication' },
-              // { text: 'Legacy  Authentication', link: '/guides/authorizing/legacy-authentication' },
-            ]
-          },
-          {
             text: 'OpenCloud',
             items: [
+              { text: "Authentication", link: '/guides/opencloud/authentication' },
               { text: 'Pagination', link: '/guides/opencloud/pagination' },
               { text: "Luau Execution", link: '/guides/opencloud/luau-execution' },
             ]

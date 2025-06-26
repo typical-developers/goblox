@@ -1,4 +1,4 @@
-# Opencloud Authentication
+# Authentication
 The Opencloud APIs will let you authenticate either with an API key that you generated for your experience or with an OAuth token granted by a user authorizing with your application. Goblox supports both of these methods of authentication.
 
 ::: tip

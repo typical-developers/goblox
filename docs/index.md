@@ -15,7 +15,7 @@ hero:
       link: /getting-started/welcome
     - theme: alt
       text: Guides
-      link: /guides/authorizing/opencloud-authentication
+      link: /guides/opencloud/authentication
     - theme: alt
       text: Documentation
       link: /documentation/opencloud/common

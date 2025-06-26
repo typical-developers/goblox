@@ -42,6 +42,13 @@ export default defineConfig({
               { text: 'Opencloud Authentication', link: '/guides/authorizing/opencloud-authentication' },
               // { text: 'Legacy  Authentication', link: '/guides/authorizing/legacy-authentication' },
             ]
+          },
+          {
+            text: 'OpenCloud',
+            items: [
+              { text: 'Pagination', link: '/guides/opencloud/pagination' },
+              { text: "Luau Execution", link: '/guides/opencloud/luau-execution' },
+            ]
           }
         ]
       },

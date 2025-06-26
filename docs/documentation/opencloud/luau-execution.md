@@ -18,39 +18,39 @@ regexp.MustCompile(`universes/(?<UniverseID>\d+)\/places\/(?<PlaceID>\d+)\/(vers
 func CreateLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId *string, data LuauExecutionTaskCreate) (*LuauExecutionTask, *Response, error)
 ```
 ##### Parameters
-| Parameter | Value | Description | Required |
-|-----------|-------|-------------| -------- |
-| ctx | context.Context | The background context. | true |
-| universeId | string | The Universe ID of the experience. | true |
-| placeId | string | The Place ID for the universe. | true |
-| versionId | string | The Version ID of the place. | false |
+| Parameter  | Value           | Description                        | Required |
+|------------|-----------------|------------------------------------|----------|
+| ctx        | context.Context | The background context.            | true     |
+| universeId | string          | The Universe ID of the experience. | true     |
+| placeId    | string          | The Place ID for the universe.     | true     |
+| versionId  | string          | The Version ID of the place.       | false    |
 | data | [LuauExecutionTaskCreate](#luauexecutiontaskcreate) | The data to send to the API. | true |
 ### `GetLuauExecutionSessionTask` <Badge type="info" text="universe.place.luau-execution-session:read" />
 ```go
 func GetLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId, sessionId *string, taskId string) (*LuauExecutionTask, *Response, error)
 ```
 ##### Parameters
-| Parameter | Value | Description | Required |
-|-----------|-------|-------------| -------- |
-| ctx | context.Context | The background context. | true |
-| universeId | string | The Universe ID of the experience. | true |
-| placeId | string | The Place ID for the universe. | true |
-| versionId | string | The Version ID of the place. | false |
-| sessionId | string | The Session ID of the task. | false |
-| taskId | string | The Task ID of the task. | true |
+| Parameter  | Value           | Description                        | Required |
+|------------|-----------------|------------------------------------|----------|
+| ctx        | context.Context | The background context.            | true     |
+| universeId | string          | The Universe ID of the experience. | true     |
+| placeId    | string          | The Place ID for the universe.     | true     |
+| versionId  | string          | The Version ID of the place.       | false    |
+| sessionId  | string          | The Session ID of the task.        | false    |
+| taskId     | string          | The Task ID of the task.           | true     |
 ### `ListLuauExecutionSessionTaskLogs` <Badge type="info" text="universe.place.luau-execution-session:read" />
 ```go
 func ListLuauExecutionSessionTaskLogs(ctx context.Context, universeId, placeId string, versionId, sessionId *string, taskId string, opts *Options) (*LuauExecutionTaskLogs, *Response, error)
 ```
 ##### Parameters
-| Parameter | Value | Description | Required |
-|-----------|-------|-------------| -------- |
-| ctx | context.Context | The background context. | true |
-| universeId | string | The Universe ID of the experience. | true |
-| placeId | string | The Place ID for the universe. | true |
-| versionId | string | The Version ID of the place. | false |
-| sessionId | string | The Session ID of the task. | false |
-| taskId | string | The Task ID of the task. | true |
+| Parameter  | Value           | Description                        | Required |
+|------------|-----------------|------------------------------------|----------|
+| ctx        | context.Context | The background context.            | true     |
+| universeId | string          | The Universe ID of the experience. | true     |
+| placeId    | string          | The Place ID for the universe.     | true     |
+| versionId  | string          | The Version ID of the place.       | false    |
+| sessionId  | string          | The Session ID of the task.        | false    |
+| taskId     | string          | The Task ID of the task.           | true     |
 | opts | [Options](/documentation/opencloud/common.html#options) | The options to send to the API. | false |
 
 ## Constants

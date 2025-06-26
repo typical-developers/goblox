@@ -81,7 +81,7 @@ type Asset struct {
 	Icon               string                `json:"icon"`
 	Previews           []AssetPreview        `json:"previews"`
 	State              string                `json:"state"`
-	SocialLink         AssetSocialLinks      `json:"socialLinks"`
+	AssetSocialLinks
 }
 
 type AssetCreate struct {

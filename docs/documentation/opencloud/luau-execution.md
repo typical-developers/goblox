@@ -25,6 +25,7 @@ func CreateLuauExecutionSessionTask(ctx context.Context, universeId, placeId str
 | placeId    | string          | The Place ID for the universe.     | true     |
 | versionId  | string          | The Version ID of the place.       | false    |
 | data | [LuauExecutionTaskCreate](#luauexecutiontaskcreate) | The data to send to the API. | true |
+---
 ### `GetLuauExecutionSessionTask` <Badge type="info" text="universe.place.luau-execution-session:read" />
 ```go
 func GetLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId, sessionId *string, taskId string) (*LuauExecutionTask, *Response, error)
@@ -38,6 +39,7 @@ func GetLuauExecutionSessionTask(ctx context.Context, universeId, placeId string
 | versionId  | string          | The Version ID of the place.       | false    |
 | sessionId  | string          | The Session ID of the task.        | false    |
 | taskId     | string          | The Task ID of the task.           | true     |
+---
 ### `ListLuauExecutionSessionTaskLogs` <Badge type="info" text="universe.place.luau-execution-session:read" />
 ```go
 func ListLuauExecutionSessionTaskLogs(ctx context.Context, universeId, placeId string, versionId, sessionId *string, taskId string, opts *Options) (*LuauExecutionTaskLogs, *Response, error)
@@ -65,6 +67,7 @@ const (
 	LuauExecutionStateFailed      LuauExecutionState = "FAILED"
 )
 ```
+---
 ### `LuauExecutionErrorCode` <Badge type="tip" text="string" />
 ```go
 const (
@@ -75,6 +78,7 @@ const (
 	LuauExecutionErrorCodeInternalError           LuauExecutionErrorCode = "INTERNAL_ERROR"
 )
 ```
+---
 ### `StructuredMessageType` <Badge type="tip" text="string" />
 ```go
 const (
@@ -94,12 +98,14 @@ type LuauExecutionTaskError struct {
 	Message string                 `json:"message"`
 }
 ```
+---
 ### `LuauExecutionTaskOutput`
 ```go
 type LuauExecutionTaskOutput struct {
 	Results []any `json:"results"`
 }
 ```
+---
 ### `LuauExecutionTask`
 ```go
 type LuauExecutionTask struct {
@@ -123,7 +129,7 @@ This is useful for [`GetLuauExecutionSessionTask`](#getluauexecutionsessiontask)
 ```go
 func (t *LuauExecutionTask) TaskInfo() (universeId string, placeId string, versionId *string, sessionId *string, taskId string)
 ```
-
+---
 ### `LuauExecutionTaskCreate`
 ```go
 type LuauExecutionTaskCreate struct {
@@ -133,6 +139,7 @@ type LuauExecutionTaskCreate struct {
 	EnabledBinaryOutput *bool   `json:"enabledBinaryOutput,omitempty"`
 }
 ```
+---
 ### `LuauExecutionTaskLogStructuredMessage`
 ```go
 type LuauExecutionTaskLogStructuredMessage struct {
@@ -141,6 +148,7 @@ type LuauExecutionTaskLogStructuredMessage struct {
 	MessageType StructuredMessageType `json:"messageType"`
 }
 ```
+---
 ### `LuauExecutionTaskLog`
 ```go
 type LuauExecutionTaskLog struct {
@@ -148,6 +156,7 @@ type LuauExecutionTaskLog struct {
 	Mesages []string `json:"messages"`
 }
 ```
+---
 ### `LuauExecutionTaskLogs`
 ```go
 type LuauExecutionTaskLogs struct {

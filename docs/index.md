@@ -22,13 +22,13 @@ hero:
 
 features:
   - icon: ☁️
-    title: Opencloud APIs
-    details: Goblox supports both V1 and V2 Opencloud APIs.
+    title: OpenCloud APIs
+    details: Goblox supports all OpenCloud APIs.
   - icon: 🔐
     title: Easy Authentication
-    details: Goblox makes it easy to authenticate with cookies, oauth tokens, and api keys.
+    details: Goblox makes it easy to authenticate with cookies, OAuth tokens, and API keys.
   - icon: 📃
     title: Detailed Documentation
-    details: Goblox provides detailed documentation for scopes and endpoints for all Opencloud APIs.
+    details: Goblox provides detailed documentation for scopes and endpoints to all OpenCloud APIs.
 ---
 

@@ -191,6 +191,33 @@ func (s *LuauExecutionService) GetLuauExecutionSessionTask(ctx context.Context, 
 	return luauExecutionSessionTask, resp, nil
 }
 
+type LuauExecutionSessionTaskBinaryInput struct {
+	Path      string `json:"path"`
+	Size      int    `json:"size"`
+	UploadURI string `json:"uploadUri"`
+}
+
+type LuauExecutionSessionTaskBinaryInputCreate struct {
+	Size *int `json:"size,omitempty"`
+}
+
+func (s *LuauExecutionService) CreateLuauExecutionSessionTaskBinaryInput(ctx context.Context, universeId string, data LuauExecutionSessionTaskBinaryInputCreate) (*LuauExecutionSessionTaskBinaryInput, *Response, error) {
+	u := fmt.Sprintf("/cloud/v2/universes/%s/luau-execution-session-task-binary-inputs", universeId)
+
+	req, err := s.client.NewRequest(http.MethodPost, u, data)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	luauExecutionSessionTaskBinaryInput := new(LuauExecutionSessionTaskBinaryInput)
+	resp, err := s.client.Do(ctx, req, luauExecutionSessionTaskBinaryInput)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return luauExecutionSessionTaskBinaryInput, resp, nil
+}
+
 type StructuredMessageType string
 
 const (

@@ -59,9 +59,9 @@ type LuauExecutionTask struct {
 	Timeout            string                   `json:"timeout"`
 	Error              *LuauExecutionTaskError  `json:"error,omitempty"`
 	Output             *LuauExecutionTaskOutput `json:"output,omitempty"`
-	BinaryInput        string                   `json:"binaryInput"`
+	BinaryInput        *string                  `json:"binaryInput,omitempty"`
 	EnableBinaryOutput bool                     `json:"enableBinaryOutput"`
-	BinaryOutputURI    string                   `json:"binaryOutputUri"`
+	BinaryOutputURI    *string                  `json:"binaryOutputUri,omitempty"`
 }
 
 func getInfo(path string) map[string]string {

@@ -1,6 +1,7 @@
 package opencloud
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"net/http"
@@ -223,6 +224,32 @@ func (s *LuauExecutionService) CreateLuauExecutionSessionTaskBinaryInput(ctx con
 	}
 
 	return luauExecutionSessionTaskBinaryInput, resp, nil
+}
+
+// UploadLuauExecutionSessionTaskBinaryInput will upload the binary input to the provided URL.
+// This method will call a provided url, which should be the UploadUri for the created binary input.
+//
+// Required scopes: none.
+//
+// Roblox Opencloud API Docs: unavailable.
+//
+// [PUT] {url}
+func (s *LuauExecutionService) UploadLuauExecutionSessionTaskBinaryInput(ctx context.Context, url string, data []byte) (*Response, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, url, bytes.NewReader(data))
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/octet-stream")
+	req.Header.Set("Content-Length", fmt.Sprintf("%d", len(data)))
+
+	resp, err := s.client.Do(ctx, req, nil)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
 }
 
 type StructuredMessageType string

@@ -171,9 +171,11 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v any) (*Response, e
 	defer resp.Body.Close()
 
 	response := &Response{Response: resp}
-	err = json.NewDecoder(resp.Body).Decode(v)
-	if err != nil {
-		return nil, err
+	if v != nil {
+		err = json.NewDecoder(resp.Body).Decode(v)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return response, err

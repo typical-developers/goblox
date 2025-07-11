@@ -111,10 +111,10 @@ func (t *LuauExecutionTask) TaskInfo() (universeId, placeId string, versionId, s
 }
 
 type LuauExecutionTaskCreate struct {
-	Script              *string `json:"script,omitempty"`
-	Timeout             *string `json:"timeout,omitempty"`
-	BinaryInput         *string `json:"binaryInput,omitempty"`
-	EnabledBinaryOutput *bool   `json:"enabledBinaryOutput,omitempty"`
+	Script             *string `json:"script,omitempty"`
+	Timeout            *string `json:"timeout,omitempty"`
+	BinaryInput        *string `json:"binaryInput,omitempty"`
+	EnableBinaryOutput *bool   `json:"enableBinaryOutput,omitempty"`
 }
 
 // CreateLuauExecutionSessionTask will execute a Luau script on a specific place.

@@ -50,18 +50,18 @@ type LuauExecutionTaskOutput struct {
 }
 
 type LuauExecutionTask struct {
-	Path                string                   `json:"path"`
-	CreateTime          string                   `json:"createTime"`
-	UpdateTime          string                   `json:"updateTime"`
-	User                string                   `json:"user"`
-	State               LuauExecutionState       `json:"state"`
-	Script              string                   `json:"script"`
-	Timeout             string                   `json:"timeout"`
-	Error               *LuauExecutionTaskError  `json:"error,omitempty"`
-	Output              *LuauExecutionTaskOutput `json:"output,omitempty"`
-	BinaryInput         string                   `json:"binaryInput"`
-	EnabledBinaryOutput bool                     `json:"enabledBinaryOutput"`
-	BinaryOutputURI     string                   `json:"binaryOutputUri"`
+	Path               string                   `json:"path"`
+	CreateTime         string                   `json:"createTime"`
+	UpdateTime         string                   `json:"updateTime"`
+	User               string                   `json:"user"`
+	State              LuauExecutionState       `json:"state"`
+	Script             string                   `json:"script"`
+	Timeout            string                   `json:"timeout"`
+	Error              *LuauExecutionTaskError  `json:"error,omitempty"`
+	Output             *LuauExecutionTaskOutput `json:"output,omitempty"`
+	BinaryInput        string                   `json:"binaryInput"`
+	EnableBinaryOutput bool                     `json:"enableBinaryOutput"`
+	BinaryOutputURI    string                   `json:"binaryOutputUri"`
 }
 
 func getInfo(path string) map[string]string {

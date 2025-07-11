@@ -201,6 +201,13 @@ type LuauExecutionSessionTaskBinaryInputCreate struct {
 	Size *int `json:"size,omitempty"`
 }
 
+// CreateLuauExecutionSessionTaskBinaryInput will create a new binary input that can be used in a task.
+//
+// Required scopes: universe.place.luau-execution-session:write
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/LuauExecutionSessionTaskBinaryInput#Cloud_CreateLuauExecutionSessionTaskBinaryInput
+//
+// [POST] /cloud/v2/universes/{universe_id}/luau-execution-session-task-binary-inputs
 func (s *LuauExecutionService) CreateLuauExecutionSessionTaskBinaryInput(ctx context.Context, universeId string, data LuauExecutionSessionTaskBinaryInputCreate) (*LuauExecutionSessionTaskBinaryInput, *Response, error) {
 	u := fmt.Sprintf("/cloud/v2/universes/%s/luau-execution-session-task-binary-inputs", universeId)
 

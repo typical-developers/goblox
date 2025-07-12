@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"regexp"
 )
@@ -63,6 +64,26 @@ type LuauExecutionTask struct {
 	BinaryInput        *string                  `json:"binaryInput,omitempty"`
 	EnableBinaryOutput bool                     `json:"enableBinaryOutput"`
 	BinaryOutputURI    *string                  `json:"binaryOutputUri,omitempty"`
+}
+
+// Fetch the binary output, if enabled, from the task.
+func (t *LuauExecutionTask) BinaryOutput(ctx context.Context) ([]byte, error) {
+	if !t.EnableBinaryOutput {
+		return nil, nil
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, *t.BinaryOutputURI, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return io.ReadAll(resp.Body)
 }
 
 func getInfo(path string) map[string]string {

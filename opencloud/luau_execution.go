@@ -61,18 +61,18 @@ type LuauExecutionTask struct {
 	Timeout            string                   `json:"timeout"`
 	Error              *LuauExecutionTaskError  `json:"error,omitempty"`
 	Output             *LuauExecutionTaskOutput `json:"output,omitempty"`
-	BinaryInput        *string                  `json:"binaryInput,omitempty"`
+	BinaryInput        string                   `json:"binaryInput"`
 	EnableBinaryOutput bool                     `json:"enableBinaryOutput"`
-	BinaryOutputURI    *string                  `json:"binaryOutputUri,omitempty"`
+	BinaryOutputURI    string                   `json:"binaryOutputUri"`
 }
 
 // Fetch the binary output, if enabled, from the task.
 func (t *LuauExecutionTask) BinaryOutput(ctx context.Context) ([]byte, error) {
-	if !t.EnableBinaryOutput {
+	if !t.EnableBinaryOutput || t.BinaryOutputURI == "" {
 		return nil, nil
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, *t.BinaryOutputURI, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, t.BinaryOutputURI, nil)
 	if err != nil {
 		return nil, err
 	}

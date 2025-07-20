@@ -692,6 +692,13 @@ type OrderedDataStoreEntryList struct {
 	NextPageToken           string                  `json:"nextPageToken"`
 }
 
+type ListOrderedDataStoreEntriesOptions struct {
+	MaxPageSize *int    `url:"maxPageSize,omitempty"`
+	PageToken   *string `url:"pageToken,omitempty"`
+	OrderBy     *string `url:"orderBy,omitempty"`
+	Filter      *string `url:"filter,omitempty"`
+}
+
 // -
 //
 // Required scopes: universe.ordered-data-store.scope.entry:read
@@ -699,7 +706,7 @@ type OrderedDataStoreEntryList struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/OrderedDataStoreEntry#Cloud_ListOrderedDataStoreEntries
 //
 // [GET] /cloud/v2/universes/{universe_id}/ordered-data-stores/{ordered_data_store_id}/scopes/{scope_id}/entries
-func (s *DataAndMemoryStoreService) ListOrderedDataStoreEntries(ctx context.Context, universeId, orderedDataStoreId, scopeId string, opts *Options) (*OrderedDataStoreEntryList, *Response, error) {
+func (s *DataAndMemoryStoreService) ListOrderedDataStoreEntries(ctx context.Context, universeId, orderedDataStoreId, scopeId string, opts *ListOrderedDataStoreEntriesOptions) (*OrderedDataStoreEntryList, *Response, error) {
 	u := fmt.Sprintf("/cloud/v2/universes/%s/ordered-data-stores/%s/scopes/%s/entries", universeId, orderedDataStoreId, scopeId)
 
 	u, err := addOpts(u, opts)

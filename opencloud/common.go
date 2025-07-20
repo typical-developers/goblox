@@ -16,16 +16,15 @@ type Operation struct {
 	Metadata OperationMetadata `json:"metadata"`
 }
 
-// --- Query Options
-
 type Options struct {
 	MaxPageSize *int    `url:"maxPageSize,omitempty"`
 	PageToken   *string `url:"pageToken,omitempty"`
 }
 
 type OptionsWithFilter struct {
-	Options
-	Filter *string `url:"filter,omitempty"`
+	MaxPageSize *int    `url:"maxPageSize,omitempty"`
+	PageToken   *string `url:"pageToken,omitempty"`
+	Filter      *string `url:"filter,omitempty"`
 }
 
 /// --- Pointer

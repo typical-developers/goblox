@@ -107,8 +107,10 @@ type DataStoreEntriesList struct {
 }
 
 type ListDataStoreEntriesOptions struct {
-	OptionsWithFilter
-	ShowDeleted *bool `url:"showDeleted,omitempty"`
+	MaxPageSize *int    `url:"maxPageSize,omitempty"`
+	PageToken   *string `url:"pageToken,omitempty"`
+	Filter      *string `url:"filter,omitempty"`
+	ShowDeleted *bool   `url:"showDeleted,omitempty"`
 }
 
 // ListDataStoreEntries will fetch a list of entries for a specific data store under a specific universe.
@@ -517,8 +519,10 @@ type MemoryStoreSortedMapList struct {
 }
 
 type MemoryStoreSortedMapItemListOptions struct {
-	OptionsWithFilter
-	OrderBy *string `url:"orderBy,omitempty"`
+	MaxPageSize *int    `url:"maxPageSize,omitempty"`
+	PageToken   *string `url:"pageToken,omitempty"`
+	Filter      *string `url:"filter,omitempty"`
+	OrderBy     *string `url:"orderBy,omitempty"`
 }
 
 // ListMemoryStoreSortedMapItems will fetch a list of memory store map items for a specific sorted map under a specific universe.

@@ -23,7 +23,6 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Introduction', link: '/getting-started/welcome' },
       { text: 'Guides', link: '/guides/opencloud/authentication' },
-      { text: 'Documentation', link: '/documentation/opencloud/common' },
     ],
 
     sidebar: [
@@ -45,18 +44,6 @@ export default defineConfig({
               { text: "Polling Endpoints", link: '/guides/polling-endpoints' },
             ]
           },
-        ]
-      },
-      {
-        text: "Documentation",
-        items: [
-          {
-            text: "OpenCloud",
-            items: [
-              { text: "Common", link: "/documentation/opencloud/common" },
-              { text: 'Luau Execution', link: '/documentation/opencloud/luau-execution' },
-            ]
-          }
         ]
       },
       {

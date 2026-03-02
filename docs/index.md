@@ -16,9 +16,6 @@ hero:
     - theme: alt
       text: Guides
       link: /guides/opencloud/authentication
-    - theme: alt
-      text: Documentation
-      link: /documentation/opencloud/common
 
 features:
   - icon: ☁️

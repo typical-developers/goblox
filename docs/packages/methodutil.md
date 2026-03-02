@@ -3,7 +3,7 @@ The `methodutil` package contains utility methods for execution of other methods
 
 ## `PollMethod`
 ::: danger
-This method is no longer available. For polling endpoints, please check out the [example](/guides/polling-endpoints.html).
+This method is no longer available. For polling endpoints, please check out the [example](/guides/opencloud/polling-endpoints.html).
 :::
 
 This is a utility method that allows you to poll a method until it returns a desired result.

@@ -1,5 +1,5 @@
 # Polling Endpoints
-In some circumstances, such as the Luau Execution APIs, you are expected to poll (or request these endpoints over an interval) until you get the desired result. Below is the example taken from the [Luau Execution](/documentation/opencloud/luau-execution.md) page.
+In some circumstances, such as the Luau Execution APIs, you are expected to poll (or request these endpoints over an interval) until you get the desired result. Below is the example taken from the [Luau Execution](/guides/opencloud/luau-execution.html) page.
 
 ```go
 package main

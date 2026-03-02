@@ -65,7 +65,7 @@ func main() {
 	for {
 		select {
 		case <-ticker.C:
-			task, resp, err := s.client.LuauExecution.GetLuauExecutionSessionTask(ctx, universeID, placeID, versionId, sessionId, taskId)
+			task, resp, err := client.LuauExecution.GetLuauExecutionSessionTask(ctx, universeID, placeID, versionId, sessionId, taskId)
 
 			if err != nil {
 				return nil, err

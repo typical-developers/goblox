@@ -101,24 +101,26 @@ func (c *Client) init() *Client {
 //
 // You can create a new API key at: https://create.roblox.com/dashboard/credentials?activeTab=ApiKeysTab
 func (c *Client) WithAPIKey(apiKey string) *Client {
-	c.client.Transport = &APIKeyRoundTripper{
+	copy := c
+	copy.client.Transport = &APIKeyRoundTripper{
 		APIKey:    apiKey,
 		Transport: http.DefaultTransport,
 	}
 
-	return c
+	return copy
 }
 
 // WithOAuthToken will use an OAuth token to authenticate with the Opencloud API.
 //
 // You can create a new OAuth client at: https://create.roblox.com/dashboard/credentials?activeTab=OAuthTab
 func (c *Client) WithOAuthToken(token string) *Client {
-	c.client.Transport = &OAuthRoundTripper{
+	copy := c
+	copy.client.Transport = &OAuthRoundTripper{
 		OAuthToken: token,
 		Transport:  http.DefaultTransport,
 	}
 
-	return c
+	return copy
 }
 
 func (c *Client) NewRequest(method, urlString string, body any) (*http.Request, error) {

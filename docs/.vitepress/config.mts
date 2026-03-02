@@ -42,8 +42,9 @@ export default defineConfig({
               { text: "Authentication", link: '/guides/opencloud/authentication' },
               { text: 'Pagination', link: '/guides/opencloud/pagination' },
               { text: "Luau Execution", link: '/guides/opencloud/luau-execution' },
+              { text: "Polling Endpoints", link: '/guides/polling-endpoints' },
             ]
-          }
+          },
         ]
       },
       {

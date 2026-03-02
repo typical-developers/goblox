@@ -29,7 +29,7 @@ func main() {
 However, this in itself is not very useful, since it runs asynchronously. We need a way to check when the task is finished and get the results or error from it. This is where polling the method comes in.
 
 #### Polling
-Goblox provides a utility method, under [`methodutil`](/packages/methodutil), that can be used to poll a method until it is completed. The [`LuauExecutionTask.TaskInfo()`](/documentation/opencloud/luau-execution#taskinfo) method returns the task information, which we can use to easily reference the task creation information for polling.
+In order to access the data from the script that was executed, you must poll the endpoint until the task is either complete or fails. 
 ```go
 package main
 
@@ -38,15 +38,11 @@ import (
     "fmt"
 
     "github.com/typical-developers/goblox/opencloud"
-    "github.com/typical-developers/goblox/pkg/methodutil"
 )
 
 func main() {
     ctx := context.Background()
     client := opencloud.NewClient().WithAPIKey("YOUR_API_KEY")
-
-    var result int
-    var taskError error
 
     // First, we create the task with the Luau execution API.
     task, _, err := client.LuauExecution.CreateLuauExecutionSessionTask(ctx, "UNIVERSE_ID", "PLACE_ID", nil, opencloud.LuauExecutionTaskCreate{
@@ -57,41 +53,49 @@ func main() {
     }
 
     // Then, we get the TaskInfo so we can get the task we just created.
-    universeId, placeId, versionId, sessionId, taskId := task.TaskInfo()
+    universeID, placeID, versionId, sessionId, taskId := task.TaskInfo()
 
-    // Finally, we poll the task until it's complete and set the reuslt / error in our variables above.
-	methodutil.PollMethod(func(done func()) {
-		task, resp, err := client.LuauExecution.GetLuauExecutionSessionTask(ctx, universeId, placeId, versionId, sessionId, taskId)
-        if err != nil {
-            taskError = err
-            done()
-            return
-        }
+    // Finally, we poll the task until it's complete and set the reuslt / error in our variables.
+    var results []any
+    var err error
+    
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
 
-        // Keeps polling if the ratelimit is exhausted.
-        if resp.StatusCode == 429 {
-            return
-        }
+	for {
+		select {
+		case <-ticker.C:
+			task, resp, err := s.client.LuauExecution.GetLuauExecutionSessionTask(ctx, universeID, placeID, versionId, sessionId, taskId)
 
-        // Queued means the task is still pending to be executed.
-        // Processing means the task is currently being executed.
-        // 
-        // Only handle the data if the task is done being executed.
-        if task.State != opencloud.LuauExecutionStateProcessing && task.State != opencloud.LuauExecutionStateQueued {
-            if task.Output != nil && len(task.Output.Results) > 0 {
-                result = task.Output.Results[0].(int)
-            }
+			if err != nil {
+				return nil, err
+			}
 
-            if task.Error != nil {
-                taskError = fmt.Errorf("LuauExecutionTask[%s]: %s", task.Error.Code, task.Error.Message)
-            }
+			if resp.StatusCode == http.StatusTooManyRequests {
+				log.Warn("LuauExecution is being ratelimited.")
+				continue
+			}
+			if task.State == opencloud.LuauExecutionStateQueued || task.State == opencloud.LuauExecutionStateProcessing {
+				continue
+			}
 
-            done()
-        }
-	}, 0)
+			if task.Output != nil {
+                results = task.Output
+                break
+			}
 
-    fmt.Printf("Result: %d\n", result)
-    fmt.Printf("Error: %v\n", taskError)
+			if task.Error != nil {
+                err = errors.New(task.Error.Message)
+                break
+			}
+		case <-ctx.Done():
+            err = ctx.Err()
+            break
+		}
+	}
+
+    fmt.Println(fmt.Sprintf("Results: %+v", results))
+    fmt.Println(fmt.Sprintf("Error: %+v", err))
 }
 ```
 

@@ -40,6 +40,8 @@ type Client struct {
 	UserAndGroups      *UserAndGroupsService
 }
 
+type ClientOpts func(*Client)
+
 type APIKeyRoundTripper struct {
 	APIKey    string
 	Transport http.RoundTripper
@@ -65,9 +67,13 @@ func (c *OAuthRoundTripper) RoundTrip(req *http.Request) (*http.Response, error)
 //
 // WithAPIKey will use an API key that you created for your experience.
 // WithOAuthToken should be used for OAuth applications that are athenticated.
-func NewClient() *Client {
+func NewClient(opts ...ClientOpts) *Client {
 	c := &Client{
 		client: http.DefaultClient,
+	}
+
+	for _, opt := range opts {
+		opt(c)
 	}
 
 	return c.init()
@@ -91,28 +97,42 @@ func (c *Client) init() *Client {
 	return c
 }
 
-// WithAPIKey will use an API key to authenticate with the Opencloud API.
+// WithAPIKey will set the API key for the client.
 //
 // You can create a new API key at: https://create.roblox.com/dashboard/credentials?activeTab=ApiKeysTab
-func (c *Client) WithAPIKey(apiKey string) *Client {
-	c.client.Transport = &APIKeyRoundTripper{
+func WithAPIKey(apiKey string) ClientOpts {
+	return func(c *Client) {
+		c.SetAPIKey(apiKey)
+	}
+}
+
+// SetAPIKey will use an API key to authenticate with the Opencloud API.
+// If you are wanting to permanently set the API key, use `WithAPIKey` instead.
+// This will override any set API key or OAuth token.
+//
+// You can create a new API key at: https://create.roblox.com/dashboard/credentials?activeTab=ApiKeysTab
+func (c *Client) SetAPIKey(apiKey string) *Client {
+	copy := c
+	copy.client.Transport = &APIKeyRoundTripper{
 		APIKey:    apiKey,
 		Transport: http.DefaultTransport,
 	}
 
-	return c
+	return copy
 }
 
-// WithOAuthToken will use an OAuth token to authenticate with the Opencloud API.
+// SetOAuthToken will use an OAuth token to authenticate with the Opencloud API.
+// This will override any set API key or OAuth token.
 //
 // You can create a new OAuth client at: https://create.roblox.com/dashboard/credentials?activeTab=OAuthTab
-func (c *Client) WithOAuthToken(token string) *Client {
-	c.client.Transport = &OAuthRoundTripper{
+func (c *Client) SetOAuthToken(token string) *Client {
+	copy := c
+	copy.client.Transport = &OAuthRoundTripper{
 		OAuthToken: token,
 		Transport:  http.DefaultTransport,
 	}
 
-	return c
+	return copy
 }
 
 func (c *Client) NewRequest(method, urlString string, body any) (*http.Request, error) {

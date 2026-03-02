@@ -6,4 +6,4 @@ Goblox is a Go library for accessing Roblox's Open Cloud & Legacy APIs.
 > If you want to contribute, feel free to open a PR.
 
 ## Documentation
-https://goblox.dev/guides/authorizing/opencloud-authentication
+https://goblox.dev/guides/opencloud/authentication.html

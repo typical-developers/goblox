@@ -33,6 +33,7 @@ type Client struct {
 
 	// v2 Opencloud API services
 
+	Config             *ConfigService
 	DataAndMemoryStore *DataAndMemoryStoreService
 	LuauExecution      *LuauExecutionService
 	Monetization       *MonetizationService
@@ -88,6 +89,7 @@ func (c *Client) init() *Client {
 	c.Assets = (*AssetsService)(&c.common)
 
 	// v2
+	c.Config = (*ConfigService)(&c.common)
 	c.DataAndMemoryStore = (*DataAndMemoryStoreService)(&c.common)
 	c.LuauExecution = (*LuauExecutionService)(&c.common)
 	c.Monetization = (*MonetizationService)(&c.common)

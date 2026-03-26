@@ -26,10 +26,12 @@ const (
 )
 
 type AssetCreator struct {
-	UserId string `json:"userId"`
+	UserId  string `json:"userId,omitempty"`
+	GroupId string `json:"groupId,omitempty"`
 }
 
 type AssetCreationContext struct {
+	AssetPrivacy  string       `json:"assetPrivacy"`
 	Creator       AssetCreator `json:"creator"`
 	ExpectedPrice int          `json:"expectedPrices"`
 }
@@ -315,6 +317,7 @@ type AssetVersion struct {
 	CreationContext  AssetCreationContext  `json:"creationContext"`
 	Path             string                `json:"path"`
 	ModerationResult AssetModerationResult `json:"moderationResult"`
+	Published        bool                  `json:"published"`
 }
 
 // GetAssetVersion will fetch an asset's version.

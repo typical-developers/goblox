@@ -111,7 +111,7 @@ func getInfo(path string) map[string]string {
 //
 // universeId, placeId, and taskId will always be present.
 // versionId and sessionId may or may not be nil.
-func (t *LuauExecutionTask) TaskInfo() (universeId, placeId string, versionId, sessionId *string, taskId string) {
+func (t *LuauExecutionTask) TaskInfo() (universeId, placeId, versionId, sessionId string, taskId string) {
 	info := getInfo(t.Path)
 
 	for key, value := range info {
@@ -121,9 +121,9 @@ func (t *LuauExecutionTask) TaskInfo() (universeId, placeId string, versionId, s
 		case "PlaceID":
 			placeId = value
 		case "VersionID":
-			versionId = &value
+			versionId = value
 		case "SessionID":
-			sessionId = &value
+			sessionId = value
 		case "TaskID":
 			taskId = value
 		}
@@ -148,11 +148,11 @@ type LuauExecutionTaskCreate struct {
 //
 // [POST] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-session-tasks
 //
-// [POST] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-session-tasks/{version_id}
+// [POST] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-session-tasks
 func (s *LuauExecutionService) CreateLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId *string, data LuauExecutionTaskCreate) (*LuauExecutionTask, *Response, error) {
 	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s/luau-execution-session-tasks", universeId, placeId)
 	if versionId != nil {
-		u = fmt.Sprintf("/cloud/v2/universes/%s/places/%s/luau-execution-session-tasks/%s", universeId, placeId, *versionId)
+		u = fmt.Sprintf("/cloud/v2/universes/%s/places/%s/versions/%s/luau-execution-session-tasks", universeId, placeId, *versionId)
 	}
 
 	req, err := s.client.NewRequest(http.MethodPost, u, data)
@@ -179,25 +179,11 @@ func (s *LuauExecutionService) CreateLuauExecutionSessionTask(ctx context.Contex
 //
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/LuauExecutionSessionTask#Cloud_GetLuauExecutionSessionTask
 //
-// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-tasks/{task_id}
-//
-// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-tasks/{task_id}
-//
-// [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-sessions/{session_id}/tasks/{task_id}
-//
 // [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-sessions/{session_id}/tasks/{task_id}
-func (s *LuauExecutionService) GetLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId, sessionId *string, taskId string) (*LuauExecutionTask, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s", universeId, placeId)
-
-	if versionId != nil {
-		u += fmt.Sprintf("/versions/%s", *versionId)
-	}
-
-	if sessionId != nil {
-		u += fmt.Sprintf("/luau-execution-sessions/%s/tasks/%s", *sessionId, taskId)
-	} else {
-		u += fmt.Sprintf("/luau-execution-tasks/%s", taskId)
-	}
+func (s *LuauExecutionService) GetLuauExecutionSessionTask(ctx context.Context, universeId, placeId, versionId, sessionId, taskId string) (*LuauExecutionTask, *Response, error) {
+	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s/versions/%s/luau-execution-sessions/%s/tasks/%s",
+		universeId, placeId, versionId, sessionId, taskId,
+	)
 
 	req, err := s.client.NewRequest(http.MethodGet, u, nil)
 	if err != nil {

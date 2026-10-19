@@ -27,18 +27,20 @@ type Client struct {
 
 	BaseURL *url.URL
 
-	// v1 Opencloud API services
-
-	Assets *AssetsService
-
-	// v2 Opencloud API services
-
+	Assets             *AssetsService
 	Config             *ConfigService
 	DataAndMemoryStore *DataAndMemoryStoreService
 	LuauExecution      *LuauExecutionService
 	Monetization       *MonetizationService
-	UniverseAndPlaces  *UniverseAndPlacesService
-	UserAndGroups      *UserAndGroupsService
+	Places             *PlacesService
+	Universes          *UniversesService
+	Users              *UsersService
+	Groups             *GroupsService
+
+	// Deprecated: Use [UsersService] and [GroupsService] instead.
+	UserAndGroups *UserAndGroupsService
+	// Deprecated: Use [UniversesService] and [PlacesService].
+	UniverseAndPlaces *UniverseAndPlacesService
 }
 
 type ClientOpts func(*Client)
@@ -94,7 +96,11 @@ func (c *Client) init() *Client {
 	c.LuauExecution = (*LuauExecutionService)(&c.common)
 	c.Monetization = (*MonetizationService)(&c.common)
 	c.UniverseAndPlaces = (*UniverseAndPlacesService)(&c.common)
+	c.Places = (*PlacesService)(&c.common)
+	c.Universes = (*UniversesService)(&c.common)
 	c.UserAndGroups = (*UserAndGroupsService)(&c.common)
+	c.Users = (*UsersService)(&c.common)
+	c.Groups = (*GroupsService)(&c.common)
 
 	return c
 }

@@ -15,3 +15,7 @@ type Credential interface {
 	Kind() Kind
 	Apply(req *http.Request) error
 }
+
+type ResponseHandler interface {
+	HandleResponse(resp *http.Response) (retry bool)
+}

@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"reflect"
 
 	"github.com/google/go-querystring/query"
+	"github.com/typical-developers/goblox/auth"
 )
 
 var (
@@ -22,8 +22,9 @@ type service struct {
 }
 
 type Client struct {
-	client *http.Client
-	common service
+	client     *http.Client
+	common     service
+	credential auth.Credential
 
 	BaseURL *url.URL
 
@@ -44,26 +45,6 @@ type Client struct {
 }
 
 type ClientOpts func(*Client)
-
-type APIKeyRoundTripper struct {
-	APIKey    string
-	Transport http.RoundTripper
-}
-
-func (c *APIKeyRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("X-API-KEY", c.APIKey)
-	return c.Transport.RoundTrip(req)
-}
-
-type OAuthRoundTripper struct {
-	OAuthToken string
-	Transport  http.RoundTripper
-}
-
-func (c *OAuthRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.OAuthToken))
-	return c.Transport.RoundTrip(req)
-}
 
 // NewClient will create a completely new client.
 // To authenticate with the Opencloud API, you can use the WithAPIKey or WithOAuthToken methods.
@@ -105,30 +86,30 @@ func (c *Client) init() *Client {
 	return c
 }
 
+// WithCredential will let you use a custom credential to authenticate with the Opencloud API.
+// You can use [auth.APIKey] or [auth.OAuthToken] to create a credential.
+func (c *Client) WithCredential(cred auth.Credential) *Client {
+	nc := &Client{
+		client:     c.client,
+		credential: cred,
+		BaseURL:    c.BaseURL,
+	}
+
+	return nc.init()
+}
+
 // WithAPIKey will use an API key to authenticate with the Opencloud API.
 //
 // You can create a new API key at: https://create.roblox.com/dashboard/credentials?activeTab=ApiKeysTab
 func (c *Client) WithAPIKey(apiKey string) *Client {
-	copy := c
-	copy.client.Transport = &APIKeyRoundTripper{
-		APIKey:    apiKey,
-		Transport: http.DefaultTransport,
-	}
-
-	return copy
+	return c.WithCredential(auth.APIKey(apiKey))
 }
 
 // WithOAuthToken will use an OAuth token to authenticate with the Opencloud API.
 //
 // You can create a new OAuth client at: https://create.roblox.com/dashboard/credentials?activeTab=OAuthTab
 func (c *Client) WithOAuthToken(token string) *Client {
-	copy := c
-	copy.client.Transport = &OAuthRoundTripper{
-		OAuthToken: token,
-		Transport:  http.DefaultTransport,
-	}
-
-	return copy
+	return c.WithCredential(auth.OAuthToken(token))
 }
 
 func (c *Client) NewRequest(method, urlString string, body any) (*http.Request, error) {
@@ -179,6 +160,11 @@ type Response struct {
 
 func (c *Client) Do(ctx context.Context, req *http.Request, v any) (*Response, error) {
 	req = req.WithContext(ctx)
+	if c.credential != nil {
+		if err := c.credential.Apply(req); err != nil {
+			return nil, err
+		}
+	}
 
 	resp, err := c.client.Do(req)
 	if err != nil {

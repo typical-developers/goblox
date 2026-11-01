@@ -30,23 +30,6 @@ func NewEndpoint(method, route string, accepts ...auth.Kind) *Endpoint {
 	}
 }
 
-type MissingScopesError struct {
-	Method, Route string
-	Missing       []string // required scopes the credential doesn't have
-	AnyOf         []string // set when none of the endpoint's AnyScopes are present
-}
-
-func (e *MissingScopesError) Error() string {
-	var parts []string
-	if len(e.Missing) > 0 {
-		parts = append(parts, "missing scopes: "+strings.Join(e.Missing, ", "))
-	}
-	if len(e.AnyOf) > 0 {
-		parts = append(parts, "needs one of: "+strings.Join(e.AnyOf, ", "))
-	}
-	return fmt.Sprintf("goblox: %s %s %s", e.Method, e.Route, strings.Join(parts, "; "))
-}
-
 // WithScopes records scopes that are all required.
 func (e *Endpoint) WithScopes(scopes ...string) *Endpoint {
 	e.Scopes = scopes
@@ -80,9 +63,16 @@ func (e *Endpoint) Check(credential auth.Credential) error {
 		accepts[i] = k.String()
 	}
 
-	return fmt.Errorf("goblox: %s %s doesn't accept %s auth (accepts: %s)",
-		e.Method, e.Route, kind, strings.Join(accepts, ","),
-	)
+	if !e.Accepts.Has(kind) {
+		return &UnsupportedAuthError{
+			Method:  e.Method,
+			Route:   e.Route,
+			Have:    kind,
+			Accepts: e.Accepts.List(),
+		}
+	}
+
+	return nil
 }
 
 func (e *Endpoint) CheckScopes(ctx context.Context, credential auth.Credential) error {
@@ -132,7 +122,12 @@ func (e *Endpoint) CheckScopes(ctx context.Context, credential auth.Credential) 
 	}
 
 	if len(missing) > 0 || len(anyOf) > 0 {
-		return &MissingScopesError{Method: e.Method, Route: e.Route, Missing: missing, AnyOf: anyOf}
+		return &MissingScopesError{
+			Method:  e.Method,
+			Route:   e.Route,
+			Missing: missing,
+			AnyOf:   anyOf,
+		}
 	}
 
 	return nil

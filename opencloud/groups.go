@@ -49,13 +49,13 @@ var (
 		http.MethodGet,
 		"/cloud/v2/groups/{groupId}/roles",
 		auth.KindAPIKey, auth.KindOAuth2,
-	)
+	).WithScopes("group:read")
 
 	GetGroupRoles = goblox.NewEndpoint(
 		http.MethodGet,
 		"/cloud/v2/groups/{groupId}/roles/{roleId}",
 		auth.KindAPIKey, auth.KindOAuth2,
-	)
+	).WithScopes("group:read")
 
 	GetGroupShout = goblox.NewEndpoint(
 		http.MethodGet,

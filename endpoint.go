@@ -1,6 +1,8 @@
 package goblox
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -13,7 +15,11 @@ type Endpoint struct {
 	Route   string
 	Method  string
 	Accepts auth.Kinds
-	Scopes  []string
+	// Scopes are all required.
+	Scopes []string
+	// AnyScopes need at least one present, for endpoints whose docs list
+	// alternatives (a read scope or a broader write scope, for example).
+	AnyScopes []string
 }
 
 func NewEndpoint(method, route string, accepts ...auth.Kind) *Endpoint {
@@ -24,9 +30,32 @@ func NewEndpoint(method, route string, accepts ...auth.Kind) *Endpoint {
 	}
 }
 
-// WithScopes records the scopes the endpoint needs.
+type MissingScopesError struct {
+	Method, Route string
+	Missing       []string // required scopes the credential doesn't have
+	AnyOf         []string // set when none of the endpoint's AnyScopes are present
+}
+
+func (e *MissingScopesError) Error() string {
+	var parts []string
+	if len(e.Missing) > 0 {
+		parts = append(parts, "missing scopes: "+strings.Join(e.Missing, ", "))
+	}
+	if len(e.AnyOf) > 0 {
+		parts = append(parts, "needs one of: "+strings.Join(e.AnyOf, ", "))
+	}
+	return fmt.Sprintf("goblox: %s %s %s", e.Method, e.Route, strings.Join(parts, "; "))
+}
+
+// WithScopes records scopes that are all required.
 func (e *Endpoint) WithScopes(scopes ...string) *Endpoint {
 	e.Scopes = scopes
+	return e
+}
+
+// WithAnyScopes records scopes of which at least one is required.
+func (e *Endpoint) WithAnyScopes(scopes ...string) *Endpoint {
+	e.AnyScopes = scopes
 	return e
 }
 
@@ -54,6 +83,59 @@ func (e *Endpoint) Check(credential auth.Credential) error {
 	return fmt.Errorf("goblox: %s %s doesn't accept %s auth (accepts: %s)",
 		e.Method, e.Route, kind, strings.Join(accepts, ","),
 	)
+}
+
+func (e *Endpoint) CheckScopes(ctx context.Context, credential auth.Credential) error {
+	if (len(e.Scopes) == 0 && len(e.AnyScopes) == 0) || credential == nil {
+		return nil
+	}
+
+	scoped, ok := credential.(auth.Scoped)
+	if !ok {
+		return nil
+	}
+
+	granted, err := scoped.GrantedScopes(ctx)
+	if err != nil {
+		if errors.Is(err, auth.ErrGrantInactive) || ctx.Err() != nil {
+			return err
+		}
+		return nil
+	}
+	if granted == nil {
+		return nil
+	}
+
+	have := make(map[string]bool, len(granted))
+	for _, s := range granted {
+		have[s] = true
+	}
+
+	var missing []string
+	for _, s := range e.Scopes {
+		if !have[s] {
+			missing = append(missing, s)
+		}
+	}
+	var anyOf []string
+	if len(e.AnyScopes) > 0 {
+		found := false
+		for _, s := range e.AnyScopes {
+			if have[s] {
+				found = true
+				break
+			}
+		}
+		if !found {
+			anyOf = e.AnyScopes
+		}
+	}
+
+	if len(missing) > 0 || len(anyOf) > 0 {
+		return &MissingScopesError{Method: e.Method, Route: e.Route, Missing: missing, AnyOf: anyOf}
+	}
+
+	return nil
 }
 
 type CompiledEndpoint struct {

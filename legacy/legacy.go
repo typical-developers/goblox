@@ -13,8 +13,7 @@ import (
 )
 
 type api struct {
-	Domain     string
-	LegacyPath *string
+	Domain string
 }
 
 func (a api) Path(format string, args ...any) route {
@@ -26,16 +25,7 @@ func (a api) Path(format string, args ...any) route {
 
 type route struct {
 	api
-
 	Path string
-	// Indicates if the endpoint is mirrored on apis.roblox.com.
-	// If it is, this endpoint will support API Key / OAuth2.
-	HasLegacy bool
-}
-
-func (r route) WithLegacy() route {
-	r.HasLegacy = true
-	return r
 }
 
 type service struct {

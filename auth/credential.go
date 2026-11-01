@@ -1,6 +1,9 @@
 package auth
 
-import "net/http"
+import (
+	"context"
+	"net/http"
+)
 
 type Kind int
 
@@ -59,4 +62,8 @@ type Credential interface {
 
 type ResponseHandler interface {
 	HandleResponse(resp *http.Response) (retry bool)
+}
+
+type Scoped interface {
+	GrantedScopes(ctx context.Context) ([]string, error)
 }

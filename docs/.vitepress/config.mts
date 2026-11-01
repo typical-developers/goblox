@@ -46,12 +46,6 @@ export default defineConfig({
           },
         ]
       },
-      {
-        text: 'Packages',
-        items: [
-          { text: 'methodutil', link: '/packages/methodutil' },
-        ]
-      }
     ],
 
     socialLinks: [

@@ -31,7 +31,7 @@ var (
 		http.MethodGet,
 		"/cloud/v2/universes/{universeId}/subscription-products/{productId}/subscriptions/{subscriptionId}",
 		auth.KindAPIKey, auth.KindOAuth2,
-	).WithScopes("universe:write", "universe.subscription-product.subscription:read")
+	).WithAnyScopes("universe.subscription-product.subscription:read", "universe:write")
 )
 
 // MonetizationService will handle communciation with the actions related to the API.

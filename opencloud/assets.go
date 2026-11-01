@@ -25,13 +25,13 @@ var (
 		http.MethodPost,
 		"/assets/v1/assets/{assetId}:archive",
 		auth.KindAPIKey, auth.KindOAuth2,
-	).WithScopes("asset:read", "asset:write")
+	).WithScopes("asset:write")
 
 	RestoreAsset = goblox.NewEndpoint(
 		http.MethodPost,
 		"/assets/v1/assets/{assetId}:restore",
 		auth.KindAPIKey, auth.KindOAuth2,
-	).WithScopes("asset:read", "asset:write")
+	).WithScopes("asset:write")
 
 	GetAssetVersion = goblox.NewEndpoint(
 		http.MethodGet,
@@ -49,7 +49,7 @@ var (
 		http.MethodPost,
 		"/assets/v1/assets/{assetId}/versions:rollback",
 		auth.KindAPIKey, auth.KindOAuth2,
-	).WithScopes("asset:read", "asset:write")
+	).WithScopes("asset:write")
 
 	GetOperation = goblox.NewEndpoint(
 		http.MethodGet,
@@ -61,13 +61,13 @@ var (
 		http.MethodPost,
 		"/assets/v1/assets",
 		auth.KindAPIKey, auth.KindOAuth2,
-	).WithScopes("asset:read", "asset:write")
+	).WithScopes("asset:write")
 
 	UpdateAsset = goblox.NewEndpoint(
 		http.MethodPatch,
 		"/assets/v1/assets/{assetId}",
 		auth.KindAPIKey, auth.KindOAuth2,
-	).WithScopes("asset:read", "asset:write")
+	).WithScopes("asset:write")
 )
 
 // AssetsService will handle communciation with the actions related to the API.

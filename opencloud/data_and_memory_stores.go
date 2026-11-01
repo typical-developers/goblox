@@ -25,55 +25,55 @@ var (
 		http.MethodPost,
 		"/cloud/v2/universes/{universeId}/memory-store:flush",
 		auth.KindAPIKey,
-	).WithScopes("universe.memory-store:flush")
+	).WithScopes("memory-store:flush")
 
 	CreateMemoryStoreQueueItem = goblox.NewEndpoint(
 		http.MethodPost,
 		"/cloud/v2/universes/{universeId}/memory-store/queues/{queueId}/items",
 		auth.KindAPIKey,
-	).WithScopes("universe.memory-store.queue:write")
+	).WithScopes("memory-store.queue:add")
 
 	DiscardMemoryStoreQueueItems = goblox.NewEndpoint(
 		http.MethodPost,
 		"/cloud/v2/universes/{universeId}/memory-store/queues/{queueId}/items:discard",
 		auth.KindAPIKey,
-	).WithScopes("universe.memory-store.queue:discard")
+	).WithScopes("memory-store.queue:discard")
 
 	ReadMemoryStoreQueueItems = goblox.NewEndpoint(
 		http.MethodGet,
 		"/cloud/v2/universes/{universeId}/memory-store/queues/{queueId}/items:read",
 		auth.KindAPIKey,
-	).WithScopes("universe.memory-store.queue:dequeue")
+	).WithScopes("memory-store.queue:dequeue")
 
 	ListMemoryStoreSortedMapItems = goblox.NewEndpoint(
 		http.MethodGet,
 		"/cloud/v2/universes/{universeId}/memory-store/sorted-maps/{sortedMapId}/items",
 		auth.KindAPIKey,
-	).WithScopes("universe.memory-store.sorted-map:read")
+	).WithScopes("memory-store.sorted-map:read")
 
 	CreateMemoryStoreSortedMapItem = goblox.NewEndpoint(
 		http.MethodPost,
 		"/cloud/v2/universes/{universeId}/memory-store/sorted-maps/{sortedMapId}/items",
 		auth.KindAPIKey,
-	).WithScopes("universe.memory-store.sorted-map:write")
+	).WithScopes("memory-store.sorted-map:write")
 
 	GetMemoryStoreSortedMapItem = goblox.NewEndpoint(
 		http.MethodGet,
 		"/cloud/v2/universes/{universeId}/memory-store/sorted-maps/{sortedMapId}/items/{itemId}",
 		auth.KindAPIKey,
-	).WithScopes("universe.memory-store.sorted-map:read")
+	).WithScopes("memory-store.sorted-map:read")
 
 	DeleteMemoryStoreSortedMapItem = goblox.NewEndpoint(
 		http.MethodDelete,
 		"/cloud/v2/universes/{universeId}/memory-store/sorted-maps/{sortedMapId}/items/{itemId}",
 		auth.KindAPIKey,
-	).WithScopes("universe.memory-store.sorted-map:write")
+	).WithScopes("memory-store.sorted-map:write")
 
 	UpdateMemoryStoreSortedMapItem = goblox.NewEndpoint(
 		http.MethodPatch,
 		"/cloud/v2/universes/{universeId}/memory-store/sorted-maps/{sortedMapId}/items/{itemId}",
 		auth.KindAPIKey,
-	).WithScopes("universe.memory-store.sorted-map:write")
+	).WithScopes("memory-store.sorted-map:write")
 
 	ListOrderedDataStoreEntries = goblox.NewEndpoint(
 		http.MethodGet,
@@ -175,13 +175,13 @@ var (
 		http.MethodPost,
 		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/entries/{entryId}:increment",
 		auth.KindAPIKey,
-	).WithScopes("universe-datastores.objects:create", "universe-datastores.objects:update")
+	).WithAnyScopes("universe-datastores.objects:create", "universe-datastores.objects:update")
 
 	IncrementDataStoreEntryScoped = goblox.NewEndpoint(
 		http.MethodPost,
 		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/scopes/{scope}/entries/{entryId}:increment",
 		auth.KindAPIKey,
-	).WithScopes("universe-datastores.objects:create", "universe-datastores.objects:update")
+	).WithAnyScopes("universe-datastores.objects:create", "universe-datastores.objects:update")
 
 	ListDataStoreEntryRevisions = goblox.NewEndpoint(
 		http.MethodGet,

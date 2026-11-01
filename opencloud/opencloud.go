@@ -134,32 +134,53 @@ func (c *Client) config(opts []goblox.RequestOpt) goblox.RequestConfig {
 }
 
 func (c *Client) send(ctx context.Context, req *http.Request, _ *goblox.Endpoint, config goblox.RequestConfig, out any) (*Response, error) {
-	req = req.WithContext(ctx)
+	handler, canRetry := config.Credential.(auth.ResponseHandler)
 
-	for k, vs := range config.Header {
-		for _, v := range vs {
-			req.Header.Add(k, v)
+	canRetry = canRetry && (req.Body == nil || req.Body == http.NoBody || req.GetBody != nil)
+
+	var resp *http.Response
+	for attempt := 0; attempt < 2; attempt++ {
+		// A fresh copy each attempt, so headers and credentials aren't added twice.
+		r := req.Clone(ctx)
+		if attempt > 0 && req.GetBody != nil {
+			body, err := req.GetBody()
+			if err != nil {
+				return nil, err
+			}
+			r.Body = body
 		}
-	}
 
-	if config.Credential != nil {
-		if err := config.Credential.Apply(req); err != nil {
+		for k, vs := range config.Header {
+			for _, v := range vs {
+				r.Header.Add(k, v)
+			}
+		}
+
+		if config.Credential != nil {
+			if err := config.Credential.Apply(r); err != nil {
+				return nil, err
+			}
+		}
+
+		var err error
+		resp, err = c.client.Do(r)
+		if err != nil {
 			return nil, err
 		}
-	}
 
-	resp, err := c.client.Do(req)
-	if err != nil {
-		return nil, err
+		if attempt == 0 && canRetry && handler.HandleResponse(resp) {
+			_, _ = io.Copy(io.Discard, resp.Body)
+			resp.Body.Close()
+			continue
+		}
+		break
 	}
 	defer resp.Body.Close()
 
 	response := &Response{resp}
-	if response.Ok() {
-		if out != nil && response.StatusCode != http.StatusNoContent {
-			if err := json.NewDecoder(resp.Body).Decode(out); err != nil && !errors.Is(err, io.EOF) {
-				return response, err
-			}
+	if response.Ok() && out != nil && response.StatusCode != http.StatusNoContent {
+		if err := json.NewDecoder(resp.Body).Decode(out); err != nil && !errors.Is(err, io.EOF) {
+			return response, err
 		}
 	}
 
@@ -170,6 +191,9 @@ func (c *Client) Call(ctx context.Context, e *goblox.CompiledEndpoint, body, out
 	config := c.config(opts)
 
 	if err := e.Endpoint.Check(config.Credential); err != nil {
+		return nil, err
+	}
+	if err := e.Endpoint.CheckScopes(ctx, config.Credential); err != nil {
 		return nil, err
 	}
 
@@ -189,6 +213,9 @@ func (c *Client) CallRequest(ctx context.Context, e *goblox.CompiledEndpoint, re
 	if err := e.Endpoint.Check(config.Credential); err != nil {
 		return nil, err
 	}
+	if err := e.Endpoint.CheckScopes(ctx, config.Credential); err != nil {
+		return nil, err
+	}
 
 	return c.send(ctx, req, e.Endpoint, config, out)
 }
@@ -199,21 +226,22 @@ func (c *Client) NewRequest(method, urlString string, body any) (*http.Request, 
 		return nil, err
 	}
 
-	req, err := http.NewRequest(method, u.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
+	var reader io.Reader
 	if body != nil {
 		var buf bytes.Buffer
 		encoder := json.NewEncoder(&buf)
 		encoder.SetEscapeHTML(false)
-		err := encoder.Encode(body)
-		if err != nil {
+		if err := encoder.Encode(body); err != nil {
 			return nil, err
 		}
+		reader = bytes.NewReader(buf.Bytes())
+	}
 
-		req.Body = io.NopCloser(&buf)
+	req, err := http.NewRequest(method, u.String(), reader)
+	if err != nil {
+		return nil, err
+	}
+	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
 

@@ -17,7 +17,7 @@ var (
 		http.MethodGet,
 		"/cloud/v2/universes/{universeId}/places/{placeId}/versions/{versionId}/luau-execution-sessions/{sessionId}/tasks/{taskId}",
 		auth.KindAPIKey,
-	).WithScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
+	).WithAnyScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
 
 	CreateLuauExecutionSessionTaskBinaryInput = goblox.NewEndpoint(
 		http.MethodPost,
@@ -41,25 +41,25 @@ var (
 		http.MethodGet,
 		"/cloud/v2/universes/{universeId}/places/{placeId}/luau-execution-tasks/{taskId}/logs",
 		auth.KindAPIKey,
-	).WithScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
+	).WithAnyScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
 
 	ListLuauExecutionSessionTaskLogsVersion = goblox.NewEndpoint(
 		http.MethodGet,
 		"/cloud/v2/universes/{universeId}/places/{placeId}/versions/{versionId}/luau-execution-tasks/{taskId}/logs",
 		auth.KindAPIKey,
-	).WithScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
+	).WithAnyScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
 
 	ListLuauExecutionSessionTaskLogsSession = goblox.NewEndpoint(
 		http.MethodGet,
 		"/cloud/v2/universes/{universeId}/places/{placeId}/luau-execution-sessions/{sessionId}/tasks/{taskId}/logs",
 		auth.KindAPIKey,
-	).WithScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
+	).WithAnyScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
 
 	ListLuauExecutionSessionTaskLogsVersionSession = goblox.NewEndpoint(
 		http.MethodGet,
 		"/cloud/v2/universes/{universeId}/places/{placeId}/versions/{versionId}/luau-execution-sessions/{sessionId}/tasks/{taskId}/logs",
 		auth.KindAPIKey,
-	).WithScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
+	).WithAnyScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
 )
 
 var (

@@ -2,7 +2,7 @@
 The Opencloud APIs will let you authenticate either with an API key that you generated for your experience or with an OAuth token granted by a user authorizing with your application. Goblox supports both of these methods of authentication.
 
 ::: tip
-Make sure that your API key or OAuth application has the proper scopes set. You can find the scopes in the [OpenCloud API reference](https://create.roblox.com/docs/en-us/cloud) or under the specific method you're calling.
+Make sure that your API key or OAuth application has the proper scopes set. You can find the scopes in the [OpenCloud API reference](https://create.roblox.com/docs/en-us/cloud) or under the specific method you're calling. Goblox will automatically introspect your token grants before calling an API.
 :::
 
 ## API Keys

@@ -4,12 +4,70 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/typical-developers/goblox"
+	"github.com/typical-developers/goblox/auth"
+)
+
+var (
+	GetAsset = goblox.NewEndpoint(
+		http.MethodGet,
+		"/assets/v1/assets/{assetId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("asset:read")
+
+	ArchiveAsset = goblox.NewEndpoint(
+		http.MethodPost,
+		"/assets/v1/assets/{assetId}:archive",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("asset:read", "asset:write")
+
+	RestoreAsset = goblox.NewEndpoint(
+		http.MethodPost,
+		"/assets/v1/assets/{assetId}:restore",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("asset:read", "asset:write")
+
+	GetAssetVersion = goblox.NewEndpoint(
+		http.MethodGet,
+		"/assets/v1/assets/{assetId}/versions/{versionNumber}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("asset:read")
+
+	GetAssetVersions = goblox.NewEndpoint(
+		http.MethodGet,
+		"/assets/v1/assets/{assetId}/versions",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("asset:read")
+
+	RollbackAssetVersion = goblox.NewEndpoint(
+		http.MethodPost,
+		"/assets/v1/assets/{assetId}/versions:rollback",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("asset:read", "asset:write")
+
+	GetOperation = goblox.NewEndpoint(
+		http.MethodGet,
+		"/assets/v1/operations/{operationId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("asset:read")
+
+	CreateAsset = goblox.NewEndpoint(
+		http.MethodPost,
+		"/assets/v1/assets",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("asset:read", "asset:write")
+
+	UpdateAsset = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/assets/v1/assets/{assetId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("asset:read", "asset:write")
 )
 
 // AssetsService will handle communciation with the actions related to the API.
@@ -104,8 +162,8 @@ type AssetCreate struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/reference/cloud/assets/v1#POST-v1-assets
 //
 // [POST] /assets/v1/assets
-func (s *AssetsService) CreateAsset(ctx context.Context, data AssetCreate, asset *os.File) (*Operation, *Response, error) {
-	u := "/assets/v1/assets"
+func (s *AssetsService) CreateAsset(ctx context.Context, data AssetCreate, asset *os.File, reqOpts ...goblox.RequestOpt) (*Operation, *Response, error) {
+	e := CreateAsset.Compile(nil)
 
 	jsonb, err := json.Marshal(data)
 	if err != nil {
@@ -137,13 +195,13 @@ func (s *AssetsService) CreateAsset(ctx context.Context, data AssetCreate, asset
 	_ = writer.WriteField("type", http.DetectContentType(header))
 	//  --
 
-	req, err := s.client.NewMultipartRequest(http.MethodPost, u, &body, writer.FormDataContentType())
+	req, err := s.client.NewMultipartRequest(e.Endpoint.Method, e.Path, &body, writer.FormDataContentType())
 	if err != nil {
 		return nil, nil, err
 	}
 
 	operation := new(Operation)
-	resp, err := s.client.Do(ctx, req, operation)
+	resp, err := s.client.CallRequest(ctx, e, req, operation, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -162,21 +220,14 @@ type AssetGetOptions struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/reference/cloud/assets/v1#GET-v1-assets
 //
 // [GET] /assets/v1/assets/{asset_id}
-func (s *AssetsService) GetAsset(ctx context.Context, assetId string, opts *AssetGetOptions) (*Asset, *Response, error) {
-	u := fmt.Sprintf("/assets/v1/assets/%s", assetId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *AssetsService) GetAsset(ctx context.Context, assetId string, opts *AssetGetOptions, reqOpts ...goblox.RequestOpt) (*Asset, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	asset := new(Asset)
-	resp, err := s.client.Do(ctx, req, asset)
+	resp, err := s.client.Call(ctx, GetAsset.Compile(q, assetId), nil, asset, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -210,8 +261,13 @@ type AssetUpdateOptions struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/reference/cloud/assets/v1#PATCH-v1-assets-_assetId_
 //
 // [PATCH] /assets/v1/assets/{asset_id}
-func (s *AssetsService) UpdateAsset(ctx context.Context, assetId string, data *AssetUpdate, asset *os.File, opts *AssetUpdateOptions) (*Operation, *Response, error) {
-	u := fmt.Sprintf("/assets/v1/assets/%s", assetId)
+func (s *AssetsService) UpdateAsset(ctx context.Context, assetId string, data *AssetUpdate, asset *os.File, opts *AssetUpdateOptions, reqOpts ...goblox.RequestOpt) (*Operation, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	e := UpdateAsset.Compile(q, assetId)
 
 	jsonb, err := json.Marshal(data)
 	if err != nil {
@@ -245,13 +301,13 @@ func (s *AssetsService) UpdateAsset(ctx context.Context, assetId string, data *A
 	}
 	//  --
 
-	req, err := s.client.NewMultipartRequest(http.MethodPatch, u, &body, writer.FormDataContentType())
+	req, err := s.client.NewMultipartRequest(e.Endpoint.Method, e.Path, &body, writer.FormDataContentType())
 	if err != nil {
 		return nil, nil, err
 	}
 
 	operation := new(Operation)
-	resp, err := s.client.Do(ctx, req, operation)
+	resp, err := s.client.CallRequest(ctx, e, req, operation, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -270,15 +326,9 @@ func (s *AssetsService) UpdateAsset(ctx context.Context, assetId string, data *A
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/reference/cloud/assets/v1#POST-v1-assets-{assetId}:archive
 //
 // [POST]  /assets/v1/assets/{assetId}:archive
-func (s *AssetsService) ArchiveAsset(ctx context.Context, assetId string) (*Asset, *Response, error) {
-	u := fmt.Sprintf("/assets/v1/assets/%s:archive", assetId)
-	req, err := s.client.NewRequest(http.MethodPost, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *AssetsService) ArchiveAsset(ctx context.Context, assetId string, reqOpts ...goblox.RequestOpt) (*Asset, *Response, error) {
 	asset := new(Asset)
-	resp, err := s.client.Do(ctx, req, asset)
+	resp, err := s.client.Call(ctx, ArchiveAsset.Compile(nil, assetId), nil, asset, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -297,15 +347,9 @@ func (s *AssetsService) ArchiveAsset(ctx context.Context, assetId string) (*Asse
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/reference/cloud/assets/v1#POST-v1-assets-{assetId}:restore
 //
 // [POST] /assets/v1/assets/{assetId}:restore
-func (s *AssetsService) RestoreAsset(ctx context.Context, assetId string) (*Asset, *Response, error) {
-	u := fmt.Sprintf("/assets/v1/assets/%s:restore", assetId)
-	req, err := s.client.NewRequest(http.MethodPost, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *AssetsService) RestoreAsset(ctx context.Context, assetId string, reqOpts ...goblox.RequestOpt) (*Asset, *Response, error) {
 	asset := new(Asset)
-	resp, err := s.client.Do(ctx, req, asset)
+	resp, err := s.client.Call(ctx, RestoreAsset.Compile(nil, assetId), nil, asset, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -327,16 +371,9 @@ type AssetVersion struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/reference/cloud/assets/v1#GET-v1-assets-_assetId_-versions-_versionNumber_
 //
 // [GET] /assets/v1/assets/{assetId}/versions/{versionNumber}
-func (s *AssetsService) GetAssetVersion(ctx context.Context, assetId string, versionNumber string) (*AssetVersion, *Response, error) {
-	u := fmt.Sprintf("/assets/v1/assets/%s/versions/%s", assetId, versionNumber)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *AssetsService) GetAssetVersion(ctx context.Context, assetId string, versionNumber string, reqOpts ...goblox.RequestOpt) (*AssetVersion, *Response, error) {
 	asset := new(AssetVersion)
-	resp, err := s.client.Do(ctx, req, asset)
+	resp, err := s.client.Call(ctx, GetAssetVersion.Compile(nil, assetId, versionNumber), nil, asset, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -356,21 +393,14 @@ type AssetVersionList struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/reference/cloud/assets/v1#GET-assets-v1-assets-_assetId_-versions
 //
 // [GET] /assets/v1/assets/{assetId}/versions
-func (s *AssetsService) GetAssetVersions(ctx context.Context, assetId string, opts *Options) (*AssetVersionList, *Response, error) {
-	u := fmt.Sprintf("/assets/v1/assets/%s/versions", assetId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *AssetsService) GetAssetVersions(ctx context.Context, assetId string, opts *Options, reqOpts ...goblox.RequestOpt) (*AssetVersionList, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	asset := new(AssetVersionList)
-	resp, err := s.client.Do(ctx, req, asset)
+	resp, err := s.client.Call(ctx, GetAssetVersions.Compile(q, assetId), nil, asset, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -393,16 +423,9 @@ type AssetVersionRollback struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/reference/cloud/assets/v1#POST-assets-v1-assets-_assetId_-versions:rollback
 //
 // [POST] /assets/v1/assets/{assetId}/versions:rollback
-func (s *AssetsService) RollbackAssetVersion(ctx context.Context, assetId string, data AssetVersionRollback) (*AssetVersion, *Response, error) {
-	u := fmt.Sprintf("/assets/v1/assets/%s/versions:rollback", assetId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *AssetsService) RollbackAssetVersion(ctx context.Context, assetId string, data AssetVersionRollback, reqOpts ...goblox.RequestOpt) (*AssetVersion, *Response, error) {
 	asset := new(AssetVersion)
-	resp, err := s.client.Do(ctx, req, asset)
+	resp, err := s.client.Call(ctx, RollbackAssetVersion.Compile(nil, assetId), data, asset, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -417,15 +440,9 @@ func (s *AssetsService) RollbackAssetVersion(ctx context.Context, assetId string
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/reference/cloud/assets/v1#GET-v1-operations-_operationId_
 //
 // [GET] /assets/v1/operations/{operationId}
-func (s *AssetsService) GetOperation(ctx context.Context, operationId string) (*Operation, *Response, error) {
-	u := fmt.Sprintf("/assets/v1/operations/%s", operationId)
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *AssetsService) GetOperation(ctx context.Context, operationId string, reqOpts ...goblox.RequestOpt) (*Operation, *Response, error) {
 	operation := new(Operation)
-	resp, err := s.client.Do(ctx, req, operation)
+	resp, err := s.client.Call(ctx, GetOperation.Compile(nil, operationId), nil, operation, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}

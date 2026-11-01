@@ -2,8 +2,36 @@ package opencloud
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+
+	"github.com/typical-developers/goblox"
+	"github.com/typical-developers/goblox/auth"
+)
+
+var (
+	GetUniverse = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	)
+
+	UpdateUniverse = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/cloud/v2/universes/{universeId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe:write")
+
+	PublishUniverseMessage = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}:publishMessage",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe-messaging-service:publish")
+
+	RestartUniverseServers = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}:restartServers",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe:write")
 )
 
 // UniversesService handles communication with universe endpoints.
@@ -65,16 +93,9 @@ type Universe struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/Universe#Cloud_GetUniverse
 //
 // [GET] /cloud/v2/universes/{universe_id}
-func (s *UniversesService) GetUniverse(ctx context.Context, universeId string) (*Universe, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s", universeId)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *UniversesService) GetUniverse(ctx context.Context, universeId string, reqOpts ...goblox.RequestOpt) (*Universe, *Response, error) {
 	universe := new(Universe)
-	resp, err := s.client.Do(ctx, req, universe)
+	resp, err := s.client.Call(ctx, GetUniverse.Compile(nil, universeId), nil, universe, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -108,16 +129,9 @@ type UniverseUpdate struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/Universe#Cloud_UpdateUniverse
 //
 // [PATCH] /cloud/v2/universes/{universe_id}
-func (s *UniversesService) UpdateUniverse(ctx context.Context, universeId string, data UniverseUpdate) (*Universe, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s", universeId)
-
-	req, err := s.client.NewRequest(http.MethodPatch, u, data)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *UniversesService) UpdateUniverse(ctx context.Context, universeId string, data UniverseUpdate, reqOpts ...goblox.RequestOpt) (*Universe, *Response, error) {
 	universe := new(Universe)
-	resp, err := s.client.Do(ctx, req, universe)
+	resp, err := s.client.Call(ctx, UpdateUniverse.Compile(nil, universeId), data, universe, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -137,15 +151,8 @@ type UniverseMessage struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/Universe#Cloud_PublishUniverseMessage
 //
 // [POST] /cloud/v2/universes/{universe_id}:publishMessage
-func (s *UniversesService) PublishUniverseMessage(ctx context.Context, universeId string, data UniverseMessage) (*Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s:publishMessage", universeId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.client.Do(ctx, req, nil)
+func (s *UniversesService) PublishUniverseMessage(ctx context.Context, universeId string, data UniverseMessage, reqOpts ...goblox.RequestOpt) (*Response, error) {
+	resp, err := s.client.Call(ctx, PublishUniverseMessage.Compile(nil, universeId), data, nil, reqOpts...)
 	if err != nil {
 		return resp, err
 	}
@@ -160,15 +167,8 @@ func (s *UniversesService) PublishUniverseMessage(ctx context.Context, universeI
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/Universe#Cloud_RestartUniverseServers
 //
 // [POST] /cloud/v2/universes/{universe_id}:restartServers
-func (s *UniversesService) RestartUniverseServers(ctx context.Context, universeId string) (*Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s:restartServers", universeId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.client.Do(ctx, req, nil)
+func (s *UniversesService) RestartUniverseServers(ctx context.Context, universeId string, reqOpts ...goblox.RequestOpt) (*Response, error) {
+	resp, err := s.client.Call(ctx, RestartUniverseServers.Compile(nil, universeId), nil, nil, reqOpts...)
 	if err != nil {
 		return resp, err
 	}

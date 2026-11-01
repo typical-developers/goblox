@@ -2,8 +2,90 @@ package opencloud
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+
+	"github.com/typical-developers/goblox"
+	"github.com/typical-developers/goblox/auth"
+)
+
+var (
+	ListAssetQuota = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/users/{userId}/asset-quotas",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("asset:read")
+
+	ListInventoryItems = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/users/{userId}/inventory-items",
+		auth.KindAPIKey, auth.KindOAuth2,
+	) // user.inventory-item:read is only needed for private inventories
+
+	GetUser = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/users/{userId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	) // user.advanced:read and user.social:read add optional fields
+
+	GenerateUserThumbnail = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/users/{userId}:generateThumbnail",
+		auth.KindAPIKey, auth.KindOAuth2,
+	)
+
+	CreateUserNotification = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/users/{userId}/notifications",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("user.user-notification:write")
+
+	ListUserRestrictions = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/user-restrictions",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe.user-restriction:read")
+
+	ListUserRestrictionsPlace = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/user-restrictions",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe.user-restriction:read")
+
+	GetUserRestriction = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/user-restrictions/{userId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe.user-restriction:read")
+
+	GetUserRestrictionPlace = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/user-restrictions/{userId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe.user-restriction:read")
+
+	UpdateUserRestriction = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/cloud/v2/universes/{universeId}/user-restrictions/{userId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe.user-restriction:write")
+
+	UpdateUserRestrictionPlace = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/user-restrictions/{userId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe.user-restriction:write")
+
+	ListUserRestrictionLogs = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/user-restrictions:listLogs",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe.user-restriction:read")
+
+	ListUserRestrictionLogsPlace = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/user-restrictions:listLogs",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe.user-restriction:read")
 )
 
 // UsersService handles communication with user endpoints.
@@ -117,21 +199,14 @@ type AssetQuotas struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/AssetQuota#Cloud_ListAssetQuotas
 //
 // [GET] /cloud/v2/users/{user_id}/asset-quotas
-func (s *UsersService) ListAssetQuota(ctx context.Context, userId string, opts *OptionsWithFilter) (*AssetQuotas, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/users/%s/asset-quotas", userId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *UsersService) ListAssetQuota(ctx context.Context, userId string, opts *OptionsWithFilter, reqOpts ...goblox.RequestOpt) (*AssetQuotas, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	assetQuotas := new(AssetQuotas)
-	resp, err := s.client.Do(ctx, req, assetQuotas)
+	resp, err := s.client.Call(ctx, ListAssetQuota.Compile(q, userId), nil, assetQuotas, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -256,21 +331,14 @@ type InventoryItems struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/InventoryItem#Cloud_ListInventoryItems
 //
 // [GET] /cloud/v2/users/{user_id}/inventory-items
-func (s *UsersService) ListInventoryItems(ctx context.Context, userId string, opts *OptionsWithFilter) (*InventoryItems, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/users/%s/inventory-items", userId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *UsersService) ListInventoryItems(ctx context.Context, userId string, opts *OptionsWithFilter, reqOpts ...goblox.RequestOpt) (*InventoryItems, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	inventoryItems := new(InventoryItems)
-	resp, err := s.client.Do(ctx, req, inventoryItems)
+	resp, err := s.client.Call(ctx, ListInventoryItems.Compile(q, userId), nil, inventoryItems, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -323,16 +391,9 @@ type User struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/User#Cloud_GetUser
 //
 // [GET] /cloud/v2/users/{user_id}
-func (s *UsersService) GetUser(ctx context.Context, userId string) (*User, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/users/%s", userId)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *UsersService) GetUser(ctx context.Context, userId string, reqOpts ...goblox.RequestOpt) (*User, *Response, error) {
 	user := new(User)
-	resp, err := s.client.Do(ctx, req, user)
+	resp, err := s.client.Call(ctx, GetUser.Compile(nil, userId), nil, user, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -389,21 +450,14 @@ type UserThumbnailOptions struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/User#Cloud_GenerateUserThumbnail
 //
 // [GET] /cloud/v2/users/{user_id}:generateThumbnail
-func (s *UsersService) GenerateUserThumbnail(ctx context.Context, userId string, opts *UserThumbnailOptions) (*UserThumbnail, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/users/%s:generateThumbnail", userId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *UsersService) GenerateUserThumbnail(ctx context.Context, userId string, opts *UserThumbnailOptions, reqOpts ...goblox.RequestOpt) (*UserThumbnail, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	userThumbnail := new(UserThumbnail)
-	resp, err := s.client.Do(ctx, req, userThumbnail)
+	resp, err := s.client.Call(ctx, GenerateUserThumbnail.Compile(q, userId), nil, userThumbnail, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -457,16 +511,9 @@ type UserNotificationCreate struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/UserNotification#Cloud_CreateUserNotification
 //
 // [POST] /cloud/v2/users/{user_id}/notifications
-func (s *UsersService) CreateUserNotification(ctx context.Context, userId string, data UserNotificationCreate) (*UserNotification, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/users/%s/notifications", userId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *UsersService) CreateUserNotification(ctx context.Context, userId string, data UserNotificationCreate, reqOpts ...goblox.RequestOpt) (*UserNotification, *Response, error) {
 	userNotification := new(UserNotification)
-	resp, err := s.client.Do(ctx, req, userNotification)
+	resp, err := s.client.Call(ctx, CreateUserNotification.Compile(nil, userId), data, userNotification, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -505,24 +552,19 @@ type UserRestrictions struct {
 // [GET] /cloud/v2/universes/{universe_id}/user-restrictions
 //
 // [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/user-restrictions
-func (s *UsersService) ListUserRestrictions(ctx context.Context, universeId string, placeId *string, opts *Options) (*UserRestrictions, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/user-restrictions", universeId)
+func (s *UsersService) ListUserRestrictions(ctx context.Context, universeId string, placeId *string, opts *Options, reqOpts ...goblox.RequestOpt) (*UserRestrictions, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	e := ListUserRestrictions.Compile(q, universeId)
 	if placeId != nil {
-		u = fmt.Sprintf("/cloud/v2/universes/%s/places/%s/user-restrictions", universeId, *placeId)
-	}
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
+		e = ListUserRestrictionsPlace.Compile(q, universeId, *placeId)
 	}
 
 	userRestrictions := new(UserRestrictions)
-	resp, err := s.client.Do(ctx, req, userRestrictions)
+	resp, err := s.client.Call(ctx, e, nil, userRestrictions, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -539,19 +581,14 @@ func (s *UsersService) ListUserRestrictions(ctx context.Context, universeId stri
 // [GET] /cloud/v2/universes/{universe_id}/user-restrictions/{user_id}
 //
 // [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/user-restrictions/{user_id}
-func (s *UsersService) GetUserRestriction(ctx context.Context, universeId string, placeId *string, userId string) (*UserRestriction, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/user-restrictions/%s", universeId, userId)
+func (s *UsersService) GetUserRestriction(ctx context.Context, universeId string, placeId *string, userId string, reqOpts ...goblox.RequestOpt) (*UserRestriction, *Response, error) {
+	e := GetUserRestriction.Compile(nil, universeId, userId)
 	if placeId != nil {
-		u = fmt.Sprintf("/cloud/v2/universes/%s/places/%s/user-restrictions/%s", universeId, *placeId, userId)
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
+		e = GetUserRestrictionPlace.Compile(nil, universeId, *placeId, userId)
 	}
 
 	userRestriction := new(UserRestriction)
-	resp, err := s.client.Do(ctx, req, userRestriction)
+	resp, err := s.client.Call(ctx, e, nil, userRestriction, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -586,24 +623,19 @@ type UserRestrictionUpdateOptions struct {
 // [PATCH] /cloud/v2/universes/{universe_id}/user-restrictions/{user_id}
 //
 // [PATCH] /cloud/v2/universes/{universe_id}/places/{place_id}/user-restrictions/{user_id}
-func (s *UsersService) UpdateUserRestriction(ctx context.Context, universeId string, placeId *string, userId string, data UserRestrictionUpdate, opts *UserRestrictionUpdateOptions) (*UserRestriction, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/user-restrictions/%s", universeId, userId)
+func (s *UsersService) UpdateUserRestriction(ctx context.Context, universeId string, placeId *string, userId string, data UserRestrictionUpdate, opts *UserRestrictionUpdateOptions, reqOpts ...goblox.RequestOpt) (*UserRestriction, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	e := UpdateUserRestriction.Compile(q, universeId, userId)
 	if placeId != nil {
-		u = fmt.Sprintf("/cloud/v2/universes/%s/places/%s/user-restrictions/%s", universeId, *placeId, userId)
-	}
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodPatch, u, data)
-	if err != nil {
-		return nil, nil, err
+		e = UpdateUserRestrictionPlace.Compile(q, universeId, *placeId, userId)
 	}
 
 	userRestriction := new(UserRestriction)
-	resp, err := s.client.Do(ctx, req, userRestriction)
+	resp, err := s.client.Call(ctx, e, data, userRestriction, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -643,24 +675,19 @@ type UserRestrictionLogs struct {
 // [GET] /cloud/v2/universes/{universe_id}/user-restrictions:listLogs
 //
 // [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/user-restrictions:listLogs
-func (s *UsersService) ListUserRestrictionLogs(ctx context.Context, universeId string, placeId *string, opts *OptionsWithFilter) (*UserRestrictionLogs, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/user-restrictions:listLogs", universeId)
+func (s *UsersService) ListUserRestrictionLogs(ctx context.Context, universeId string, placeId *string, opts *OptionsWithFilter, reqOpts ...goblox.RequestOpt) (*UserRestrictionLogs, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	e := ListUserRestrictionLogs.Compile(q, universeId)
 	if placeId != nil {
-		u = fmt.Sprintf("/cloud/v2/universes/%s/places/%s/user-restrictions:listLogs", universeId, *placeId)
-	}
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
+		e = ListUserRestrictionLogsPlace.Compile(q, universeId, *placeId)
 	}
 
 	restrictionLogs := new(UserRestrictionLogs)
-	resp, err := s.client.Do(ctx, req, restrictionLogs)
+	resp, err := s.client.Call(ctx, e, nil, restrictionLogs, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}

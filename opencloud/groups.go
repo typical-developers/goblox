@@ -2,8 +2,66 @@ package opencloud
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+
+	"github.com/typical-developers/goblox"
+	"github.com/typical-developers/goblox/auth"
+)
+
+var (
+	GetGroup = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/groups/{groupId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	)
+
+	ListGroupJoinRequests = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/groups/{groupId}/join-requests",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("group:read")
+
+	AcceptGroupJoinRequest = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/groups/{groupId}/join-requests/{userId}:accept",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("group:write")
+
+	DeclineGroupJoinRequest = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/groups/{groupId}/join-requests/{userId}:decline",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("group:write")
+
+	ListGroupMemberships = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/groups/{groupId}/memberships",
+		auth.KindAPIKey, auth.KindOAuth2,
+	)
+
+	UpdateGroupMemberships = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/cloud/v2/groups/{groupId}/memberships/{userId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("group:write")
+
+	ListGroupRoles = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/groups/{groupId}/roles",
+		auth.KindAPIKey, auth.KindOAuth2,
+	)
+
+	GetGroupRoles = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/groups/{groupId}/roles/{roleId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	)
+
+	GetGroupShout = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/groups/{groupId}/shout",
+		auth.KindAPIKey, auth.KindOAuth2,
+	)
 )
 
 // GroupsService handles communication with group endpoints.
@@ -30,16 +88,9 @@ type Group struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/Group#Cloud_GetGroup
 //
 // [GET] /cloud/v2/groups/{group_id}
-func (s *GroupsService) GetGroup(ctx context.Context, groupId string) (*Group, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/groups/%s", groupId)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *GroupsService) GetGroup(ctx context.Context, groupId string, reqOpts ...goblox.RequestOpt) (*Group, *Response, error) {
 	group := new(Group)
-	resp, err := s.client.Do(ctx, req, group)
+	resp, err := s.client.Call(ctx, GetGroup.Compile(nil, groupId), nil, group, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -65,21 +116,14 @@ type GroupJoinRequests struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/GroupJoinRequest#Cloud_ListGroupJoinRequests
 //
 // [GET] /cloud/v2/groups/{group_id}/join-requests
-func (s *GroupsService) ListGroupJoinRequests(ctx context.Context, groupId string, opts *OptionsWithFilter) (*GroupJoinRequests, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/groups/%s/join-requests", groupId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *GroupsService) ListGroupJoinRequests(ctx context.Context, groupId string, opts *OptionsWithFilter, reqOpts ...goblox.RequestOpt) (*GroupJoinRequests, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	groupJoinRequests := new(GroupJoinRequests)
-	resp, err := s.client.Do(ctx, req, groupJoinRequests)
+	resp, err := s.client.Call(ctx, ListGroupJoinRequests.Compile(q, groupId), nil, groupJoinRequests, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -94,15 +138,8 @@ func (s *GroupsService) ListGroupJoinRequests(ctx context.Context, groupId strin
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/GroupJoinRequest#Cloud_AcceptGroupJoinRequest
 //
 // [POST] /cloud/v2/groups/{group_id}/join-requests/{user_id}:accept
-func (s *GroupsService) AcceptGroupJoinRequest(ctx context.Context, groupId, userId string) (*Response, error) {
-	u := fmt.Sprintf("/cloud/v2/groups/%s/join-requests/%s:accept", groupId, userId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.client.Do(ctx, req, nil)
+func (s *GroupsService) AcceptGroupJoinRequest(ctx context.Context, groupId, userId string, reqOpts ...goblox.RequestOpt) (*Response, error) {
+	resp, err := s.client.Call(ctx, AcceptGroupJoinRequest.Compile(nil, groupId, userId), nil, nil, reqOpts...)
 	if err != nil {
 		return resp, err
 	}
@@ -117,15 +154,8 @@ func (s *GroupsService) AcceptGroupJoinRequest(ctx context.Context, groupId, use
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/GroupJoinRequest#Cloud_DeclineGroupJoinRequest
 //
 // [POST] /cloud/v2/groups/{group_id}/join-requests/{user_id}:decline
-func (s *GroupsService) DeclineGroupJoinRequest(ctx context.Context, groupId, userId string) (*Response, error) {
-	u := fmt.Sprintf("/cloud/v2/groups/%s/join-requests/%s:decline", groupId, userId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.client.Do(ctx, req, nil)
+func (s *GroupsService) DeclineGroupJoinRequest(ctx context.Context, groupId, userId string, reqOpts ...goblox.RequestOpt) (*Response, error) {
+	resp, err := s.client.Call(ctx, DeclineGroupJoinRequest.Compile(nil, groupId, userId), nil, nil, reqOpts...)
 	if err != nil {
 		return resp, err
 	}
@@ -153,21 +183,14 @@ type GroupMemberships struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/GroupMembership#Cloud_ListGroupMemberships
 //
 // [GET] /cloud/v2/groups/{group_id}/memberships
-func (s *GroupsService) ListGroupMemberships(ctx context.Context, groupId string, opts *OptionsWithFilter) (*GroupMemberships, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/groups/%s/memberships", groupId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *GroupsService) ListGroupMemberships(ctx context.Context, groupId string, opts *OptionsWithFilter, reqOpts ...goblox.RequestOpt) (*GroupMemberships, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	groupMemberships := new(GroupMemberships)
-	resp, err := s.client.Do(ctx, req, groupMemberships)
+	resp, err := s.client.Call(ctx, ListGroupMemberships.Compile(q, groupId), nil, groupMemberships, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -186,16 +209,9 @@ type GroupMembershipUpdate struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/GroupMembership#Cloud_UpdateGroupMembership
 //
 // [PATCH] /cloud/v2/groups/{group_id}/memberships/{user_id}
-func (s *GroupsService) UpdateGroupMemberships(ctx context.Context, groupId, userId string, data GroupMembershipUpdate) (*GroupMembership, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/groups/%s/memberships/%s", groupId, userId)
-
-	req, err := s.client.NewRequest(http.MethodPatch, u, data)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *GroupsService) UpdateGroupMemberships(ctx context.Context, groupId, userId string, data GroupMembershipUpdate, reqOpts ...goblox.RequestOpt) (*GroupMembership, *Response, error) {
 	groupMembership := new(GroupMembership)
-	resp, err := s.client.Do(ctx, req, groupMembership)
+	resp, err := s.client.Call(ctx, UpdateGroupMemberships.Compile(nil, groupId, userId), data, groupMembership, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -257,21 +273,14 @@ type GroupRoles struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/GroupRole#Cloud_ListGroupRoles
 //
 // [GET] /cloud/v2/groups/{group_id}/roles
-func (s *GroupsService) ListGroupRoles(ctx context.Context, groupId string, opts *OptionsWithFilter) (*GroupRoles, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/groups/%s/roles", groupId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *GroupsService) ListGroupRoles(ctx context.Context, groupId string, opts *OptionsWithFilter, reqOpts ...goblox.RequestOpt) (*GroupRoles, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	groupRoles := new(GroupRoles)
-	resp, err := s.client.Do(ctx, req, groupRoles)
+	resp, err := s.client.Call(ctx, ListGroupRoles.Compile(q, groupId), nil, groupRoles, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -286,16 +295,9 @@ func (s *GroupsService) ListGroupRoles(ctx context.Context, groupId string, opts
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/GroupRole#Cloud_GetGroupRole
 //
 // [GET] /cloud/v2/groups/{group_id}/roles/{role_id}
-func (s *GroupsService) GetGroupRoles(ctx context.Context, groupId, roleId string) (*GroupRole, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/groups/%s/roles/%s", groupId, roleId)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *GroupsService) GetGroupRoles(ctx context.Context, groupId, roleId string, reqOpts ...goblox.RequestOpt) (*GroupRole, *Response, error) {
 	groupRole := new(GroupRole)
-	resp, err := s.client.Do(ctx, req, groupRole)
+	resp, err := s.client.Call(ctx, GetGroupRoles.Compile(nil, groupId, roleId), nil, groupRole, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -318,16 +320,9 @@ type GroupShout struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/GroupShout#Cloud_GetGroupShout
 //
 // [GET] /cloud/v2/groups/{group_id}/shout
-func (s *GroupsService) GetGroupShout(ctx context.Context, groupId string) (*GroupShout, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/groups/%s/shout", groupId)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *GroupsService) GetGroupShout(ctx context.Context, groupId string, reqOpts ...goblox.RequestOpt) (*GroupShout, *Response, error) {
 	groupShout := new(GroupShout)
-	resp, err := s.client.Do(ctx, req, groupShout)
+	resp, err := s.client.Call(ctx, GetGroupShout.Compile(nil, groupId), nil, groupShout, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}

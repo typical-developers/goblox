@@ -2,8 +2,36 @@ package opencloud
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+
+	"github.com/typical-developers/goblox"
+	"github.com/typical-developers/goblox/auth"
+)
+
+var (
+	CreateCreatorStoreProduct = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/creator-store-products",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("creator-store-product:write")
+
+	GetCreatorStoreProduct = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/creator-store-products/{productId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("creator-store-product:read")
+
+	UpdateCreatorStoreProduct = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/cloud/v2/creator-store-products/{productId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("creator-store-product:write")
+
+	GetSubscription = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/subscription-products/{productId}/subscriptions/{subscriptionId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe:write", "universe.subscription-product.subscription:read")
 )
 
 // MonetizationService will handle communciation with the actions related to the API.
@@ -55,16 +83,9 @@ type CreatorStoreProductCreate struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/CreatorStoreProduct#Cloud_CreateCreatorStoreProduct
 //
 // [POST] /cloud/v2/creator-store-products
-func (s *MonetizationService) CreateCreatorStoreProduct(ctx context.Context, data CreatorStoreProductCreate) (*CreatorStoreProduct, *Response, error) {
-	u := "/cloud/v2/creator-store-products"
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *MonetizationService) CreateCreatorStoreProduct(ctx context.Context, data CreatorStoreProductCreate, reqOpts ...goblox.RequestOpt) (*CreatorStoreProduct, *Response, error) {
 	product := new(CreatorStoreProduct)
-	resp, err := s.client.Do(ctx, req, product)
+	resp, err := s.client.Call(ctx, CreateCreatorStoreProduct.Compile(nil), data, product, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -79,16 +100,9 @@ func (s *MonetizationService) CreateCreatorStoreProduct(ctx context.Context, dat
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/CreatorStoreProduct#Cloud_GetCreatorStoreProduct
 //
 // [GET] /cloud/v2/creator-store-products/{product_id}
-func (s *MonetizationService) GetCreatorStoreProduct(ctx context.Context, productId string) (*CreatorStoreProduct, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/creator-store-products/%s", productId)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *MonetizationService) GetCreatorStoreProduct(ctx context.Context, productId string, reqOpts ...goblox.RequestOpt) (*CreatorStoreProduct, *Response, error) {
 	product := new(CreatorStoreProduct)
-	resp, err := s.client.Do(ctx, req, product)
+	resp, err := s.client.Call(ctx, GetCreatorStoreProduct.Compile(nil, productId), nil, product, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -109,16 +123,9 @@ type CreatorStoreProductUpdate struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/CreatorStoreProduct#Cloud_UpdateCreatorStoreProduct
 //
 // [PATCH] /cloud/v2/creator-store-products/{product_id}
-func (s *MonetizationService) UpdateCreatorStoreProduct(ctx context.Context, productId string, data CreatorStoreProductUpdate) (*CreatorStoreProduct, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/creator-store-products/%s", productId)
-
-	req, err := s.client.NewRequest(http.MethodPatch, u, data)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *MonetizationService) UpdateCreatorStoreProduct(ctx context.Context, productId string, data CreatorStoreProductUpdate, reqOpts ...goblox.RequestOpt) (*CreatorStoreProduct, *Response, error) {
 	product := new(CreatorStoreProduct)
-	resp, err := s.client.Do(ctx, req, product)
+	resp, err := s.client.Call(ctx, UpdateCreatorStoreProduct.Compile(nil, productId), data, product, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -208,21 +215,14 @@ type SubscriptionOpts struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/Subscription#Cloud_GetSubscription
 //
 // [GET] /cloud/v2/universes/{universe_id}/subscription-products/{product_id}/subscriptions/{subscription_id}
-func (s *MonetizationService) GetSubscription(ctx context.Context, universeId, productId, subscriptionId string, opts *SubscriptionOpts) (*Subscription, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/subscription-products/%s/subscriptions/%s", universeId, productId, subscriptionId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *MonetizationService) GetSubscription(ctx context.Context, universeId, productId, subscriptionId string, opts *SubscriptionOpts, reqOpts ...goblox.RequestOpt) (*Subscription, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	subscription := new(Subscription)
-	resp, err := s.client.Do(ctx, req, subscription)
+	resp, err := s.client.Call(ctx, GetSubscription.Compile(q, universeId, productId, subscriptionId), nil, subscription, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}

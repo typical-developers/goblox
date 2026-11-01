@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
 	"reflect"
 
 	"github.com/google/go-querystring/query"
+	"github.com/typical-developers/goblox"
 	"github.com/typical-developers/goblox/auth"
 )
 
@@ -66,6 +68,10 @@ func NewClient(opts ...ClientOpts) *Client {
 func (c *Client) init() *Client {
 	c.common.client = c
 
+	if c.BaseURL == nil {
+		c.BaseURL, _ = url.Parse(baseURL)
+	}
+
 	c.BaseURL, _ = url.Parse(baseURL)
 
 	// v1
@@ -88,7 +94,7 @@ func (c *Client) init() *Client {
 
 // WithCredential will let you use a custom credential to authenticate with the Opencloud API.
 // You can use [auth.APIKey] or [auth.OAuthToken] to create a credential.
-func (c *Client) WithCredential(cred auth.Credential) *Client {
+func (c *Client) withCredential(cred auth.Credential) *Client {
 	nc := &Client{
 		client:     c.client,
 		credential: cred,
@@ -102,14 +108,91 @@ func (c *Client) WithCredential(cred auth.Credential) *Client {
 //
 // You can create a new API key at: https://create.roblox.com/dashboard/credentials?activeTab=ApiKeysTab
 func (c *Client) WithAPIKey(apiKey string) *Client {
-	return c.WithCredential(auth.APIKey(apiKey))
+	return c.withCredential(auth.APIKey(apiKey))
 }
 
 // WithOAuthToken will use an OAuth token to authenticate with the Opencloud API.
 //
 // You can create a new OAuth client at: https://create.roblox.com/dashboard/credentials?activeTab=OAuthTab
 func (c *Client) WithOAuthToken(token string) *Client {
-	return c.WithCredential(auth.OAuthToken(token))
+	return c.withCredential(auth.OAuthToken(token))
+}
+
+// WithBaseURL will override with a custom base url.
+func WithBaseURL(u *url.URL) ClientOpts {
+	return func(c *Client) {
+		c.BaseURL = u
+	}
+}
+
+func (c *Client) config(opts []goblox.RequestOpt) goblox.RequestConfig {
+	config := goblox.RequestConfig{Credential: c.credential}
+
+	for _, opt := range opts {
+		opt(&config)
+	}
+
+	return config
+}
+
+func (c *Client) send(ctx context.Context, req *http.Request, _ *goblox.Endpoint, config goblox.RequestConfig, out any) (*Response, error) {
+	req = req.WithContext(ctx)
+
+	for k, vs := range config.Header {
+		for _, v := range vs {
+			req.Header.Add(k, v)
+		}
+	}
+
+	if config.Credential != nil {
+		if err := config.Credential.Apply(req); err != nil {
+			return nil, err
+		}
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	response := &Response{resp}
+	if response.Ok() {
+		if out != nil && response.StatusCode != http.StatusNoContent {
+			if err := json.NewDecoder(resp.Body).Decode(out); err != nil && !errors.Is(err, io.EOF) {
+				return response, err
+			}
+		}
+	}
+
+	return response, nil
+}
+
+func (c *Client) Call(ctx context.Context, e *goblox.CompiledEndpoint, body, out any, opts ...goblox.RequestOpt) (*Response, error) {
+	config := c.config(opts)
+
+	if err := e.Endpoint.Check(config.Credential); err != nil {
+		return nil, err
+	}
+
+	req, err := c.NewRequest(e.Endpoint.Method, e.Path, body)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.send(ctx, req, e.Endpoint, config, out)
+}
+
+// CallRequest sends a request built by hand (a multipart upload, for example)
+// for endpoint e. Like Call, it checks the credential against the endpoint first.
+func (c *Client) CallRequest(ctx context.Context, e *goblox.CompiledEndpoint, req *http.Request, out any, opts ...goblox.RequestOpt) (*Response, error) {
+	config := c.config(opts)
+
+	if err := e.Endpoint.Check(config.Credential); err != nil {
+		return nil, err
+	}
+
+	return c.send(ctx, req, e.Endpoint, config, out)
 }
 
 func (c *Client) NewRequest(method, urlString string, body any) (*http.Request, error) {
@@ -158,47 +241,22 @@ type Response struct {
 	*http.Response
 }
 
-func (c *Client) Do(ctx context.Context, req *http.Request, v any) (*Response, error) {
-	req = req.WithContext(ctx)
-	if c.credential != nil {
-		if err := c.credential.Apply(req); err != nil {
-			return nil, err
-		}
-	}
-
-	resp, err := c.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	response := &Response{Response: resp}
-	if v != nil {
-		err = json.NewDecoder(resp.Body).Decode(v)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return response, err
+// Ok will check if the status code is 200-299.
+func (r *Response) Ok() bool {
+	return (r.StatusCode >= 200 && r.StatusCode <= 299)
 }
 
-func addOpts(urlString string, opts any) (string, error) {
+func (c *Client) Do(ctx context.Context, req *http.Request, v any, opts ...goblox.RequestOpt) (*Response, error) {
+	return c.send(ctx, req, nil, c.config(opts), v)
+}
+
+// queryValues encodes a struct with `url` tags as query values for Compile.
+// A nil pointer gives no values.
+func queryValues(opts any) (url.Values, error) {
 	v := reflect.ValueOf(opts)
-	if v.Kind() == reflect.Ptr && v.IsNil() {
-		return urlString, nil
+	if !v.IsValid() || (v.Kind() == reflect.Ptr && v.IsNil()) {
+		return nil, nil
 	}
 
-	u, err := url.Parse(urlString)
-	if err != nil {
-		return urlString, err
-	}
-
-	q, err := query.Values(opts)
-	if err != nil {
-		return urlString, err
-	}
-
-	u.RawQuery = q.Encode()
-	return u.String(), nil
+	return query.Values(opts)
 }

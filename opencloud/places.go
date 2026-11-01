@@ -4,6 +4,35 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/typical-developers/goblox"
+	"github.com/typical-developers/goblox/auth"
+)
+
+var (
+	GetInstance = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/instances/{instanceId}",
+		auth.KindAPIKey,
+	).WithScopes("universe.place.instance:read")
+
+	ListInstanceChildren = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/instances/{instanceId}:listChildren",
+		auth.KindAPIKey,
+	).WithScopes("universe.place.instance:read")
+
+	GetPlace = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/places/{placeId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	)
+
+	UpdatePlace = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/cloud/v2/universes/{universeId}/places/{placeId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("universe.place:write")
 )
 
 // PlacesService handles communication with place and instance endpoints.
@@ -62,16 +91,9 @@ type Instance struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/Instance#Cloud_GetInstance
 //
 // [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/instances/{instance_id}
-func (s *PlacesService) GetInstance(ctx context.Context, universeId, placeId, instanceId string) (*Instance, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s/instances/%s", universeId, placeId, instanceId)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *PlacesService) GetInstance(ctx context.Context, universeId, placeId, instanceId string, reqOpts ...goblox.RequestOpt) (*Instance, *Response, error) {
 	instance := new(Instance)
-	resp, err := s.client.Do(ctx, req, instance)
+	resp, err := s.client.Call(ctx, GetInstance.Compile(nil, universeId, placeId, instanceId), nil, instance, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -106,21 +128,14 @@ type InstanceChildren struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/Instance#Cloud_ListInstanceChildren
 //
 // [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/instances/{instance_id}:listChildren
-func (s *PlacesService) ListInstanceChildren(ctx context.Context, universeId, placeId, instanceId string, opts *Options) (*InstanceChildren, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s/instances/%s:listChildren", universeId, placeId, instanceId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *PlacesService) ListInstanceChildren(ctx context.Context, universeId, placeId, instanceId string, opts *Options, reqOpts ...goblox.RequestOpt) (*InstanceChildren, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	instanceChildren := new(InstanceChildren)
-	resp, err := s.client.Do(ctx, req, instanceChildren)
+	resp, err := s.client.Call(ctx, ListInstanceChildren.Compile(q, universeId, placeId, instanceId), nil, instanceChildren, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -144,16 +159,9 @@ type Place struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/Place#Cloud_GetPlace
 //
 // [GET] /cloud/v2/universes/{universe_id}/places/{place_id}
-func (s *PlacesService) GetPlace(ctx context.Context, universeId, placeId string) (*Place, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s", universeId, placeId)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *PlacesService) GetPlace(ctx context.Context, universeId, placeId string, reqOpts ...goblox.RequestOpt) (*Place, *Response, error) {
 	place := new(Place)
-	resp, err := s.client.Do(ctx, req, place)
+	resp, err := s.client.Call(ctx, GetPlace.Compile(nil, universeId, placeId), nil, place, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -178,21 +186,14 @@ type PlaceUpdateOptions struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/Place#Cloud_UpdatePlace
 //
 // [PATCH] /cloud/v2/universes/{universe_id}/places/{place_id}
-func (s *PlacesService) UpdatePlace(ctx context.Context, universeId, placeId string, data PlaceUpdate, opts *PlaceUpdateOptions) (*Place, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s", universeId, placeId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodPatch, u, data)
+func (s *PlacesService) UpdatePlace(ctx context.Context, universeId, placeId string, data PlaceUpdate, opts *PlaceUpdateOptions, reqOpts ...goblox.RequestOpt) (*Place, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	place := new(Place)
-	resp, err := s.client.Do(ctx, req, place)
+	resp, err := s.client.Call(ctx, UpdatePlace.Compile(q, universeId, placeId), data, place, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}

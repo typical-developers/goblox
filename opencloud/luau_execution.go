@@ -7,6 +7,59 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+
+	"github.com/typical-developers/goblox"
+	"github.com/typical-developers/goblox/auth"
+)
+
+var (
+	GetLuauExecutionSessionTask = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/versions/{versionId}/luau-execution-sessions/{sessionId}/tasks/{taskId}",
+		auth.KindAPIKey,
+	).WithScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
+
+	CreateLuauExecutionSessionTaskBinaryInput = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/luau-execution-session-task-binary-inputs",
+		auth.KindAPIKey,
+	).WithScopes("universe.place.luau-execution-session:write")
+
+	CreateLuauExecutionSessionTask = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/luau-execution-session-tasks",
+		auth.KindAPIKey,
+	).WithScopes("universe.place.luau-execution-session:write")
+
+	CreateLuauExecutionSessionTaskVersion = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/versions/{versionId}/luau-execution-session-tasks",
+		auth.KindAPIKey,
+	).WithScopes("universe.place.luau-execution-session:write")
+
+	ListLuauExecutionSessionTaskLogs = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/luau-execution-tasks/{taskId}/logs",
+		auth.KindAPIKey,
+	).WithScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
+
+	ListLuauExecutionSessionTaskLogsVersion = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/versions/{versionId}/luau-execution-tasks/{taskId}/logs",
+		auth.KindAPIKey,
+	).WithScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
+
+	ListLuauExecutionSessionTaskLogsSession = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/luau-execution-sessions/{sessionId}/tasks/{taskId}/logs",
+		auth.KindAPIKey,
+	).WithScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
+
+	ListLuauExecutionSessionTaskLogsVersionSession = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/places/{placeId}/versions/{versionId}/luau-execution-sessions/{sessionId}/tasks/{taskId}/logs",
+		auth.KindAPIKey,
+	).WithScopes("universe.place.luau-execution-session:read", "universe.place.luau-execution-session:write")
 )
 
 var (
@@ -149,19 +202,14 @@ type LuauExecutionTaskCreate struct {
 // [POST] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-session-tasks
 //
 // [POST] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-session-tasks
-func (s *LuauExecutionService) CreateLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId *string, data LuauExecutionTaskCreate) (*LuauExecutionTask, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s/luau-execution-session-tasks", universeId, placeId)
+func (s *LuauExecutionService) CreateLuauExecutionSessionTask(ctx context.Context, universeId, placeId string, versionId *string, data LuauExecutionTaskCreate, reqOpts ...goblox.RequestOpt) (*LuauExecutionTask, *Response, error) {
+	e := CreateLuauExecutionSessionTask.Compile(nil, universeId, placeId)
 	if versionId != nil {
-		u = fmt.Sprintf("/cloud/v2/universes/%s/places/%s/versions/%s/luau-execution-session-tasks", universeId, placeId, *versionId)
-	}
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
-	if err != nil {
-		return nil, nil, err
+		e = CreateLuauExecutionSessionTaskVersion.Compile(nil, universeId, placeId, *versionId)
 	}
 
 	luauExecutionSessionTask := new(LuauExecutionTask)
-	resp, err := s.client.Do(ctx, req, luauExecutionSessionTask)
+	resp, err := s.client.Call(ctx, e, data, luauExecutionSessionTask, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -180,18 +228,9 @@ func (s *LuauExecutionService) CreateLuauExecutionSessionTask(ctx context.Contex
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/LuauExecutionSessionTask#Cloud_GetLuauExecutionSessionTask
 //
 // [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-sessions/{session_id}/tasks/{task_id}
-func (s *LuauExecutionService) GetLuauExecutionSessionTask(ctx context.Context, universeId, placeId, versionId, sessionId, taskId string) (*LuauExecutionTask, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s/versions/%s/luau-execution-sessions/%s/tasks/%s",
-		universeId, placeId, versionId, sessionId, taskId,
-	)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *LuauExecutionService) GetLuauExecutionSessionTask(ctx context.Context, universeId, placeId, versionId, sessionId, taskId string, reqOpts ...goblox.RequestOpt) (*LuauExecutionTask, *Response, error) {
 	luauExecutionSessionTask := new(LuauExecutionTask)
-	resp, err := s.client.Do(ctx, req, luauExecutionSessionTask)
+	resp, err := s.client.Call(ctx, GetLuauExecutionSessionTask.Compile(nil, universeId, placeId, versionId, sessionId, taskId), nil, luauExecutionSessionTask, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -216,16 +255,9 @@ type LuauExecutionSessionTaskBinaryInputCreate struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/LuauExecutionSessionTaskBinaryInput#Cloud_CreateLuauExecutionSessionTaskBinaryInput
 //
 // [POST] /cloud/v2/universes/{universe_id}/luau-execution-session-task-binary-inputs
-func (s *LuauExecutionService) CreateLuauExecutionSessionTaskBinaryInput(ctx context.Context, universeId string, data LuauExecutionSessionTaskBinaryInputCreate) (*LuauExecutionSessionTaskBinaryInput, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/luau-execution-session-task-binary-inputs", universeId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *LuauExecutionService) CreateLuauExecutionSessionTaskBinaryInput(ctx context.Context, universeId string, data LuauExecutionSessionTaskBinaryInputCreate, reqOpts ...goblox.RequestOpt) (*LuauExecutionSessionTaskBinaryInput, *Response, error) {
 	luauExecutionSessionTaskBinaryInput := new(LuauExecutionSessionTaskBinaryInput)
-	resp, err := s.client.Do(ctx, req, luauExecutionSessionTaskBinaryInput)
+	resp, err := s.client.Call(ctx, CreateLuauExecutionSessionTaskBinaryInput.Compile(nil, universeId), data, luauExecutionSessionTaskBinaryInput, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -241,7 +273,7 @@ func (s *LuauExecutionService) CreateLuauExecutionSessionTaskBinaryInput(ctx con
 // Roblox Opencloud API Docs: unavailable.
 //
 // [PUT] {url}
-func (s *LuauExecutionService) UploadLuauExecutionSessionTaskBinaryInput(ctx context.Context, url string, data []byte) (*Response, error) {
+func (s *LuauExecutionService) UploadLuauExecutionSessionTaskBinaryInput(ctx context.Context, url string, data []byte, reqOpts ...goblox.RequestOpt) (*Response, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPut, url, bytes.NewReader(data))
 
 	if err != nil {
@@ -251,7 +283,7 @@ func (s *LuauExecutionService) UploadLuauExecutionSessionTaskBinaryInput(ctx con
 	req.Header.Set("Content-Type", "application/octet-stream")
 	req.Header.Set("Content-Length", fmt.Sprintf("%d", len(data)))
 
-	resp, err := s.client.Do(ctx, req, nil)
+	resp, err := s.client.Do(ctx, req, nil, reqOpts...)
 	if err != nil {
 		return resp, err
 	}
@@ -302,31 +334,26 @@ type LuauExecutionTaskLogs struct {
 // [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/luau-execution-sessions/{session_id}/tasks/{task_id}/logs
 //
 // [GET] /cloud/v2/universes/{universe_id}/places/{place_id}/versions/{version_id}/luau-execution-sessions/{session_id}/tasks/{task_id}/logs
-func (s *LuauExecutionService) ListLuauExecutionSessionTaskLogs(ctx context.Context, universeId, placeId string, versionId, sessionId *string, taskId string, opts *Options) (*LuauExecutionTaskLogs, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/places/%s", universeId, placeId)
-
-	if versionId != nil {
-		u += fmt.Sprintf("/versions/%s", *versionId)
-	}
-
-	if sessionId != nil {
-		u += fmt.Sprintf("/luau-execution-sessions/%s/tasks/%s", *sessionId, taskId)
-	} else {
-		u += fmt.Sprintf("/luau-execution-tasks/%s", taskId)
-	}
-
-	u, err := addOpts(u, opts)
+func (s *LuauExecutionService) ListLuauExecutionSessionTaskLogs(ctx context.Context, universeId, placeId string, versionId, sessionId *string, taskId string, opts *Options, reqOpts ...goblox.RequestOpt) (*LuauExecutionTaskLogs, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
+	var e *goblox.CompiledEndpoint
+	switch {
+	case versionId != nil && sessionId != nil:
+		e = ListLuauExecutionSessionTaskLogsVersionSession.Compile(q, universeId, placeId, *versionId, *sessionId, taskId)
+	case versionId != nil:
+		e = ListLuauExecutionSessionTaskLogsVersion.Compile(q, universeId, placeId, *versionId, taskId)
+	case sessionId != nil:
+		e = ListLuauExecutionSessionTaskLogsSession.Compile(q, universeId, placeId, *sessionId, taskId)
+	default:
+		e = ListLuauExecutionSessionTaskLogs.Compile(q, universeId, placeId, taskId)
 	}
 
 	luauExecutionSessionTaskLogs := new(LuauExecutionTaskLogs)
-	resp, err := s.client.Do(ctx, req, luauExecutionSessionTaskLogs)
+	resp, err := s.client.Call(ctx, e, nil, luauExecutionSessionTaskLogs, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}

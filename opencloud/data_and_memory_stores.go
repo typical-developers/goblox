@@ -2,8 +2,198 @@ package opencloud
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+
+	"github.com/typical-developers/goblox"
+	"github.com/typical-developers/goblox/auth"
+)
+
+var (
+	ListDataStores = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/data-stores",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.control:list")
+
+	SnapshotDataStores = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/data-stores:snapshot",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.control:snapshot")
+
+	FlushMemoryStore = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/memory-store:flush",
+		auth.KindAPIKey,
+	).WithScopes("universe.memory-store:flush")
+
+	CreateMemoryStoreQueueItem = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/memory-store/queues/{queueId}/items",
+		auth.KindAPIKey,
+	).WithScopes("universe.memory-store.queue:write")
+
+	DiscardMemoryStoreQueueItems = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/memory-store/queues/{queueId}/items:discard",
+		auth.KindAPIKey,
+	).WithScopes("universe.memory-store.queue:discard")
+
+	ReadMemoryStoreQueueItems = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/memory-store/queues/{queueId}/items:read",
+		auth.KindAPIKey,
+	).WithScopes("universe.memory-store.queue:dequeue")
+
+	ListMemoryStoreSortedMapItems = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/memory-store/sorted-maps/{sortedMapId}/items",
+		auth.KindAPIKey,
+	).WithScopes("universe.memory-store.sorted-map:read")
+
+	CreateMemoryStoreSortedMapItem = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/memory-store/sorted-maps/{sortedMapId}/items",
+		auth.KindAPIKey,
+	).WithScopes("universe.memory-store.sorted-map:write")
+
+	GetMemoryStoreSortedMapItem = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/memory-store/sorted-maps/{sortedMapId}/items/{itemId}",
+		auth.KindAPIKey,
+	).WithScopes("universe.memory-store.sorted-map:read")
+
+	DeleteMemoryStoreSortedMapItem = goblox.NewEndpoint(
+		http.MethodDelete,
+		"/cloud/v2/universes/{universeId}/memory-store/sorted-maps/{sortedMapId}/items/{itemId}",
+		auth.KindAPIKey,
+	).WithScopes("universe.memory-store.sorted-map:write")
+
+	UpdateMemoryStoreSortedMapItem = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/cloud/v2/universes/{universeId}/memory-store/sorted-maps/{sortedMapId}/items/{itemId}",
+		auth.KindAPIKey,
+	).WithScopes("universe.memory-store.sorted-map:write")
+
+	ListOrderedDataStoreEntries = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/ordered-data-stores/{orderedDataStoreId}/scopes/{scopeId}/entries",
+		auth.KindAPIKey,
+	).WithScopes("universe.ordered-data-store.scope.entry:read")
+
+	CreateOrderedDataStoreEntry = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/ordered-data-stores/{orderedDataStoreId}/scopes/{scopeId}/entries",
+		auth.KindAPIKey,
+	).WithScopes("universe.ordered-data-store.scope.entry:write")
+
+	GetOrderedDataStoreEntry = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/ordered-data-stores/{orderedDataStoreId}/scopes/{scopeId}/entries/{entryId}",
+		auth.KindAPIKey,
+	).WithScopes("universe.ordered-data-store.scope.entry:read")
+
+	DeleteOrderedDataStoreEntry = goblox.NewEndpoint(
+		http.MethodDelete,
+		"/cloud/v2/universes/{universeId}/ordered-data-stores/{orderedDataStoreId}/scopes/{scopeId}/entries/{entryId}",
+		auth.KindAPIKey,
+	).WithScopes("universe.ordered-data-store.scope.entry:write")
+
+	UpdateOrderedDataStoreEntry = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/cloud/v2/universes/{universeId}/ordered-data-stores/{orderedDataStoreId}/scopes/{scopeId}/entries/{entryId}",
+		auth.KindAPIKey,
+	).WithScopes("universe.ordered-data-store.scope.entry:write")
+
+	IncrementOrderedDataStoreEntry = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/ordered-data-stores/{orderedDataStoreId}/scopes/{scopeId}/entries/{entryId}:increment",
+		auth.KindAPIKey,
+	).WithScopes("universe.ordered-data-store.scope.entry:write")
+
+	ListDataStoreEntries = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/entries",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:list")
+
+	ListDataStoreEntriesScoped = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/scopes/{scope}/entries",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:list")
+
+	CreateDataStoreEntry = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/entries",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:create")
+
+	CreateDataStoreEntryScoped = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/scopes/{scope}/entries",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:create")
+
+	GetDataStoreEntry = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/entries/{entryId}",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:read")
+
+	GetDataStoreEntryScoped = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/scopes/{scope}/entries/{entryId}",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:read")
+
+	DeleteDataStoreEntry = goblox.NewEndpoint(
+		http.MethodDelete,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/entries/{entryId}",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:delete")
+
+	DeleteDataStoreEntryScoped = goblox.NewEndpoint(
+		http.MethodDelete,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/scopes/{scope}/entries/{entryId}",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:delete")
+
+	UpdateDataStoreEntry = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/entries/{entryId}",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:update")
+
+	UpdateDataStoreEntryScoped = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/scopes/{scope}/entries/{entryId}",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:update")
+
+	IncrementDataStoreEntry = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/entries/{entryId}:increment",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:create", "universe-datastores.objects:update")
+
+	IncrementDataStoreEntryScoped = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/scopes/{scope}/entries/{entryId}:increment",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.objects:create", "universe-datastores.objects:update")
+
+	ListDataStoreEntryRevisions = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/entries/{entryId}:listRevisions",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.versions:list")
+
+	ListDataStoreEntryRevisionsScoped = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}/scopes/{scope}/entries/{entryId}:listRevisions",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.versions:list")
 )
 
 // DataAndMemoryStoreService will handle communciation with the actions related to the API.
@@ -29,21 +219,14 @@ type DataStoreList struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/DataStore#Cloud_ListDataStores
 //
 // [GET] /cloud/v2/universes/{universe_id}/data-stores
-func (s *DataAndMemoryStoreService) ListDataStores(ctx context.Context, universeId string, opts *OptionsWithFilter) (*DataStoreList, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/data-stores", universeId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *DataAndMemoryStoreService) ListDataStores(ctx context.Context, universeId string, opts *OptionsWithFilter, reqOpts ...goblox.RequestOpt) (*DataStoreList, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	dataStoreList := new(DataStoreList)
-	resp, err := s.client.Do(ctx, req, dataStoreList)
+	resp, err := s.client.Call(ctx, ListDataStores.Compile(q, universeId), nil, dataStoreList, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -64,16 +247,9 @@ type DataStoreSnapshot struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/DataStore#Cloud_SnapshotDataStores
 //
 // [POST] /cloud/v2/universes/{universe_id}/data-stores:snapshot
-func (s *DataAndMemoryStoreService) SnapshotDataStores(ctx context.Context, universeId string) (*DataStoreSnapshot, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/data-stores:snapshot", universeId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *DataAndMemoryStoreService) SnapshotDataStores(ctx context.Context, universeId string, reqOpts ...goblox.RequestOpt) (*DataStoreSnapshot, *Response, error) {
 	dataStoreSnapshot := new(DataStoreSnapshot)
-	resp, err := s.client.Do(ctx, req, dataStoreSnapshot)
+	resp, err := s.client.Call(ctx, SnapshotDataStores.Compile(nil, universeId), nil, dataStoreSnapshot, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -122,25 +298,19 @@ type ListDataStoreEntriesOptions struct {
 // [GET] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/entries
 //
 // [GET] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/scopes/{scope_id}/entries
-func (s *DataAndMemoryStoreService) ListDataStoreEntries(ctx context.Context, universeId, dataStoreId string, scope *string, opts *ListDataStoreEntriesOptions) (*DataStoreEntriesList, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/data-stores/%s", universeId, dataStoreId)
+func (s *DataAndMemoryStoreService) ListDataStoreEntries(ctx context.Context, universeId, dataStoreId string, scope *string, opts *ListDataStoreEntriesOptions, reqOpts ...goblox.RequestOpt) (*DataStoreEntriesList, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	e := ListDataStoreEntries.Compile(q, universeId, dataStoreId)
 	if scope != nil {
-		u += fmt.Sprintf("/scopes/%s", *scope)
-	}
-	u += "/entries"
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
+		e = ListDataStoreEntriesScoped.Compile(q, universeId, dataStoreId, *scope)
 	}
 
 	dataStoreEntriesList := new(DataStoreEntriesList)
-	resp, err := s.client.Do(ctx, req, dataStoreEntriesList)
+	resp, err := s.client.Call(ctx, e, nil, dataStoreEntriesList, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -168,25 +338,19 @@ type DataStoreEntryCreateOptions struct {
 // [POST] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/entries
 //
 // [POST] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/scopes/{scope_id}/entries
-func (s *DataAndMemoryStoreService) CreateDataStoreEntry(ctx context.Context, universeId, dataStoreId string, scope *string, data DataStoreEntryCreate, opts *DataStoreEntryCreateOptions) (*DataStoreEntry, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/data-stores/%s", universeId, dataStoreId)
+func (s *DataAndMemoryStoreService) CreateDataStoreEntry(ctx context.Context, universeId, dataStoreId string, scope *string, data DataStoreEntryCreate, opts *DataStoreEntryCreateOptions, reqOpts ...goblox.RequestOpt) (*DataStoreEntry, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	e := CreateDataStoreEntry.Compile(q, universeId, dataStoreId)
 	if scope != nil {
-		u += fmt.Sprintf("/scopes/%s", *scope)
-	}
-	u += "/entries"
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
-	if err != nil {
-		return nil, nil, err
+		e = CreateDataStoreEntryScoped.Compile(q, universeId, dataStoreId, *scope)
 	}
 
 	dataStoreEntry := new(DataStoreEntry)
-	resp, err := s.client.Do(ctx, req, dataStoreEntry)
+	resp, err := s.client.Call(ctx, e, data, dataStoreEntry, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -203,20 +367,14 @@ func (s *DataAndMemoryStoreService) CreateDataStoreEntry(ctx context.Context, un
 // [GET] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/entries/{entry_id}
 //
 // [GET] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/scopes/{scope_id}/entries/{entry_id}
-func (s *DataAndMemoryStoreService) GetDataStoreEntry(ctx context.Context, universeId, datastoreId string, scope *string, entryId string) (*DataStoreEntry, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/data-stores/%s", universeId, datastoreId)
+func (s *DataAndMemoryStoreService) GetDataStoreEntry(ctx context.Context, universeId, datastoreId string, scope *string, entryId string, reqOpts ...goblox.RequestOpt) (*DataStoreEntry, *Response, error) {
+	e := GetDataStoreEntry.Compile(nil, universeId, datastoreId, entryId)
 	if scope != nil {
-		u += fmt.Sprintf("/scopes/%s", *scope)
-	}
-	u += fmt.Sprintf("/entries/%s", entryId)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
+		e = GetDataStoreEntryScoped.Compile(nil, universeId, datastoreId, *scope, entryId)
 	}
 
 	dataStoreEntry := new(DataStoreEntry)
-	resp, err := s.client.Do(ctx, req, dataStoreEntry)
+	resp, err := s.client.Call(ctx, e, nil, dataStoreEntry, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -233,24 +391,13 @@ func (s *DataAndMemoryStoreService) GetDataStoreEntry(ctx context.Context, unive
 // [DELETE] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/entries/{entry_id}
 //
 // [DELETE] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/scopes/{scope_id}/entries/{entry_id}
-func (s *DataAndMemoryStoreService) DeleteDataStoreEntry(ctx context.Context, universeId, datastoreId string, scope *string, entryId string) (*Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/data-stores/%s", universeId, datastoreId)
+func (s *DataAndMemoryStoreService) DeleteDataStoreEntry(ctx context.Context, universeId, datastoreId string, scope *string, entryId string, reqOpts ...goblox.RequestOpt) (*Response, error) {
+	e := DeleteDataStoreEntry.Compile(nil, universeId, datastoreId, entryId)
 	if scope != nil {
-		u += fmt.Sprintf("/scopes/%s", *scope)
-	}
-	u += fmt.Sprintf("/entries/%s", entryId)
-
-	req, err := s.client.NewRequest(http.MethodDelete, u, nil)
-	if err != nil {
-		return nil, err
+		e = DeleteDataStoreEntryScoped.Compile(nil, universeId, datastoreId, *scope, entryId)
 	}
 
-	resp, err := s.client.Do(ctx, req, nil)
-	if err != nil {
-		return resp, err
-	}
-
-	return resp, nil
+	return s.client.Call(ctx, e, nil, nil, reqOpts...)
 }
 
 type DataStoreEntryUpdate struct {
@@ -273,25 +420,19 @@ type DataStoreEntryUpdateOpts struct {
 // [PATCH] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/entries/{entry_id}
 //
 // [PATCH] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/scopes/{scope_id}/entries/{entry_id}
-func (s *DataAndMemoryStoreService) UpdateDataStoreEntry(ctx context.Context, universeId, datastoreId string, scope *string, entryId string, data DataStoreEntryUpdate, opts *DataStoreEntryUpdateOpts) (*DataStoreEntry, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/data-stores/%s", universeId, datastoreId)
+func (s *DataAndMemoryStoreService) UpdateDataStoreEntry(ctx context.Context, universeId, datastoreId string, scope *string, entryId string, data DataStoreEntryUpdate, opts *DataStoreEntryUpdateOpts, reqOpts ...goblox.RequestOpt) (*DataStoreEntry, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	e := UpdateDataStoreEntry.Compile(q, universeId, datastoreId, entryId)
 	if scope != nil {
-		u += fmt.Sprintf("/scopes/%s", *scope)
-	}
-	u += fmt.Sprintf("/entries/%s", entryId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodPatch, u, data)
-	if err != nil {
-		return nil, nil, err
+		e = UpdateDataStoreEntryScoped.Compile(q, universeId, datastoreId, *scope, entryId)
 	}
 
 	dataStoreEntry := new(DataStoreEntry)
-	resp, err := s.client.Do(ctx, req, dataStoreEntry)
+	resp, err := s.client.Call(ctx, e, data, dataStoreEntry, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -314,20 +455,14 @@ type DataStoreEntryIncrement struct {
 // [POST] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/entries/{entry_id}:increment
 //
 // [POST] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/scopes/{scope_id}/entries/{entry_id}:increment
-func (s *DataAndMemoryStoreService) IncrementDataStoreEntry(ctx context.Context, universeId, datastoreId string, scope *string, entryId string, data DataStoreEntryIncrement) (*DataStoreEntry, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/data-stores/%s", universeId, datastoreId)
+func (s *DataAndMemoryStoreService) IncrementDataStoreEntry(ctx context.Context, universeId, datastoreId string, scope *string, entryId string, data DataStoreEntryIncrement, reqOpts ...goblox.RequestOpt) (*DataStoreEntry, *Response, error) {
+	e := IncrementDataStoreEntry.Compile(nil, universeId, datastoreId, entryId)
 	if scope != nil {
-		u += fmt.Sprintf("/scopes/%s", *scope)
-	}
-	u += fmt.Sprintf("/entries/%s:increment", entryId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
-	if err != nil {
-		return nil, nil, err
+		e = IncrementDataStoreEntryScoped.Compile(nil, universeId, datastoreId, *scope, entryId)
 	}
 
 	dataStoreEntry := new(DataStoreEntry)
-	resp, err := s.client.Do(ctx, req, dataStoreEntry)
+	resp, err := s.client.Call(ctx, e, data, dataStoreEntry, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -349,25 +484,19 @@ type DataStoryEntryRevisionsList struct {
 // [GET] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/entries/{entry_id}:listRevisions
 //
 // [GET] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}/scopes/{scope_id}/entries/{entry_id}:listRevisions
-func (s *DataAndMemoryStoreService) ListDataStoreEntryRevisions(ctx context.Context, universeId, datastoreId string, scope *string, entryId string, opts *Options) (*DataStoryEntryRevisionsList, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/data-stores/%s", universeId, datastoreId)
+func (s *DataAndMemoryStoreService) ListDataStoreEntryRevisions(ctx context.Context, universeId, datastoreId string, scope *string, entryId string, opts *Options, reqOpts ...goblox.RequestOpt) (*DataStoryEntryRevisionsList, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	e := ListDataStoreEntryRevisions.Compile(q, universeId, datastoreId, entryId)
 	if scope != nil {
-		u += fmt.Sprintf("/scopes/%s", *scope)
-	}
-	u += fmt.Sprintf("/entries/%s:listRevisions", entryId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
+		e = ListDataStoreEntryRevisionsScoped.Compile(q, universeId, datastoreId, *scope, entryId)
 	}
 
 	dataStoreEntryRevisionsList := new(DataStoryEntryRevisionsList)
-	resp, err := s.client.Do(ctx, req, dataStoreEntryRevisionsList)
+	resp, err := s.client.Call(ctx, e, nil, dataStoreEntryRevisionsList, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -382,16 +511,9 @@ func (s *DataAndMemoryStoreService) ListDataStoreEntryRevisions(ctx context.Cont
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/MemoryStore#Cloud_FlushMemoryStore
 //
 // [POST] /cloud/v2/universes/{universe_id}/memory-store:flush
-func (s *DataAndMemoryStoreService) FlushMemoryStore(ctx context.Context, universeId string) (*Operation, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/memory-store:flush", universeId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *DataAndMemoryStoreService) FlushMemoryStore(ctx context.Context, universeId string, reqOpts ...goblox.RequestOpt) (*Operation, *Response, error) {
 	operation := new(Operation)
-	resp, err := s.client.Do(ctx, req, operation)
+	resp, err := s.client.Call(ctx, FlushMemoryStore.Compile(nil, universeId), nil, operation, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -420,16 +542,9 @@ type MemoryStoreQueueItemCreate struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/MemoryStoreQueueItem#Cloud_CreateMemoryStoreQueueItem
 //
 // [POST] /cloud/v2/universes/{universe_id}/memory-store/queues/{queue_id}/items
-func (s *DataAndMemoryStoreService) CreateMemoryStoreQueueItem(ctx context.Context, universeId, queueId string, data MemoryStoreQueueItemCreate) (*MemoryStoreQueueItem, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/memory-store/queues/%s/items", universeId, queueId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *DataAndMemoryStoreService) CreateMemoryStoreQueueItem(ctx context.Context, universeId, queueId string, data MemoryStoreQueueItemCreate, reqOpts ...goblox.RequestOpt) (*MemoryStoreQueueItem, *Response, error) {
 	memoryStoreQueueItem := new(MemoryStoreQueueItem)
-	resp, err := s.client.Do(ctx, req, memoryStoreQueueItem)
+	resp, err := s.client.Call(ctx, CreateMemoryStoreQueueItem.Compile(nil, universeId, queueId), data, memoryStoreQueueItem, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -448,15 +563,8 @@ type MemoryStoreQueueItemsDiscard struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/MemoryStoreQueueItem#Cloud_DiscardMemoryStoreQueueItems
 //
 // [POST] /cloud/v2/universes/{universe_id}/memory-store/queues/{queue_id}/items:discard
-func (s *DataAndMemoryStoreService) DiscardMemoryStoreQueueItems(ctx context.Context, universeId, queueId string, data MemoryStoreQueueItemsDiscard) (*Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/memory-store/queues/%s/items:discard", universeId, queueId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.client.Do(ctx, req, nil)
+func (s *DataAndMemoryStoreService) DiscardMemoryStoreQueueItems(ctx context.Context, universeId, queueId string, data MemoryStoreQueueItemsDiscard, reqOpts ...goblox.RequestOpt) (*Response, error) {
+	resp, err := s.client.Call(ctx, DiscardMemoryStoreQueueItems.Compile(nil, universeId, queueId), data, nil, reqOpts...)
 	if err != nil {
 		return resp, err
 	}
@@ -482,21 +590,14 @@ type MemoryStoreQueueItemsOptions struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/MemoryStoreQueueItem#Cloud_ReadMemoryStoreQueueItems
 //
 // [GET] /cloud/v2/universes/{universe_id}/memory-store/queues/{queue_id}/items:read
-func (s *DataAndMemoryStoreService) ReadMemoryStoreQueueItems(ctx context.Context, universeId, queueId string, opts *MemoryStoreQueueItemsOptions) (*MemoryStoreQueueItems, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/memory-store/queues/%s/items:read", universeId, queueId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *DataAndMemoryStoreService) ReadMemoryStoreQueueItems(ctx context.Context, universeId, queueId string, opts *MemoryStoreQueueItemsOptions, reqOpts ...goblox.RequestOpt) (*MemoryStoreQueueItems, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	memoryStoreQueueItems := new(MemoryStoreQueueItems)
-	resp, err := s.client.Do(ctx, req, memoryStoreQueueItems)
+	resp, err := s.client.Call(ctx, ReadMemoryStoreQueueItems.Compile(q, universeId, queueId), nil, memoryStoreQueueItems, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -532,21 +633,14 @@ type MemoryStoreSortedMapItemListOptions struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/MemoryStoreSortedMapItem#Cloud_ListMemoryStoreSortedMapItems
 //
 // [GET] /cloud/v2/universes/{universe_id}/memory-store/sorted-maps/{sorted_map_id}/items
-func (s *DataAndMemoryStoreService) ListMemoryStoreSortedMapItems(ctx context.Context, universeId, sortedMapId string, opts *MemoryStoreSortedMapItemListOptions) (*MemoryStoreSortedMapList, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/memory-store/sorted-maps/%s/items", universeId, sortedMapId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *DataAndMemoryStoreService) ListMemoryStoreSortedMapItems(ctx context.Context, universeId, sortedMapId string, opts *MemoryStoreSortedMapItemListOptions, reqOpts ...goblox.RequestOpt) (*MemoryStoreSortedMapList, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	memoryStoreSortedMapList := new(MemoryStoreSortedMapList)
-	resp, err := s.client.Do(ctx, req, memoryStoreSortedMapList)
+	resp, err := s.client.Call(ctx, ListMemoryStoreSortedMapItems.Compile(q, universeId, sortedMapId), nil, memoryStoreSortedMapList, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -572,21 +666,14 @@ type MemoryStoreSortedMapItemCreateOptions struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/MemoryStoreSortedMapItem#Cloud_CreateMemoryStoreSortedMapItem
 //
 // [POST] /cloud/v2/universes/{universe_id}/memory-store/sorted-maps/{sorted_map_id}/items
-func (s *DataAndMemoryStoreService) CreateMemoryStoreSortedMapItem(ctx context.Context, universeId, sortedMapId string, data MemoryStoreSortedMapItemCreate, opts *MemoryStoreSortedMapItemCreateOptions) (*MemoryStoreSortedMapItem, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/memory-store/sorted-maps/%s/items", universeId, sortedMapId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
+func (s *DataAndMemoryStoreService) CreateMemoryStoreSortedMapItem(ctx context.Context, universeId, sortedMapId string, data MemoryStoreSortedMapItemCreate, opts *MemoryStoreSortedMapItemCreateOptions, reqOpts ...goblox.RequestOpt) (*MemoryStoreSortedMapItem, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	memoryStoreSortedMapItem := new(MemoryStoreSortedMapItem)
-	resp, err := s.client.Do(ctx, req, memoryStoreSortedMapItem)
+	resp, err := s.client.Call(ctx, CreateMemoryStoreSortedMapItem.Compile(q, universeId, sortedMapId), data, memoryStoreSortedMapItem, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -601,16 +688,9 @@ func (s *DataAndMemoryStoreService) CreateMemoryStoreSortedMapItem(ctx context.C
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/MemoryStoreSortedMapItem#Cloud_GetMemoryStoreSortedMapItem
 //
 // [GET] /cloud/v2/universes/{universe_id}/memory-store/sorted-maps/{sorted_map_id}/items/{item_id}
-func (s *DataAndMemoryStoreService) GetMemoryStoreSortedMapItem(ctx context.Context, universeId, sortedMapId, itemId string) (*MemoryStoreSortedMapItem, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/memory-store/sorted-maps/%s/items/%s", universeId, sortedMapId, itemId)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *DataAndMemoryStoreService) GetMemoryStoreSortedMapItem(ctx context.Context, universeId, sortedMapId, itemId string, reqOpts ...goblox.RequestOpt) (*MemoryStoreSortedMapItem, *Response, error) {
 	memoryStoreSortedMapItem := new(MemoryStoreSortedMapItem)
-	resp, err := s.client.Do(ctx, req, memoryStoreSortedMapItem)
+	resp, err := s.client.Call(ctx, GetMemoryStoreSortedMapItem.Compile(nil, universeId, sortedMapId, itemId), nil, memoryStoreSortedMapItem, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -625,15 +705,8 @@ func (s *DataAndMemoryStoreService) GetMemoryStoreSortedMapItem(ctx context.Cont
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/MemoryStoreSortedMapItem#Cloud_DeleteMemoryStoreSortedMapItem
 //
 // [DELETE] /cloud/v2/universes/{universe_id}/memory-store/sorted-maps/{sorted_map_id}/items/{item_id}
-func (s *DataAndMemoryStoreService) DeleteMemoryStoreSortedMapItem(ctx context.Context, universeId, sortedMapId, itemId string) (*Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/memory-store/sorted-maps/%s/items/%s", universeId, sortedMapId, itemId)
-
-	req, err := s.client.NewRequest(http.MethodDelete, u, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.client.Do(ctx, req, nil)
+func (s *DataAndMemoryStoreService) DeleteMemoryStoreSortedMapItem(ctx context.Context, universeId, sortedMapId, itemId string, reqOpts ...goblox.RequestOpt) (*Response, error) {
+	resp, err := s.client.Call(ctx, DeleteMemoryStoreSortedMapItem.Compile(nil, universeId, sortedMapId, itemId), nil, nil, reqOpts...)
 	if err != nil {
 		return resp, err
 	}
@@ -659,21 +732,14 @@ type MemoryStoreSortedMapItemUpdateOpts struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/MemoryStoreSortedMapItem#Cloud_UpdateMemoryStoreSortedMapItem
 //
 // [PATCH] /cloud/v2/universes/{universe_id}/memory-store/sorted-maps/{sorted_map_id}/items/{item_id}
-func (s *DataAndMemoryStoreService) UpdateMemoryStoreSortedMapItem(ctx context.Context, universeId, sortedMapId, itemId string, data MemoryStoreSortedMapItemUpdate, opts *MemoryStoreSortedMapItemUpdateOpts) (*MemoryStoreSortedMapItem, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/memory-store/sorted-maps/%s/items/%s", universeId, sortedMapId, itemId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodPatch, u, data)
+func (s *DataAndMemoryStoreService) UpdateMemoryStoreSortedMapItem(ctx context.Context, universeId, sortedMapId, itemId string, data MemoryStoreSortedMapItemUpdate, opts *MemoryStoreSortedMapItemUpdateOpts, reqOpts ...goblox.RequestOpt) (*MemoryStoreSortedMapItem, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	memoryStoreSortedMapItem := new(MemoryStoreSortedMapItem)
-	resp, err := s.client.Do(ctx, req, memoryStoreSortedMapItem)
+	resp, err := s.client.Call(ctx, UpdateMemoryStoreSortedMapItem.Compile(q, universeId, sortedMapId, itemId), data, memoryStoreSortedMapItem, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -706,21 +772,14 @@ type ListOrderedDataStoreEntriesOptions struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/OrderedDataStoreEntry#Cloud_ListOrderedDataStoreEntries
 //
 // [GET] /cloud/v2/universes/{universe_id}/ordered-data-stores/{ordered_data_store_id}/scopes/{scope_id}/entries
-func (s *DataAndMemoryStoreService) ListOrderedDataStoreEntries(ctx context.Context, universeId, orderedDataStoreId, scopeId string, opts *ListOrderedDataStoreEntriesOptions) (*OrderedDataStoreEntryList, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/ordered-data-stores/%s/scopes/%s/entries", universeId, orderedDataStoreId, scopeId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+func (s *DataAndMemoryStoreService) ListOrderedDataStoreEntries(ctx context.Context, universeId, orderedDataStoreId, scopeId string, opts *ListOrderedDataStoreEntriesOptions, reqOpts ...goblox.RequestOpt) (*OrderedDataStoreEntryList, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	orderedDataStoreEntryList := new(OrderedDataStoreEntryList)
-	resp, err := s.client.Do(ctx, req, orderedDataStoreEntryList)
+	resp, err := s.client.Call(ctx, ListOrderedDataStoreEntries.Compile(q, universeId, orderedDataStoreId, scopeId), nil, orderedDataStoreEntryList, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -743,21 +802,14 @@ type OrderedDataStoreEntryCreateOptions struct {
 // Roblox Opencloud API Docs:https://create.roblox.com/docs/en-us/cloud/reference/OrderedDataStoreEntry#Cloud_CreateOrderedDataStoreEntry
 //
 // [POST] /cloud/v2/universes/{universe_id}/ordered-data-stores/{ordered_data_store_id}/scopes/{scope_id}/entries
-func (s *DataAndMemoryStoreService) CreateOrderedDataStoreEntry(ctx context.Context, universeId, orderedDataStoreId, scopeId string, data OrderedDataStoreEntryCreate, opts *OrderedDataStoreEntryCreateOptions) (*OrderedDataStoreEntry, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/ordered-data-stores/%s/scopes/%s/entries", universeId, orderedDataStoreId, scopeId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
+func (s *DataAndMemoryStoreService) CreateOrderedDataStoreEntry(ctx context.Context, universeId, orderedDataStoreId, scopeId string, data OrderedDataStoreEntryCreate, opts *OrderedDataStoreEntryCreateOptions, reqOpts ...goblox.RequestOpt) (*OrderedDataStoreEntry, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	orderedDataStoreEntry := new(OrderedDataStoreEntry)
-	resp, err := s.client.Do(ctx, req, orderedDataStoreEntry)
+	resp, err := s.client.Call(ctx, CreateOrderedDataStoreEntry.Compile(q, universeId, orderedDataStoreId, scopeId), data, orderedDataStoreEntry, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -772,16 +824,9 @@ func (s *DataAndMemoryStoreService) CreateOrderedDataStoreEntry(ctx context.Cont
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/OrderedDataStoreEntry#Cloud_GetOrderedDataStoreEntry
 //
 // [GET] /cloud/v2/universes/{universe_id}/ordered-data-stores/{ordered_data_store_id}/scopes/{scope_id}/entries/{entry_id}
-func (s *DataAndMemoryStoreService) GetOrderedDataStoreEntry(ctx context.Context, universeId, orderedDataStoreId, scopeId, entryId string) (*OrderedDataStoreEntry, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/ordered-data-stores/%s/scopes/%s/entries/%s", universeId, orderedDataStoreId, scopeId, entryId)
-
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *DataAndMemoryStoreService) GetOrderedDataStoreEntry(ctx context.Context, universeId, orderedDataStoreId, scopeId, entryId string, reqOpts ...goblox.RequestOpt) (*OrderedDataStoreEntry, *Response, error) {
 	orderedDataStoreEntry := new(OrderedDataStoreEntry)
-	resp, err := s.client.Do(ctx, req, orderedDataStoreEntry)
+	resp, err := s.client.Call(ctx, GetOrderedDataStoreEntry.Compile(nil, universeId, orderedDataStoreId, scopeId, entryId), nil, orderedDataStoreEntry, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -796,15 +841,8 @@ func (s *DataAndMemoryStoreService) GetOrderedDataStoreEntry(ctx context.Context
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/OrderedDataStoreEntry#Cloud_DeleteOrderedDataStoreEntry
 //
 // [DELETE] /cloud/v2/universes/{universe_id}/ordered-data-stores/{ordered_data_store_id}/scopes/{scope_id}/entries/{entry_id}
-func (s *DataAndMemoryStoreService) DeleteOrderedDataStoreEntry(ctx context.Context, universeId, orderedDataStoreId, scopeId, entryId string) (*Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/ordered-data-stores/%s/scopes/%s/entries/%s", universeId, orderedDataStoreId, scopeId, entryId)
-
-	req, err := s.client.NewRequest(http.MethodDelete, u, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.client.Do(ctx, req, nil)
+func (s *DataAndMemoryStoreService) DeleteOrderedDataStoreEntry(ctx context.Context, universeId, orderedDataStoreId, scopeId, entryId string, reqOpts ...goblox.RequestOpt) (*Response, error) {
+	resp, err := s.client.Call(ctx, DeleteOrderedDataStoreEntry.Compile(nil, universeId, orderedDataStoreId, scopeId, entryId), nil, nil, reqOpts...)
 	if err != nil {
 		return resp, err
 	}
@@ -827,21 +865,14 @@ type OrderedDataStoreEntryUpdateOpts struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/OrderedDataStoreEntry#Cloud_UpdateOrderedDataStoreEntry
 //
 // [PATCH] /cloud/v2/universes/{universe_id}/ordered-data-stores/{ordered_data_store_id}/scopes/{scope_id}/entries/{entry_id}
-func (s *DataAndMemoryStoreService) UpdateOrderedDataStoreEntry(ctx context.Context, universeId, orderedDataStoreId, scopeId, entryId string, data OrderedDataStoreEntryUpdate, opts *OrderedDataStoreEntryUpdateOpts) (*OrderedDataStoreEntry, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/ordered-data-stores/%s/scopes/%s/entries/%s", universeId, orderedDataStoreId, scopeId, entryId)
-
-	u, err := addOpts(u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.NewRequest(http.MethodPatch, u, data)
+func (s *DataAndMemoryStoreService) UpdateOrderedDataStoreEntry(ctx context.Context, universeId, orderedDataStoreId, scopeId, entryId string, data OrderedDataStoreEntryUpdate, opts *OrderedDataStoreEntryUpdateOpts, reqOpts ...goblox.RequestOpt) (*OrderedDataStoreEntry, *Response, error) {
+	q, err := queryValues(opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	orderedDataStoreEntry := new(OrderedDataStoreEntry)
-	resp, err := s.client.Do(ctx, req, orderedDataStoreEntry)
+	resp, err := s.client.Call(ctx, UpdateOrderedDataStoreEntry.Compile(q, universeId, orderedDataStoreId, scopeId, entryId), data, orderedDataStoreEntry, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -860,16 +891,9 @@ type OrderedDataStoreEntryIncrement struct {
 // Roblox Opencloud API Docs: https://create.roblox.com/docs/en-us/cloud/reference/OrderedDataStoreEntry#Cloud_IncrementOrderedDataStoreEntry
 //
 // [POST] /cloud/v2/universes/{universe_id}/ordered-data-stores/{ordered_data_store_id}/scopes/{scope_id}/entries/{entry_id}:increment
-func (s *DataAndMemoryStoreService) IncrementOrderedDataStoreEntry(ctx context.Context, universeId, orderedDataStoreId, scopeId, entryId string, data OrderedDataStoreEntryIncrement) (*OrderedDataStoreEntry, *Response, error) {
-	u := fmt.Sprintf("/cloud/v2/universes/%s/ordered-data-stores/%s/scopes/%s/entries/%s:increment", universeId, orderedDataStoreId, scopeId, entryId)
-
-	req, err := s.client.NewRequest(http.MethodPost, u, data)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (s *DataAndMemoryStoreService) IncrementOrderedDataStoreEntry(ctx context.Context, universeId, orderedDataStoreId, scopeId, entryId string, data OrderedDataStoreEntryIncrement, reqOpts ...goblox.RequestOpt) (*OrderedDataStoreEntry, *Response, error) {
 	orderedDataStoreEntry := new(OrderedDataStoreEntry)
-	resp, err := s.client.Do(ctx, req, orderedDataStoreEntry)
+	resp, err := s.client.Call(ctx, IncrementOrderedDataStoreEntry.Compile(nil, universeId, orderedDataStoreId, scopeId, entryId), data, orderedDataStoreEntry, reqOpts...)
 	if err != nil {
 		return nil, resp, err
 	}

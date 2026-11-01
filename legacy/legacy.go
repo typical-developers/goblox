@@ -87,7 +87,7 @@ func (c *Client) WithCookie(cookie string) *Client {
 func (c *Client) resolveURL(r route) (*string, error) {
 	domainURL := url.URL{
 		Scheme: "https",
-		Host:   fmt.Sprintf("https://%s.roblox.com", r.Domain),
+		Host:   r.Domain + ".roblox.com",
 		Path:   r.Path,
 	}
 

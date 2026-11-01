@@ -33,7 +33,7 @@ func (c *ROBLOSecurityCookie) HandleResponse(resp *http.Response) bool {
 	}
 
 	token := resp.Header.Get("X-CSRF-Token")
-	if token != "" || token == c.CSRFToken {
+	if token == "" {
 		return false
 	}
 

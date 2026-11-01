@@ -72,8 +72,6 @@ func (c *Client) init() *Client {
 		c.BaseURL, _ = url.Parse(baseURL)
 	}
 
-	c.BaseURL, _ = url.Parse(baseURL)
-
 	// v1
 	c.Assets = (*AssetsService)(&c.common)
 

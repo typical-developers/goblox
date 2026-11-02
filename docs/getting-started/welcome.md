@@ -1,8 +1,10 @@
 # About <img src="/goblox_icon.png" align="right" width="100" />
-Goblox is a Go library that makes accessing Roblox's OpenCloud & Legacy APIs with your Go projects easy. The library supports *all* OpenCloud APIs. Legacy (cookie) APIs will be added in the future.
+Goblox is a Roblox API wrapper written in Golang to make accessing Roblox's API within your Go projects easy.
+
+Goblox is separated into two separate packages: `opencloud` and `legacy`. The `opencloud` package gives access to all of Roblox's APIs that allow you to use an API key or OAuth2 token. The `legacy` package gives access to all of Roblox's normal/classic APIs, with the additional ability to set a cookie.
 
 ::: warning
-This library is still in development and should not be considered stable. If you want to contribute, feel free to open a PR!
+While this library is used in some production deployments, it is not considered fully stable. If you want to contribute, feel free to open a PR!
 :::
 
 ## Installation
@@ -12,20 +14,4 @@ Go 1.18 or newer is required.
 
 ```bash
 go get -u github.com/typical-developers/goblox
-```
-
-## Basic Usage
-```go
-package main
-
-import (
-    "context"
-    "fmt"
-
-    "github.com/typical-developers/goblox/opencloud"
-)
-
-func main() {
-    client := opencloud.NewClient().WithAPIKey("YOUR_API_KEY")
-}
 ```

@@ -178,7 +178,12 @@ func (c *Client) send(ctx context.Context, req *http.Request, _ *goblox.Endpoint
 	defer resp.Body.Close()
 
 	response := &Response{resp}
-	if response.Ok() && out != nil && response.StatusCode != http.StatusNoContent {
+	if !response.Ok() {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+		return response, decodeError(resp, body)
+	}
+
+	if out != nil && response.StatusCode != http.StatusNoContent {
 		if err := json.NewDecoder(resp.Body).Decode(out); err != nil && !errors.Is(err, io.EOF) {
 			return response, err
 		}

@@ -2,7 +2,10 @@ package goblox
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/typical-developers/goblox/auth"
 )
@@ -42,4 +45,43 @@ func (e *UnsupportedAuthError) Error() string {
 	return fmt.Sprintf("goblox: %s %s doesn't accept %s auth (accepts: %s)",
 		e.Method, e.Route, e.Have, strings.Join(accepts, ", "),
 	)
+}
+
+type ResponseError struct {
+	Response   *http.Response
+	StatusCode int
+	Body       []byte
+	RetryAfter time.Duration
+}
+
+func parseRetryAfter(v string) time.Duration {
+	if v == "" {
+		return 0
+	}
+
+	if secs, err := strconv.Atoi(v); err == nil {
+		return time.Duration(secs) * time.Second
+	}
+	if t, err := http.ParseTime(v); err == nil {
+		return time.Until(t)
+	}
+
+	return 0
+}
+
+func NewResponseError(resp *http.Response, body []byte) ResponseError {
+	return ResponseError{
+		Response:   resp,
+		StatusCode: resp.StatusCode,
+		Body:       body,
+		RetryAfter: parseRetryAfter(resp.Header.Get("Retry-After")),
+	}
+}
+
+func (e *ResponseError) Error() string {
+	return fmt.Sprintf("goblox: HTTP %d", e.StatusCode)
+}
+
+func (e *ResponseError) Retryable() bool {
+	return e.StatusCode == http.StatusTooManyRequests || e.StatusCode >= 500
 }

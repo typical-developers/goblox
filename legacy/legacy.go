@@ -52,12 +52,12 @@ func (c *Client) init() *Client {
 	return c
 }
 
-// WithCredential will let you use a custom credential to authenticate with the Opencloud API.
-// You can use [auth.ROBLOSecurityCookie] to create a credential.
+// withCredential will let you use a custom credential to authenticate with the Opencloud API.
 func (c *Client) withCredential(cred auth.Credential) *Client {
 	nc := &Client{
 		client:     c.client,
 		credential: cred,
+		baseDomain: c.baseDomain,
 	}
 
 	return nc.init()
@@ -163,7 +163,12 @@ func (c *Client) send(ctx context.Context, req *http.Request, config goblox.Requ
 	defer resp.Body.Close()
 
 	response := &Response{resp}
-	if response.Ok() && out != nil && resp.StatusCode != http.StatusNoContent {
+	if !response.Ok() {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+		return response, decodeError(resp, body)
+	}
+
+	if out != nil && resp.StatusCode != http.StatusNoContent {
 		if err := json.NewDecoder(resp.Body).Decode(out); err != nil && !errors.Is(err, io.EOF) {
 			return response, err
 		}

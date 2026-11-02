@@ -40,6 +40,17 @@ type Client struct {
 	Universes          *UniversesService
 	Users              *UsersService
 	Groups             *GroupsService
+	Ads                *AdsService
+	Analytics          *AnalyticsService
+	Badges             *BadgesService
+	CreatorStore       *CreatorStoreService
+	Events             *EventsService
+	Localization       *LocalizationService
+	Matchmaking        *MatchmakingService
+	Secrets            *SecretsService
+	ServerManagement   *ServerManagementService
+	ServiceEfficiency  *ServiceEfficiencyService
+	Thumbnails         *ThumbnailsService
 }
 
 type ClientOpts func(*Client)
@@ -81,6 +92,17 @@ func (c *Client) init() *Client {
 	c.Universes = (*UniversesService)(&c.common)
 	c.Users = (*UsersService)(&c.common)
 	c.Groups = (*GroupsService)(&c.common)
+	c.Ads = (*AdsService)(&c.common)
+	c.Analytics = (*AnalyticsService)(&c.common)
+	c.Badges = (*BadgesService)(&c.common)
+	c.CreatorStore = (*CreatorStoreService)(&c.common)
+	c.Events = (*EventsService)(&c.common)
+	c.Localization = (*LocalizationService)(&c.common)
+	c.Matchmaking = (*MatchmakingService)(&c.common)
+	c.Secrets = (*SecretsService)(&c.common)
+	c.ServerManagement = (*ServerManagementService)(&c.common)
+	c.ServiceEfficiency = (*ServiceEfficiencyService)(&c.common)
+	c.Thumbnails = (*ThumbnailsService)(&c.common)
 
 	return c
 }

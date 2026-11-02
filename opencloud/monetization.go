@@ -1,8 +1,14 @@
 package opencloud
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/typical-developers/goblox"
 	"github.com/typical-developers/goblox/auth"
@@ -228,4 +234,477 @@ func (s *MonetizationService) GetSubscription(ctx context.Context, universeId, p
 	}
 
 	return subscription, resp, nil
+}
+
+var (
+	CreateDeveloperProduct = goblox.NewEndpoint(
+		http.MethodPost,
+		"/developer-products/v2/universes/{universeId}/developer-products",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("developer-product:write")
+
+	ListDeveloperProducts = goblox.NewEndpoint(
+		http.MethodGet,
+		"/developer-products/v2/universes/{universeId}/developer-products/creator",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("developer-product:read")
+
+	UpdateDeveloperProduct = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/developer-products/v2/universes/{universeId}/developer-products/{productId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("developer-product:write")
+
+	GetDeveloperProduct = goblox.NewEndpoint(
+		http.MethodGet,
+		"/developer-products/v2/universes/{universeId}/developer-products/{productId}/creator",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("developer-product:read")
+
+	CreateGamePass = goblox.NewEndpoint(
+		http.MethodPost,
+		"/game-passes/v1/universes/{universeId}/game-passes",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("game-pass:write")
+
+	ListGamePasses = goblox.NewEndpoint(
+		http.MethodGet,
+		"/game-passes/v1/universes/{universeId}/game-passes/creator",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("game-pass:read")
+
+	UpdateGamePass = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/game-passes/v1/universes/{universeId}/game-passes/{gamePassId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("game-pass:write")
+
+	GetGamePass = goblox.NewEndpoint(
+		http.MethodGet,
+		"/game-passes/v1/universes/{universeId}/game-passes/{gamePassId}/creator",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("game-pass:read")
+)
+
+type CreateDeveloperProductRequest struct {
+	Name                     *string  `form:"name"`
+	Description              *string  `form:"description"`
+	IsForSale                *bool    `form:"isForSale"`
+	Price                    *int64   `form:"price"`
+	ImageFile                *os.File `form:"imageFile"`
+	IsRegionalPricingEnabled *bool    `form:"isRegionalPricingEnabled"`
+	IsManagedPricingEnabled  *bool    `form:"isManagedPricingEnabled"`
+}
+
+type DeveloperProductPricingFeature string
+
+const (
+	DeveloperProductPricingFeatureInvalid           DeveloperProductPricingFeature = "Invalid"
+	DeveloperProductPricingFeaturePriceOptimization DeveloperProductPricingFeature = "PriceOptimization"
+	DeveloperProductPricingFeatureUserFixedPrice    DeveloperProductPricingFeature = "UserFixedPrice"
+	DeveloperProductPricingFeatureRegionalPricing   DeveloperProductPricingFeature = "RegionalPricing"
+)
+
+type DeveloperProductPriceInformation struct {
+	DefaultPriceInRobux int64                            `json:"defaultPriceInRobux"`
+	EnabledFeatures     []DeveloperProductPricingFeature `json:"enabledFeatures"`
+}
+
+type DeveloperProduct struct {
+	ProductID               int64                            `json:"productId"`
+	Name                    string                           `json:"name"`
+	Description             string                           `json:"description"`
+	IconImageAssetID        int64                            `json:"iconImageAssetId"`
+	UniverseID              int64                            `json:"universeId"`
+	IsForSale               bool                             `json:"isForSale"`
+	StorePageEnabled        bool                             `json:"storePageEnabled"`
+	PriceInformation        DeveloperProductPriceInformation `json:"priceInformation"`
+	IsImmutable             bool                             `json:"isImmutable"`
+	CreatedTimestamp        string                           `json:"createdTimestamp"`
+	UpdatedTimestamp        string                           `json:"updatedTimestamp"`
+	IsManagedPricingEnabled bool                             `json:"isManagedPricingEnabled"`
+}
+
+// CreateDeveloperProduct will create developer product.
+//
+// Required scopes: developer-product:write
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/developer-products#DeveloperProducts_CreateDeveloperProductV2
+//
+// [POST] /developer-products/v2/universes/{universeId}/developer-products
+func (s *MonetizationService) CreateDeveloperProduct(ctx context.Context, universeId string, data CreateDeveloperProductRequest, reqOpts ...goblox.RequestOpt) (*DeveloperProduct, *Response, error) {
+	developerProduct := new(DeveloperProduct)
+	e := CreateDeveloperProduct.Compile(nil, universeId)
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	if data.Name != nil {
+		_ = writer.WriteField("name", fmt.Sprint(*data.Name))
+	}
+	if data.Description != nil {
+		_ = writer.WriteField("description", fmt.Sprint(*data.Description))
+	}
+	if data.IsForSale != nil {
+		_ = writer.WriteField("isForSale", fmt.Sprint(*data.IsForSale))
+	}
+	if data.Price != nil {
+		_ = writer.WriteField("price", fmt.Sprint(*data.Price))
+	}
+	if data.ImageFile != nil {
+		part, err := writer.CreateFormFile("imageFile", filepath.Base(data.ImageFile.Name()))
+		if err != nil {
+			return nil, nil, err
+		}
+		if _, err := io.Copy(part, data.ImageFile); err != nil {
+			return nil, nil, err
+		}
+	}
+	if data.IsRegionalPricingEnabled != nil {
+		_ = writer.WriteField("isRegionalPricingEnabled", fmt.Sprint(*data.IsRegionalPricingEnabled))
+	}
+	if data.IsManagedPricingEnabled != nil {
+		_ = writer.WriteField("isManagedPricingEnabled", fmt.Sprint(*data.IsManagedPricingEnabled))
+	}
+	if err := writer.Close(); err != nil {
+		return nil, nil, err
+	}
+
+	req, err := s.client.NewMultipartRequest(e.Endpoint.Method, e.Path, &body, writer.FormDataContentType())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	resp, err := s.client.CallRequest(ctx, e, req, developerProduct, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return developerProduct, resp, nil
+}
+
+type ListDeveloperProductsOptions struct {
+	PageSize  *int    `url:"pageSize,omitempty"`
+	PageToken *string `url:"pageToken,omitempty"`
+}
+
+type DeveloperProductList struct {
+	DeveloperProducts []DeveloperProduct `json:"developerProducts"`
+	NextPageToken     string             `json:"nextPageToken"`
+}
+
+// ListDeveloperProducts will list developer products by universe with configuration details.
+//
+// Required scopes: developer-product:read
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/developer-products#DeveloperProducts_ListDeveloperProductConfigsByUniverseV2
+//
+// [GET] /developer-products/v2/universes/{universeId}/developer-products/creator
+func (s *MonetizationService) ListDeveloperProducts(ctx context.Context, universeId string, opts *ListDeveloperProductsOptions, reqOpts ...goblox.RequestOpt) (*DeveloperProductList, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	developerProductList := new(DeveloperProductList)
+	resp, err := s.client.Call(ctx, ListDeveloperProducts.Compile(q, universeId), nil, developerProductList, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return developerProductList, resp, nil
+}
+
+type UpdateDeveloperProductRequest struct {
+	Name                     *string  `form:"name"`
+	Description              *string  `form:"description"`
+	IsForSale                *bool    `form:"isForSale"`
+	Price                    *int64   `form:"price"`
+	ImageFile                *os.File `form:"imageFile"`
+	IsRegionalPricingEnabled *bool    `form:"isRegionalPricingEnabled"`
+	StorePageEnabled         *bool    `form:"storePageEnabled"`
+	IsManagedPricingEnabled  *bool    `form:"isManagedPricingEnabled"`
+}
+
+// UpdateDeveloperProduct will update developer product.
+//
+// Required scopes: developer-product:write
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/developer-products#DeveloperProducts_UpdateDeveloperProductV2
+//
+// [PATCH] /developer-products/v2/universes/{universeId}/developer-products/{productId}
+func (s *MonetizationService) UpdateDeveloperProduct(ctx context.Context, universeId, productId string, data UpdateDeveloperProductRequest, reqOpts ...goblox.RequestOpt) (*Response, error) {
+	e := UpdateDeveloperProduct.Compile(nil, universeId, productId)
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	if data.Name != nil {
+		_ = writer.WriteField("name", fmt.Sprint(*data.Name))
+	}
+	if data.Description != nil {
+		_ = writer.WriteField("description", fmt.Sprint(*data.Description))
+	}
+	if data.IsForSale != nil {
+		_ = writer.WriteField("isForSale", fmt.Sprint(*data.IsForSale))
+	}
+	if data.Price != nil {
+		_ = writer.WriteField("price", fmt.Sprint(*data.Price))
+	}
+	if data.ImageFile != nil {
+		part, err := writer.CreateFormFile("imageFile", filepath.Base(data.ImageFile.Name()))
+		if err != nil {
+			return nil, err
+		}
+		if _, err := io.Copy(part, data.ImageFile); err != nil {
+			return nil, err
+		}
+	}
+	if data.IsRegionalPricingEnabled != nil {
+		_ = writer.WriteField("isRegionalPricingEnabled", fmt.Sprint(*data.IsRegionalPricingEnabled))
+	}
+	if data.StorePageEnabled != nil {
+		_ = writer.WriteField("storePageEnabled", fmt.Sprint(*data.StorePageEnabled))
+	}
+	if data.IsManagedPricingEnabled != nil {
+		_ = writer.WriteField("isManagedPricingEnabled", fmt.Sprint(*data.IsManagedPricingEnabled))
+	}
+	if err := writer.Close(); err != nil {
+		return nil, err
+	}
+
+	req, err := s.client.NewMultipartRequest(e.Endpoint.Method, e.Path, &body, writer.FormDataContentType())
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.CallRequest(ctx, e, req, nil, reqOpts...)
+}
+
+// GetDeveloperProduct will get developer product with configuration details.
+//
+// Required scopes: developer-product:read
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/developer-products#DeveloperProducts_GetDeveloperProductConfigV2
+//
+// [GET] /developer-products/v2/universes/{universeId}/developer-products/{productId}/creator
+func (s *MonetizationService) GetDeveloperProduct(ctx context.Context, universeId, productId string, reqOpts ...goblox.RequestOpt) (*DeveloperProduct, *Response, error) {
+	developerProduct := new(DeveloperProduct)
+	resp, err := s.client.Call(ctx, GetDeveloperProduct.Compile(nil, universeId, productId), nil, developerProduct, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return developerProduct, resp, nil
+}
+
+type CreateGamePassRequest struct {
+	Name                     *string  `form:"name"`
+	Description              *string  `form:"description"`
+	ImageFile                *os.File `form:"imageFile"`
+	IsForSale                *bool    `form:"isForSale"`
+	Price                    *int64   `form:"price"`
+	IsRegionalPricingEnabled *bool    `form:"isRegionalPricingEnabled"`
+	IsManagedPricingEnabled  *bool    `form:"isManagedPricingEnabled"`
+}
+
+type GamePassPricingFeature string
+
+const (
+	GamePassPricingFeatureInvalid           GamePassPricingFeature = "Invalid"
+	GamePassPricingFeaturePriceOptimization GamePassPricingFeature = "PriceOptimization"
+	GamePassPricingFeatureUserFixedPrice    GamePassPricingFeature = "UserFixedPrice"
+	GamePassPricingFeatureRegionalPricing   GamePassPricingFeature = "RegionalPricing"
+)
+
+type GamePassPriceInformation struct {
+	DefaultPriceInRobux int64                    `json:"defaultPriceInRobux"`
+	EnabledFeatures     []GamePassPricingFeature `json:"enabledFeatures"`
+}
+
+type GamePass struct {
+	GamePassID              int64                    `json:"gamePassId"`
+	Name                    string                   `json:"name"`
+	Description             string                   `json:"description"`
+	IsForSale               bool                     `json:"isForSale"`
+	IconAssetID             int64                    `json:"iconAssetId"`
+	CreatedTimestamp        string                   `json:"createdTimestamp"`
+	UpdatedTimestamp        string                   `json:"updatedTimestamp"`
+	PriceInformation        GamePassPriceInformation `json:"priceInformation"`
+	IsManagedPricingEnabled bool                     `json:"isManagedPricingEnabled"`
+}
+
+// CreateGamePass will create game pass.
+//
+// Required scopes: game-pass:write
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/game-passes#GamePasses_CreateGamePass
+//
+// [POST] /game-passes/v1/universes/{universeId}/game-passes
+func (s *MonetizationService) CreateGamePass(ctx context.Context, universeId string, data CreateGamePassRequest, reqOpts ...goblox.RequestOpt) (*GamePass, *Response, error) {
+	gamePass := new(GamePass)
+	e := CreateGamePass.Compile(nil, universeId)
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	if data.Name != nil {
+		_ = writer.WriteField("name", fmt.Sprint(*data.Name))
+	}
+	if data.Description != nil {
+		_ = writer.WriteField("description", fmt.Sprint(*data.Description))
+	}
+	if data.ImageFile != nil {
+		part, err := writer.CreateFormFile("imageFile", filepath.Base(data.ImageFile.Name()))
+		if err != nil {
+			return nil, nil, err
+		}
+		if _, err := io.Copy(part, data.ImageFile); err != nil {
+			return nil, nil, err
+		}
+	}
+	if data.IsForSale != nil {
+		_ = writer.WriteField("isForSale", fmt.Sprint(*data.IsForSale))
+	}
+	if data.Price != nil {
+		_ = writer.WriteField("price", fmt.Sprint(*data.Price))
+	}
+	if data.IsRegionalPricingEnabled != nil {
+		_ = writer.WriteField("isRegionalPricingEnabled", fmt.Sprint(*data.IsRegionalPricingEnabled))
+	}
+	if data.IsManagedPricingEnabled != nil {
+		_ = writer.WriteField("isManagedPricingEnabled", fmt.Sprint(*data.IsManagedPricingEnabled))
+	}
+	if err := writer.Close(); err != nil {
+		return nil, nil, err
+	}
+
+	req, err := s.client.NewMultipartRequest(e.Endpoint.Method, e.Path, &body, writer.FormDataContentType())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	resp, err := s.client.CallRequest(ctx, e, req, gamePass, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return gamePass, resp, nil
+}
+
+type ListGamePassesOptions struct {
+	PageSize  *int    `url:"pageSize,omitempty"`
+	PageToken *string `url:"pageToken,omitempty"`
+}
+
+type GamePassList struct {
+	GamePasses    []GamePass `json:"gamePasses"`
+	NextPageToken string     `json:"nextPageToken"`
+}
+
+// ListGamePasses will list game passes by universe with configuration details.
+//
+// Required scopes: game-pass:read
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/game-passes#GamePasses_ListGamePassConfigsByUniverse
+//
+// [GET] /game-passes/v1/universes/{universeId}/game-passes/creator
+func (s *MonetizationService) ListGamePasses(ctx context.Context, universeId string, opts *ListGamePassesOptions, reqOpts ...goblox.RequestOpt) (*GamePassList, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	gamePassList := new(GamePassList)
+	resp, err := s.client.Call(ctx, ListGamePasses.Compile(q, universeId), nil, gamePassList, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return gamePassList, resp, nil
+}
+
+type UpdateGamePassRequest struct {
+	Name                     *string  `form:"name"`
+	Description              *string  `form:"description"`
+	File                     *os.File `form:"file"`
+	ImageFile                *os.File `form:"imageFile"`
+	IsForSale                *bool    `form:"isForSale"`
+	Price                    *int64   `form:"price"`
+	IsRegionalPricingEnabled *bool    `form:"isRegionalPricingEnabled"`
+	IsManagedPricingEnabled  *bool    `form:"isManagedPricingEnabled"`
+}
+
+// UpdateGamePass will update game pass.
+//
+// Required scopes: game-pass:write
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/game-passes#GamePasses_UpdateGamePass
+//
+// [PATCH] /game-passes/v1/universes/{universeId}/game-passes/{gamePassId}
+func (s *MonetizationService) UpdateGamePass(ctx context.Context, universeId, gamePassId string, data UpdateGamePassRequest, reqOpts ...goblox.RequestOpt) (*Response, error) {
+	e := UpdateGamePass.Compile(nil, universeId, gamePassId)
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	if data.Name != nil {
+		_ = writer.WriteField("name", fmt.Sprint(*data.Name))
+	}
+	if data.Description != nil {
+		_ = writer.WriteField("description", fmt.Sprint(*data.Description))
+	}
+	if data.File != nil {
+		part, err := writer.CreateFormFile("file", filepath.Base(data.File.Name()))
+		if err != nil {
+			return nil, err
+		}
+		if _, err := io.Copy(part, data.File); err != nil {
+			return nil, err
+		}
+	}
+	if data.ImageFile != nil {
+		part, err := writer.CreateFormFile("imageFile", filepath.Base(data.ImageFile.Name()))
+		if err != nil {
+			return nil, err
+		}
+		if _, err := io.Copy(part, data.ImageFile); err != nil {
+			return nil, err
+		}
+	}
+	if data.IsForSale != nil {
+		_ = writer.WriteField("isForSale", fmt.Sprint(*data.IsForSale))
+	}
+	if data.Price != nil {
+		_ = writer.WriteField("price", fmt.Sprint(*data.Price))
+	}
+	if data.IsRegionalPricingEnabled != nil {
+		_ = writer.WriteField("isRegionalPricingEnabled", fmt.Sprint(*data.IsRegionalPricingEnabled))
+	}
+	if data.IsManagedPricingEnabled != nil {
+		_ = writer.WriteField("isManagedPricingEnabled", fmt.Sprint(*data.IsManagedPricingEnabled))
+	}
+	if err := writer.Close(); err != nil {
+		return nil, err
+	}
+
+	req, err := s.client.NewMultipartRequest(e.Endpoint.Method, e.Path, &body, writer.FormDataContentType())
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.CallRequest(ctx, e, req, nil, reqOpts...)
+}
+
+// GetGamePass will get game pass with configuration details.
+//
+// Required scopes: game-pass:read
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/game-passes#GamePasses_GetGamePassConfig
+//
+// [GET] /game-passes/v1/universes/{universeId}/game-passes/{gamePassId}/creator
+func (s *MonetizationService) GetGamePass(ctx context.Context, universeId, gamePassId string, reqOpts ...goblox.RequestOpt) (*GamePass, *Response, error) {
+	gamePass := new(GamePass)
+	resp, err := s.client.Call(ctx, GetGamePass.Compile(nil, universeId, gamePassId), nil, gamePass, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return gamePass, resp, nil
 }

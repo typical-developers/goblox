@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -448,4 +449,246 @@ func (s *AssetsService) GetOperation(ctx context.Context, operationId string, re
 	}
 
 	return operation, resp, nil
+}
+
+var (
+	GetAssetDeliveryLocation = goblox.NewEndpoint(
+		http.MethodGet,
+		"/asset-delivery-api/v1/assetId/{assetId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("legacy-asset:manage")
+
+	GetAssetVersionDeliveryLocation = goblox.NewEndpoint(
+		http.MethodGet,
+		"/asset-delivery-api/v1/assetId/{assetId}/version/{versionNumber}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("legacy-asset:manage")
+
+	GrantAssetPermissions = goblox.NewEndpoint(
+		http.MethodPatch,
+		"/asset-permissions-api/v1/assets/permissions",
+		auth.KindAPIKey,
+	).WithScopes("asset-permissions:write")
+)
+
+type GetAssetDeliveryLocationOptions struct {
+	AcceptEncoding                        *string `url:"-"`
+	RobloxPlaceID                         *int64  `url:"-"`
+	AssetType                             *string `url:"-"`
+	AssetFormat                           *string `url:"-"`
+	RobloxAssetFormat                     *string `url:"-"`
+	RobloxUsageContext                    *string `url:"-"`
+	SkipSigningScripts                    *bool   `url:"skipSigningScripts,omitempty"`
+	ClientInsert                          *int    `url:"clientInsert,omitempty"`
+	Scriptinsert                          *int    `url:"scriptinsert,omitempty"`
+	ModulePlaceID                         *int64  `url:"modulePlaceId,omitempty"`
+	Serverplaceid                         *int64  `url:"serverplaceid,omitempty"`
+	ExpectedAssetType                     *string `url:"expectedAssetType,omitempty"`
+	DoNotFallbackToBaselineRepresentation *bool   `url:"doNotFallbackToBaselineRepresentation,omitempty"`
+	ContentRepresentationPriorityList     *string `url:"contentRepresentationPriorityList,omitempty"`
+	AccessContext                         *string `url:"accessContext,omitempty"`
+}
+
+type AssetDeliveryLocationEntry struct {
+	AssetFormat string `json:"assetFormat"`
+	Location    string `json:"location"`
+}
+
+type AssetDeliveryLocation struct {
+	Location     string                       `json:"location"`
+	Locations    []AssetDeliveryLocationEntry `json:"locations"`
+	RequestID    string                       `json:"requestId"`
+	IsArchived   bool                         `json:"isArchived"`
+	AssetTypeID  int                          `json:"assetTypeId"`
+	IsRecordable bool                         `json:"isRecordable"`
+}
+
+// GetAssetDeliveryLocation will retrieve an asset by its ID with OpenCloud auth.
+//
+// Required scopes: legacy-asset:manage
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/assets#get_asset_delivery_api_v1_assetId__assetId_
+//
+// [GET] /asset-delivery-api/v1/assetId/{assetId}
+func (s *AssetsService) GetAssetDeliveryLocation(ctx context.Context, assetId string, opts *GetAssetDeliveryLocationOptions, reqOpts ...goblox.RequestOpt) (*AssetDeliveryLocation, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+	if opts != nil {
+		if opts.AcceptEncoding != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("Accept-Encoding", fmt.Sprint(*opts.AcceptEncoding)))
+		}
+		if opts.RobloxPlaceID != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("Roblox-Place-Id", fmt.Sprint(*opts.RobloxPlaceID)))
+		}
+		if opts.AssetType != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("AssetType", fmt.Sprint(*opts.AssetType)))
+		}
+		if opts.AssetFormat != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("AssetFormat", fmt.Sprint(*opts.AssetFormat)))
+		}
+		if opts.RobloxAssetFormat != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("Roblox-AssetFormat", fmt.Sprint(*opts.RobloxAssetFormat)))
+		}
+		if opts.RobloxUsageContext != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("Roblox-Usage-Context", fmt.Sprint(*opts.RobloxUsageContext)))
+		}
+	}
+
+	assetDeliveryLocation := new(AssetDeliveryLocation)
+	resp, err := s.client.Call(ctx, GetAssetDeliveryLocation.Compile(q, assetId), nil, assetDeliveryLocation, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return assetDeliveryLocation, resp, nil
+}
+
+type GetAssetVersionDeliveryLocationOptions struct {
+	AcceptEncoding                        *string `url:"-"`
+	RobloxPlaceID                         *int64  `url:"-"`
+	AssetType                             *string `url:"-"`
+	AssetFormat                           *string `url:"-"`
+	RobloxAssetFormat                     *string `url:"-"`
+	RobloxUsageContext                    *string `url:"-"`
+	SkipSigningScripts                    *bool   `url:"skipSigningScripts,omitempty"`
+	ClientInsert                          *int    `url:"clientInsert,omitempty"`
+	Scriptinsert                          *int    `url:"scriptinsert,omitempty"`
+	ModulePlaceID                         *int64  `url:"modulePlaceId,omitempty"`
+	Serverplaceid                         *int64  `url:"serverplaceid,omitempty"`
+	ExpectedAssetType                     *string `url:"expectedAssetType,omitempty"`
+	DoNotFallbackToBaselineRepresentation *bool   `url:"doNotFallbackToBaselineRepresentation,omitempty"`
+	ContentRepresentationPriorityList     *string `url:"contentRepresentationPriorityList,omitempty"`
+	AccessContext                         *string `url:"accessContext,omitempty"`
+}
+
+// GetAssetVersionDeliveryLocation will retrieve an asset by its ID and version number with OpenCloud auth.
+//
+// Required scopes: legacy-asset:manage
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/assets#get_asset_delivery_api_v1_assetId__assetId__version__versionNumber_
+//
+// [GET] /asset-delivery-api/v1/assetId/{assetId}/version/{versionNumber}
+func (s *AssetsService) GetAssetVersionDeliveryLocation(ctx context.Context, assetId, versionNumber string, opts *GetAssetVersionDeliveryLocationOptions, reqOpts ...goblox.RequestOpt) (*AssetDeliveryLocation, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+	if opts != nil {
+		if opts.AcceptEncoding != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("Accept-Encoding", fmt.Sprint(*opts.AcceptEncoding)))
+		}
+		if opts.RobloxPlaceID != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("Roblox-Place-Id", fmt.Sprint(*opts.RobloxPlaceID)))
+		}
+		if opts.AssetType != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("AssetType", fmt.Sprint(*opts.AssetType)))
+		}
+		if opts.AssetFormat != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("AssetFormat", fmt.Sprint(*opts.AssetFormat)))
+		}
+		if opts.RobloxAssetFormat != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("Roblox-AssetFormat", fmt.Sprint(*opts.RobloxAssetFormat)))
+		}
+		if opts.RobloxUsageContext != nil {
+			reqOpts = append(reqOpts, goblox.WithHeader("Roblox-Usage-Context", fmt.Sprint(*opts.RobloxUsageContext)))
+		}
+	}
+
+	assetDeliveryLocation := new(AssetDeliveryLocation)
+	resp, err := s.client.Call(ctx, GetAssetVersionDeliveryLocation.Compile(q, assetId, versionNumber), nil, assetDeliveryLocation, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return assetDeliveryLocation, resp, nil
+}
+
+type AssetSubjectType string
+
+const (
+	AssetSubjectTypeInvalid      AssetSubjectType = "Invalid"
+	AssetSubjectTypeUser         AssetSubjectType = "User"
+	AssetSubjectTypeGroup        AssetSubjectType = "Group"
+	AssetSubjectTypeGroupRoleset AssetSubjectType = "GroupRoleset"
+	AssetSubjectTypeAll          AssetSubjectType = "All"
+	AssetSubjectTypeUniverse     AssetSubjectType = "Universe"
+)
+
+type AssetAction string
+
+const (
+	AssetActionInvalid       AssetAction = "Invalid"
+	AssetActionEdit          AssetAction = "Edit"
+	AssetActionUse           AssetAction = "Use"
+	AssetActionDownload      AssetAction = "Download"
+	AssetActionCopyFromRcc   AssetAction = "CopyFromRcc"
+	AssetActionUpdateFromRcc AssetAction = "UpdateFromRcc"
+)
+
+type AssetGrantRequest struct {
+	AssetID             *int64 `json:"assetId,omitempty"`
+	GrantToDependencies *bool  `json:"grantToDependencies,omitempty"`
+	ParentVersionNumber *int   `json:"parentVersionNumber,omitempty"`
+}
+
+type BatchGrantPermissionsRequest struct {
+	SubjectType           *AssetSubjectType   `json:"subjectType,omitempty"`
+	SubjectID             *string             `json:"subjectId,omitempty"`
+	Action                *AssetAction        `json:"action,omitempty"`
+	Requests              []AssetGrantRequest `json:"requests,omitempty"`
+	AssetIDs              []int64             `json:"assetIds,omitempty"`
+	EnableDeepAccessCheck *bool               `json:"enableDeepAccessCheck,omitempty"`
+}
+
+type ErrorCode string
+
+const (
+	ErrorCodeUnknownError                 ErrorCode = "UnknownError"
+	ErrorCodeInvalidRequest               ErrorCode = "InvalidRequest"
+	ErrorCodeAssetNotFound                ErrorCode = "AssetNotFound"
+	ErrorCodeCannotManageAsset            ErrorCode = "CannotManageAsset"
+	ErrorCodePublicAssetCannotBeGrantedTo ErrorCode = "PublicAssetCannotBeGrantedTo"
+	ErrorCodeCannotManageSubject          ErrorCode = "CannotManageSubject"
+	ErrorCodeSubjectNotFound              ErrorCode = "SubjectNotFound"
+	ErrorCodeAssetTypeNotEnabled          ErrorCode = "AssetTypeNotEnabled"
+	ErrorCodePermissionLimitReached       ErrorCode = "PermissionLimitReached"
+	ErrorCodeDependenciesLimitReached     ErrorCode = "DependenciesLimitReached"
+	ErrorCodeNotRequestable               ErrorCode = "NotRequestable"
+	ErrorCodeRequesterNotAConnection      ErrorCode = "RequesterNotAConnection"
+	ErrorCodeAlreadyPending               ErrorCode = "AlreadyPending"
+	ErrorCodeAlreadyHasAccess             ErrorCode = "AlreadyHasAccess"
+	ErrorCodeRequestNotFound              ErrorCode = "RequestNotFound"
+	ErrorCodeInvalidRequestStatus         ErrorCode = "InvalidRequestStatus"
+	ErrorCodeRateLimited                  ErrorCode = "RateLimited"
+	ErrorCodeCallerNotOwner               ErrorCode = "CallerNotOwner"
+	ErrorCodeBatchSizeLimitExceeded       ErrorCode = "BatchSizeLimitExceeded"
+)
+
+type GrantPermissionError struct {
+	AssetID int64     `json:"assetId"`
+	Code    ErrorCode `json:"code"`
+}
+
+type BatchGrantPermissionsResponse struct {
+	SuccessAssetIDs []int64                `json:"successAssetIds"`
+	Errors          []GrantPermissionError `json:"errors"`
+}
+
+// GrantAssetPermissions will grant a subject permission to multiple assets.
+//
+// Required scopes: asset-permissions:write
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/assets#patch_asset_permissions_api_v1_assets_permissions
+//
+// [PATCH] /asset-permissions-api/v1/assets/permissions
+func (s *AssetsService) GrantAssetPermissions(ctx context.Context, data BatchGrantPermissionsRequest, reqOpts ...goblox.RequestOpt) (*BatchGrantPermissionsResponse, *Response, error) {
+	batchGrantPermissionsResponse := new(BatchGrantPermissionsResponse)
+	resp, err := s.client.Call(ctx, GrantAssetPermissions.Compile(nil), data, batchGrantPermissionsResponse, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return batchGrantPermissionsResponse, resp, nil
 }

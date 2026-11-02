@@ -694,3 +694,145 @@ func (s *UsersService) ListUserRestrictionLogs(ctx context.Context, universeId s
 
 	return restrictionLogs, resp, nil
 }
+
+var (
+	GetUserThumbnailGenerationOperation = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/users/{userId}/operations/{operationId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	)
+
+	UnfollowUniverse = goblox.NewEndpoint(
+		http.MethodDelete,
+		"/legacy-followings/v1/users/{userId}/universes/{universeId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("legacy-universe.following:write")
+
+	FollowUniverse = goblox.NewEndpoint(
+		http.MethodPost,
+		"/legacy-followings/v1/users/{userId}/universes/{universeId}",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("legacy-universe.following:write")
+
+	GetUniverseFollowStatus = goblox.NewEndpoint(
+		http.MethodGet,
+		"/legacy-followings/v1/users/{userId}/universes/{universeId}/status",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("legacy-universe.following:read")
+
+	ListUserFollowedUniverses = goblox.NewEndpoint(
+		http.MethodGet,
+		"/legacy-followings/v2/users/{userId}/universes",
+		auth.KindAPIKey, auth.KindOAuth2,
+	).WithScopes("legacy-universe.following:read")
+)
+
+// GetUserThumbnailGenerationOperation will get the status and result of a user thumbnail generation operation.
+//
+// Required scopes: none
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/avatars#Cloud_GetUserThumbnailGenerationOperation
+//
+// [GET] /cloud/v2/users/{user_id}/operations/{operation_id}
+func (s *UsersService) GetUserThumbnailGenerationOperation(ctx context.Context, userId, operationId string, reqOpts ...goblox.RequestOpt) (*Operation, *Response, error) {
+	operation := new(Operation)
+	resp, err := s.client.Call(ctx, GetUserThumbnailGenerationOperation.Compile(nil, userId, operationId), nil, operation, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return operation, resp, nil
+}
+
+type UserFollowingUniverseResponse struct {
+	UniverseID int64 `json:"universeId"`
+	UserID     int64 `json:"userId"`
+}
+
+// UnfollowUniverse will delete the following between a user with userId and universe with universeId.
+//
+// Required scopes: legacy-universe.following:write
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/interactions#delete_legacy_followings_v1_users__userId__universes__universeId_
+//
+// [DELETE] /legacy-followings/v1/users/{userId}/universes/{universeId}
+func (s *UsersService) UnfollowUniverse(ctx context.Context, userId, universeId string, reqOpts ...goblox.RequestOpt) (*UserFollowingUniverseResponse, *Response, error) {
+	userFollowingUniverseResponse := new(UserFollowingUniverseResponse)
+	resp, err := s.client.Call(ctx, UnfollowUniverse.Compile(nil, userId, universeId), nil, userFollowingUniverseResponse, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return userFollowingUniverseResponse, resp, nil
+}
+
+// FollowUniverse will create the following between a user with userId and universe with universeId.
+//
+// Required scopes: legacy-universe.following:write
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/interactions#post_legacy_followings_v1_users__userId__universes__universeId_
+//
+// [POST] /legacy-followings/v1/users/{userId}/universes/{universeId}
+func (s *UsersService) FollowUniverse(ctx context.Context, userId, universeId string, reqOpts ...goblox.RequestOpt) (*UserFollowingUniverseResponse, *Response, error) {
+	userFollowingUniverseResponse := new(UserFollowingUniverseResponse)
+	resp, err := s.client.Call(ctx, FollowUniverse.Compile(nil, userId, universeId), nil, userFollowingUniverseResponse, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return userFollowingUniverseResponse, resp, nil
+}
+
+type UserFollowingUniverseStatusResponse struct {
+	UniverseID           int64 `json:"UniverseId"`
+	UserID               int64 `json:"UserId"`
+	CanFollow            bool  `json:"CanFollow"`
+	IsFollowing          bool  `json:"IsFollowing"`
+	FollowingCountByType int   `json:"FollowingCountByType"`
+	FollowingLimitByType int   `json:"FollowingLimitByType"`
+}
+
+// GetUniverseFollowStatus will get the status of a following relationship between a user and a universe.
+//
+// Required scopes: legacy-universe.following:read
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/interactions#get_legacy_followings_v1_users__userId__universes__universeId__status
+//
+// [GET] /legacy-followings/v1/users/{userId}/universes/{universeId}/status
+func (s *UsersService) GetUniverseFollowStatus(ctx context.Context, userId, universeId string, reqOpts ...goblox.RequestOpt) (*UserFollowingUniverseStatusResponse, *Response, error) {
+	userFollowingUniverseStatusResponse := new(UserFollowingUniverseStatusResponse)
+	resp, err := s.client.Call(ctx, GetUniverseFollowStatus.Compile(nil, userId, universeId), nil, userFollowingUniverseStatusResponse, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return userFollowingUniverseStatusResponse, resp, nil
+}
+
+type FollowsByTypeResponseFollowerType int
+
+type FollowsByTypeResponseSourceType int
+
+type FollowsByTypeResponse struct {
+	FollowerType    FollowsByTypeResponseFollowerType `json:"followerType"`
+	FollowerID      int64                             `json:"followerId"`
+	SourceType      FollowsByTypeResponseSourceType   `json:"sourceType"`
+	FollowedSources map[string]string                 `json:"followedSources"`
+}
+
+// ListUserFollowedUniverses will get all universes followed by a user.
+//
+// Required scopes: legacy-universe.following:read
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/interactions#get_legacy_followings_v2_users__userId__universes
+//
+// [GET] /legacy-followings/v2/users/{userId}/universes
+func (s *UsersService) ListUserFollowedUniverses(ctx context.Context, userId string, reqOpts ...goblox.RequestOpt) (*FollowsByTypeResponse, *Response, error) {
+	followsByTypeResponse := new(FollowsByTypeResponse)
+	resp, err := s.client.Call(ctx, ListUserFollowedUniverses.Compile(nil, userId), nil, followsByTypeResponse, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return followsByTypeResponse, resp, nil
+}

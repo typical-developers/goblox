@@ -900,3 +900,93 @@ func (s *DataAndMemoryStoreService) IncrementOrderedDataStoreEntry(ctx context.C
 
 	return orderedDataStoreEntry, resp, nil
 }
+
+var (
+	DeleteDataStore = goblox.NewEndpoint(
+		http.MethodDelete,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.control:delete")
+
+	UndeleteDataStore = goblox.NewEndpoint(
+		http.MethodPost,
+		"/cloud/v2/universes/{universeId}/data-stores/{dataStoreId}:undelete",
+		auth.KindAPIKey,
+	).WithScopes("universe-datastores.control:delete")
+
+	GetMemoryStoreFlushOperation = goblox.NewEndpoint(
+		http.MethodGet,
+		"/cloud/v2/universes/{universeId}/memory-store/operations/{operationId}",
+		auth.KindAPIKey,
+	).WithScopes("memory-store:get")
+)
+
+// DeleteDataStore will schedule the specified data store for permanent deletion.
+//
+// Required scopes: universe-datastores.control:delete
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/storage#Cloud_DeleteDataStore
+//
+// [DELETE] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}
+func (s *DataAndMemoryStoreService) DeleteDataStore(ctx context.Context, universeId, dataStoreId string, reqOpts ...goblox.RequestOpt) (*DataStore, *Response, error) {
+	dataStore := new(DataStore)
+	resp, err := s.client.Call(ctx, DeleteDataStore.Compile(nil, universeId, dataStoreId), nil, dataStore, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return dataStore, resp, nil
+}
+
+type UndeleteDataStoreRequest map[string]any
+
+// UndeleteDataStore will restore the data store.
+//
+// Required scopes: universe-datastores.control:delete
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/storage#Cloud_UndeleteDataStore
+//
+// [POST] /cloud/v2/universes/{universe_id}/data-stores/{data_store_id}:undelete
+func (s *DataAndMemoryStoreService) UndeleteDataStore(ctx context.Context, universeId, dataStoreId string, data UndeleteDataStoreRequest, reqOpts ...goblox.RequestOpt) (*DataStore, *Response, error) {
+	dataStore := new(DataStore)
+	resp, err := s.client.Call(ctx, UndeleteDataStore.Compile(nil, universeId, dataStoreId), data, dataStore, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return dataStore, resp, nil
+}
+
+type GetMemoryStoreFlushOperationOptionsScope string
+
+const (
+	GetMemoryStoreFlushOperationOptionsScopeLive GetMemoryStoreFlushOperationOptionsScope = "LIVE"
+	GetMemoryStoreFlushOperationOptionsScopeTest GetMemoryStoreFlushOperationOptionsScope = "TEST"
+)
+
+type GetMemoryStoreFlushOperationOptions struct {
+	Scope *GetMemoryStoreFlushOperationOptionsScope `url:"scope,omitempty"`
+}
+
+// GetMemoryStoreFlushOperation will retrieve the status of the operation to flush the memory stores of a
+// universe.
+//
+// Required scopes: memory-store:get
+//
+// Roblox Opencloud API Docs: https://create.roblox.com/docs/cloud/reference/features/storage#Cloud_GetMemoryStoreFlushOperation
+//
+// [GET] /cloud/v2/universes/{universe_id}/memory-store/operations/{operation_id}
+func (s *DataAndMemoryStoreService) GetMemoryStoreFlushOperation(ctx context.Context, universeId, operationId string, opts *GetMemoryStoreFlushOperationOptions, reqOpts ...goblox.RequestOpt) (*Operation, *Response, error) {
+	q, err := queryValues(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	operation := new(Operation)
+	resp, err := s.client.Call(ctx, GetMemoryStoreFlushOperation.Compile(q, universeId, operationId), nil, operation, reqOpts...)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return operation, resp, nil
+}

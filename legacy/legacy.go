@@ -25,16 +25,25 @@ type Client struct {
 	credential auth.Credential
 
 	baseDomain string
+	userAgent  string
 
 	Thumbnails *ThumbnailsService
 }
 
 type ClientOpts func(*Client)
 
+// WithUserAgentApp will let you set the app for the client.
+func WithUserAgentApp(app string) ClientOpts {
+	return func(c *Client) {
+		c.userAgent = goblox.AppUserAgent(app)
+	}
+}
+
 func NewClient(opts ...ClientOpts) *Client {
 	c := &Client{
 		client:     http.DefaultClient,
 		baseDomain: "roblox.com",
+		userAgent:  goblox.UserAgent,
 	}
 
 	for _, opt := range opts {
@@ -126,6 +135,9 @@ func (c *Client) send(ctx context.Context, req *http.Request, config goblox.Requ
 	for attempt := 0; attempt < 2; attempt++ {
 		// A fresh copy each attempt, so headers and credentials aren't added twice.
 		r := req.Clone(ctx)
+
+		r.Header.Set("User-Agent", c.userAgent)
+
 		if attempt > 0 && req.GetBody != nil {
 			body, err := req.GetBody()
 			if err != nil {
@@ -135,6 +147,7 @@ func (c *Client) send(ctx context.Context, req *http.Request, config goblox.Requ
 		}
 
 		for k, vs := range config.Header {
+			r.Header.Del(k)
 			for _, v := range vs {
 				r.Header.Add(k, v)
 			}

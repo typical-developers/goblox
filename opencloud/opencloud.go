@@ -28,7 +28,8 @@ type Client struct {
 	common     service
 	credential auth.Credential
 
-	BaseURL *url.URL
+	userAgent string
+	BaseURL   *url.URL
 
 	Assets             *AssetsService
 	Config             *ConfigService
@@ -55,7 +56,8 @@ type ClientOpts func(*Client)
 // WithOAuthToken should be used for OAuth applications that are athenticated.
 func NewClient(opts ...ClientOpts) *Client {
 	c := &Client{
-		client: http.DefaultClient,
+		client:    http.DefaultClient,
+		userAgent: goblox.UserAgent,
 	}
 
 	for _, opt := range opts {
@@ -123,6 +125,13 @@ func WithBaseURL(u *url.URL) ClientOpts {
 	}
 }
 
+// WithUserAgentApp will let you set the app for the client.
+func WithUserAgentApp(app string) ClientOpts {
+	return func(c *Client) {
+		c.userAgent = goblox.AppUserAgent(app)
+	}
+}
+
 func (c *Client) config(opts []goblox.RequestOpt) goblox.RequestConfig {
 	config := goblox.RequestConfig{Credential: c.credential}
 
@@ -142,6 +151,8 @@ func (c *Client) send(ctx context.Context, req *http.Request, _ *goblox.Endpoint
 	for attempt := 0; attempt < 2; attempt++ {
 		// A fresh copy each attempt, so headers and credentials aren't added twice.
 		r := req.Clone(ctx)
+		r.Header.Set("User-Agent", c.userAgent)
+
 		if attempt > 0 && req.GetBody != nil {
 			body, err := req.GetBody()
 			if err != nil {
@@ -151,6 +162,7 @@ func (c *Client) send(ctx context.Context, req *http.Request, _ *goblox.Endpoint
 		}
 
 		for k, vs := range config.Header {
+			r.Header.Del(k)
 			for _, v := range vs {
 				r.Header.Add(k, v)
 			}

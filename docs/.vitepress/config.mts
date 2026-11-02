@@ -18,11 +18,12 @@ export default defineConfig({
       provider: 'local',
     },
     outline: [2, 4],
-    
+
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Introduction', link: '/getting-started/welcome' },
-      { text: 'Guides', link: '/guides/opencloud/authentication' },
+      { text: 'OpenCloud', link: '/guides/opencloud/authentication' },
+      { text: 'Legacy', link: '/guides/legacy/authentication' },
     ],
 
     sidebar: [
@@ -42,6 +43,12 @@ export default defineConfig({
               { text: 'Pagination', link: '/guides/opencloud/pagination' },
               { text: "Luau Execution", link: '/guides/opencloud/luau-execution' },
               { text: "Polling Endpoints", link: '/guides/opencloud/polling-endpoints' },
+            ]
+          },
+          {
+            text: 'Legacy',
+            items: [
+              { text: "Authentication", link: '/guides/legacy/authentication' },
             ]
           },
         ]

@@ -30,6 +30,12 @@ func NewEndpoint(method, route string, accepts ...auth.Kind) *Endpoint {
 	}
 }
 
+// WithDomain sets the domain for the endpoint and returns the endpoint for chaining.
+func (e *Endpoint) WithDomain(domain string) *Endpoint {
+	e.Domain = domain
+	return e
+}
+
 // WithScopes records scopes that are all required.
 func (e *Endpoint) WithScopes(scopes ...string) *Endpoint {
 	e.Scopes = scopes

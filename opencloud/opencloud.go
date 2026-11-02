@@ -40,11 +40,6 @@ type Client struct {
 	Universes          *UniversesService
 	Users              *UsersService
 	Groups             *GroupsService
-
-	// Deprecated: Use [UsersService] and [GroupsService] instead.
-	UserAndGroups *UserAndGroupsService
-	// Deprecated: Use [UniversesService] and [PlacesService].
-	UniverseAndPlaces *UniverseAndPlacesService
 }
 
 type ClientOpts func(*Client)
@@ -82,10 +77,8 @@ func (c *Client) init() *Client {
 	c.DataAndMemoryStore = (*DataAndMemoryStoreService)(&c.common)
 	c.LuauExecution = (*LuauExecutionService)(&c.common)
 	c.Monetization = (*MonetizationService)(&c.common)
-	c.UniverseAndPlaces = (*UniverseAndPlacesService)(&c.common)
 	c.Places = (*PlacesService)(&c.common)
 	c.Universes = (*UniversesService)(&c.common)
-	c.UserAndGroups = (*UserAndGroupsService)(&c.common)
 	c.Users = (*UsersService)(&c.common)
 	c.Groups = (*GroupsService)(&c.common)
 

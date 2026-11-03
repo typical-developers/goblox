@@ -9,7 +9,7 @@ While this library is used in some production deployments, it is not considered 
 
 ## Installation
 ::: info
-Go 1.18 or newer is required.
+Go 1.23 or newer is required.
 :::
 
 ```bash

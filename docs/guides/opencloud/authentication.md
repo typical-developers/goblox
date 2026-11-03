@@ -22,10 +22,9 @@ import (
 )
 
 func main() {
-    ctx := context.Background()
     client := opencloud.NewClient().WithAPIKey("YOUR_API_KEY")
 
-    user, _, err := client.Users.GetUser(ctx, "USER_ID")
+    user, _, err := client.Users.GetUser(context.TODO(), "1")
     if err != nil {
         panic(err)
     }
@@ -34,8 +33,32 @@ func main() {
 }
 ```
 
-## Using OAuth2 Tokens
+## OAuth2 Tokens
 You create an OAuth2 application at: https://create.roblox.com/dashboard/credentials?activeTab=OAuthTab
+### Using OAuth2 Tokens (client-wide) 
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+
+    "github.com/typical-developers/goblox"
+    "github.com/typical-developers/goblox/opencloud"
+)
+
+func main() {
+    authedUser := opencloud.NewClient().WithOAuthToken("OAUTH2_TOKEN")
+
+    user, _, err := authedUser.Users.GetUser(context.TODO(), "1")
+    if err != nil {
+        panic(err)
+    }
+
+    fmt.Printf("User: %s\n", user.Name)
+}
+```
+### Using OAuth2 Tokens (per-call) 
 ```go
 package main
 
@@ -63,24 +86,39 @@ func main() {
 Per-call options like `goblox.WithOAuthToken` override the client's credential for that call only. This makes it safe to use from many goroutines.
 
 ## Introspecting Scopes
-By default, Goblox will not know wihch scopes your key or token has. To have Goblox check first and return a clear error instead of a 403, you can introspect your credential.
+By default, Goblox will not know which scopes your key or token has. To have Goblox check first and return a clear error instead of a 403, you can introspect your credential.
 
 The first call with an introspected credential makes one extra request to Roblox. Later calls use the cached result until it expires.
+### API Keys
+API credentials can be set to be checked at an interval. By default if the duration is set to 0, it will check every 10 minutes. It will also check after every 401/403 until the key scopes are updated.
 ```go
 import (
     "time"
 
     "github.com/typical-developers/goblox"
+    "github.com/typical-developers/goblox/opencloud"
     "github.com/typical-developers/goblox/auth"
 )
 
 func main() {
-    // API credentials can be set to be checked at an interval.
-    // The default duration is 10 minutes or after a 401/403.
     key := auth.IntrospectedAPIKey("YOUR_API_KEY", 10*time.Minute)
+    client := opencloud.NewClient().WithCredential(key)
+}
+```
+### OAuth2 Token
+An OAuth2 credential will need your app's client ID and secret.
+```go
+import (
+    "time"
 
-    // OAuth2 credentials need your app's client ID and secret.
-    token := auth.IntrospectOAuthToken("USER_OAUTH2_TOKEN", "YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET") 
+    "github.com/typical-developers/goblox"
+    "github.com/typical-developers/goblox/opencloud"
+    "github.com/typical-developers/goblox/auth"
+)
+
+func main() {
+    token := auth.IntrospectedOAuthToken("USER_OAUTH2_TOKEN", "YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET") 
+    client := opencloud.NewClient().WithCredential(token)
 }
 ```
 

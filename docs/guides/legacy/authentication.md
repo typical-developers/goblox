@@ -31,11 +31,10 @@ import (
     "github.com/typical-developers/goblox/auth"
 )
 
-var client = opencloud.NewClient()
+var client = legacy.NewClient()
 
 func main() {
     cookie := auth.NewROBLOSecurityCookie("YOUR_ROBLOSECURITY_COOKIE")
-
     client.Thumbnails.Batch(context.TODO(), []legacy.ThumbnailBatch{}, goblox.WithCredential(cookie))
 }
 

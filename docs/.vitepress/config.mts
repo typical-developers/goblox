@@ -27,7 +27,7 @@ export default defineConfig({
           {
             type: 9,
             components: [
-              { type: 10, content: "## Goblox Documentation\nEasily integrate Roblox's Open Cloud & legacy APIs into your Go projects.\n```sh\ngo get -u github.com/typical-developers/goblox@latest\n```" },
+              { type: 10, content: "## Goblox Documentation\nEasily integrate Roblox's OpenCloud & legacy APIs into your Go projects.\n```sh\ngo get -u github.com/typical-developers/goblox\n```" },
             ],
             accessory: { type: 11, media: { url: `https://goblox.dev/goblox_icon.png` } },
           },

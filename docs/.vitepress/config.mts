@@ -31,6 +31,8 @@ export default defineConfig({
             ],
             accessory: { type: 11, media: { url: `https://goblox.dev/goblox_icon.png` } },
           },
+          { type: 14, divider: true, spacing: 1 },
+          { type: 10, content: "**Installation**\n```sh\ngo get -u github.com/typical-developers/goblox@latest\n```" },
           {
             type: 1,
             components: [

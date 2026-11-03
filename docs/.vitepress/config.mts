@@ -27,12 +27,10 @@ export default defineConfig({
           {
             type: 9,
             components: [
-              { type: 10, content: "## Goblox Documentation\nEasily integrate Roblox's Open Cloud & legacy APIs into your Go projects." },
+              { type: 10, content: "## Goblox Documentation\nEasily integrate Roblox's Open Cloud & legacy APIs into your Go projects.\n```sh\ngo get -u github.com/typical-developers/goblox@latest\n```" },
             ],
             accessory: { type: 11, media: { url: `https://goblox.dev/goblox_icon.png` } },
           },
-          { type: 14, divider: true, spacing: 1 },
-          { type: 10, content: "**Installation**\n```sh\ngo get -u github.com/typical-developers/goblox@latest\n```" },
           {
             type: 1,
             components: [

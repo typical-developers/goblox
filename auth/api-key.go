@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+var (
+	defaultIntrospectTTL = 10 * time.Minute
+)
+
 type APIKey string
 
 func (c APIKey) Kind() Kind {
@@ -26,6 +30,11 @@ type APIKeyIntrospector struct {
 
 func IntrospectedAPIKey(key string, ttl time.Duration) *Introspected {
 	k := APIKey(key)
+
+	if ttl == 0 {
+		ttl = defaultIntrospectTTL
+	}
+
 	return &Introspected{
 		Credential: k,
 		Introspector: APIKeyIntrospector{

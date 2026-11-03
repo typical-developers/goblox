@@ -2,17 +2,60 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  cleanUrls: true,
+
   title: "Goblox Documentation",
   description: "Documentation for the Goblox Go library.",
 
   head: [
     ['link', { rel: 'icon', href: '/goblox_icon.png' }],
+
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:site_name', content: 'Goblox' }],
+    ['meta', { property: 'og:title', content: 'Goblox Documentation' }],
+    ['meta', { property: 'og:description', content: "Easily integrate Roblox's Open Cloud & legacy APIs into your Go projects." }],
+    ['meta', { property: 'og:url', content: "https://goblox.dev" }],
+    ['meta', { property: 'og:image', content: `https://goblox.dev/goblox_icon.png` }],
+
+    ['meta', { name: 'twitter:card', content: 'summary' }],
+
+    ['script', { id: "discord:component-embed", type: "application/json" }, JSON.stringify({
+      component: {
+        type: 17,
+        accent_color: 0x6ad7e5,
+        components: [
+          {
+            type: 9,
+            components: [
+              { type: 10, content: "## Goblox Documentation\nEasily integrate Roblox's Open Cloud & legacy APIs into your Go projects." },
+            ],
+            accessory: { type: 11, media: { url: `https://goblox.dev/goblox_icon.png` } },
+          },
+          {
+            type: 1,
+            components: [
+              { type: 2, style: 5, label: 'Open Cloud', url: `https://goblox.dev/guides/opencloud/authentication` },
+              { type: 2, style: 5, label: 'Legacy', url: `https://goblox.dev/guides/legacy/authentication` },
+              { type: 2, style: 5, label: 'GitHub', url: 'https://github.com/typical-developers/goblox' },
+            ],
+          },
+        ],
+      },
+    })]
   ],
+
+  markdown: {
+    lineNumbers: true
+  },
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     siteTitle: "Goblox",
     logo: '/goblox_icon.png',
+    lastUpdated: {},
+    editLink: {
+      pattern: "https://github.com/typical-developers/goblox/edit/main/docs/:path"
+    },
 
     search: {
       provider: 'local',

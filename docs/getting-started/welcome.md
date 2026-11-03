@@ -1,4 +1,4 @@
-# About <img src="/goblox_icon.png" align="right" width="100" />
+# About <img src="/goblox_icon.png" align="right" width="150" />
 Goblox is a Roblox API wrapper written in Golang to make accessing Roblox's API within your Go projects easy.
 
 Goblox is separated into two separate packages: `opencloud` and `legacy`. The `opencloud` package gives access to all of Roblox's APIs that allow you to use an API key or OAuth2 token. The `legacy` package gives access to all of Roblox's normal/classic APIs, with the additional ability to set a cookie.

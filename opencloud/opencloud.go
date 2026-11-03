@@ -109,7 +109,7 @@ func (c *Client) init() *Client {
 
 // WithCredential will let you use a custom credential to authenticate with the Opencloud API.
 // You can use [auth.APIKey] or [auth.OAuthToken] to create a credential.
-func (c *Client) withCredential(cred auth.Credential) *Client {
+func (c *Client) WithCredential(cred auth.Credential) *Client {
 	nc := &Client{
 		client:     c.client,
 		credential: cred,
@@ -123,14 +123,14 @@ func (c *Client) withCredential(cred auth.Credential) *Client {
 //
 // You can create a new API key at: https://create.roblox.com/dashboard/credentials?activeTab=ApiKeysTab
 func (c *Client) WithAPIKey(apiKey string) *Client {
-	return c.withCredential(auth.APIKey(apiKey))
+	return c.WithCredential(auth.APIKey(apiKey))
 }
 
 // WithOAuthToken will use an OAuth token to authenticate with the Opencloud API.
 //
 // You can create a new OAuth client at: https://create.roblox.com/dashboard/credentials?activeTab=OAuthTab
 func (c *Client) WithOAuthToken(token string) *Client {
-	return c.withCredential(auth.OAuthToken(token))
+	return c.WithCredential(auth.OAuthToken(token))
 }
 
 // WithBaseURL will override with a custom base url.

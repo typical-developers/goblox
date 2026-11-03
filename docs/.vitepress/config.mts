@@ -34,7 +34,7 @@ export default defineConfig({
           {
             type: 1,
             components: [
-              { type: 2, style: 5, label: 'Open Cloud', url: `https://goblox.dev/guides/opencloud/authentication` },
+              { type: 2, style: 5, label: 'OpenCloud', url: `https://goblox.dev/guides/opencloud/authentication` },
               { type: 2, style: 5, label: 'Legacy', url: `https://goblox.dev/guides/legacy/authentication` },
               { type: 2, style: 5, label: 'GitHub', url: 'https://github.com/typical-developers/goblox' },
             ],
@@ -77,24 +77,21 @@ export default defineConfig({
         ],
       },
       {
-        text: 'Guides',
+        text: 'OpenCloud',
+        collapsed: false,
         items: [
-          {
-            text: 'OpenCloud',
-            items: [
-              { text: "Authentication", link: '/guides/opencloud/authentication' },
-              { text: 'Pagination', link: '/guides/opencloud/pagination' },
-              { text: "Luau Execution", link: '/guides/opencloud/luau-execution' },
-              { text: "Polling Endpoints", link: '/guides/opencloud/polling-endpoints' },
-            ]
-          },
-          {
-            text: 'Legacy',
-            items: [
-              { text: "Authentication", link: '/guides/legacy/authentication' },
-            ]
-          },
-        ]
+          { text: 'Authentication', link: '/guides/opencloud/authentication' },
+          { text: 'Pagination', link: '/guides/opencloud/pagination' },
+          { text: 'Luau Execution', link: '/guides/opencloud/luau-execution' },
+          { text: 'Polling Endpoints', link: '/guides/opencloud/polling-endpoints' },
+        ],
+      },
+      {
+        text: 'Legacy',
+        collapsed: false,
+        items: [
+          { text: 'Authentication', link: '/guides/legacy/authentication' },
+        ],
       },
     ],
 

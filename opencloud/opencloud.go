@@ -31,6 +31,9 @@ type Client struct {
 	userAgent string
 	BaseURL   *url.URL
 
+	retry        goblox.RetryPolicy
+	retryEnabled bool
+
 	Assets             *AssetsService
 	Config             *ConfigService
 	DataAndMemoryStore *DataAndMemoryStoreService
@@ -64,6 +67,10 @@ func NewClient(opts ...ClientOpts) *Client {
 	c := &Client{
 		client:    http.DefaultClient,
 		userAgent: goblox.UserAgent,
+		retry: goblox.RetryPolicy{
+			MaxRetries: 3,
+		},
+		retryEnabled: true,
 	}
 
 	for _, opt := range opts {
@@ -113,7 +120,11 @@ func (c *Client) WithCredential(cred auth.Credential) *Client {
 	nc := &Client{
 		client:     c.client,
 		credential: cred,
-		BaseURL:    c.BaseURL,
+		userAgent:  goblox.UserAgent,
+		retry: goblox.RetryPolicy{
+			MaxRetries: 3,
+		},
+		retryEnabled: true,
 	}
 
 	return nc.init()
@@ -147,6 +158,20 @@ func WithUserAgentApp(app string) ClientOpts {
 	}
 }
 
+// WithRetryPolicy sets how this client retries failed requests.
+func WithRetryPolicy(p goblox.RetryPolicy) ClientOpts {
+	return func(c *Client) {
+		c.retry = p
+	}
+}
+
+// WithRetries sets whether requests are retried by default.
+func WithRetries(enabled bool) ClientOpts {
+	return func(c *Client) {
+		c.retryEnabled = enabled
+	}
+}
+
 func (c *Client) config(opts []goblox.RequestOpt) goblox.RequestConfig {
 	config := goblox.RequestConfig{Credential: c.credential}
 
@@ -158,17 +183,19 @@ func (c *Client) config(opts []goblox.RequestOpt) goblox.RequestConfig {
 }
 
 func (c *Client) send(ctx context.Context, req *http.Request, _ *goblox.Endpoint, config goblox.RequestConfig, out any) (*Response, error) {
-	handler, canRetry := config.Credential.(auth.ResponseHandler)
+	retryEnabled := c.retryEnabled
+	if config.Retry != nil {
+		retryEnabled = *config.Retry
+	}
 
-	canRetry = canRetry && (req.Body == nil || req.Body == http.NoBody || req.GetBody != nil)
+	handler, hasHandler := config.Credential.(auth.ResponseHandler)
+	replayable := req.Body == nil || req.Body == http.NoBody || req.GetBody != nil
 
-	var resp *http.Response
-	for attempt := 0; attempt < 2; attempt++ {
-		// A fresh copy each attempt, so headers and credentials aren't added twice.
+	attempt := 0
+	handlerRetried := false
+	for {
 		r := req.Clone(ctx)
-		r.Header.Set("User-Agent", c.userAgent)
-
-		if attempt > 0 && req.GetBody != nil {
+		if req.GetBody != nil {
 			body, err := req.GetBody()
 			if err != nil {
 				return nil, err
@@ -176,6 +203,7 @@ func (c *Client) send(ctx context.Context, req *http.Request, _ *goblox.Endpoint
 			r.Body = body
 		}
 
+		r.Header.Set("User-Agent", c.userAgent)
 		for k, vs := range config.Header {
 			r.Header.Del(k)
 			for _, v := range vs {
@@ -189,36 +217,57 @@ func (c *Client) send(ctx context.Context, req *http.Request, _ *goblox.Endpoint
 			}
 		}
 
-		var err error
-		resp, err = c.client.Do(r)
-		if err != nil {
-			return nil, err
-		}
+		resp, err := c.client.Do(r)
 
-		if attempt == 0 && canRetry && handler.HandleResponse(resp) {
+		// The credential's own retry (a cookie's new CSRF token). Does not count towards
+		// the retry policy.
+		if err == nil && hasHandler && replayable && !handlerRetried && handler.HandleResponse(resp) {
+			handlerRetried = true
 			_, _ = io.Copy(io.Discard, resp.Body)
 			resp.Body.Close()
 			continue
 		}
-		break
-	}
-	defer resp.Body.Close()
 
-	response := &Response{resp}
-	if !response.Ok() {
-		body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-		return response, decodeError(resp, body)
-	}
+		// Runs the retry policy if retries are enabled.
+		if retryEnabled {
+			if delay, retry := c.retry.Next(attempt, r, resp, err); retry {
+				if resp != nil {
+					_, _ = io.Copy(io.Discard, resp.Body)
+					resp.Body.Close()
+				}
 
-	if out != nil && response.StatusCode != http.StatusNoContent {
-		if err := json.NewDecoder(resp.Body).Decode(out); err != nil && !errors.Is(err, io.EOF) {
-			return response, err
+				if err := goblox.Sleep(ctx, delay); err != nil {
+					return nil, err
+				}
+
+				attempt++
+				continue
+			}
 		}
-	}
 
-	return response, nil
+		if err != nil {
+			return nil, err
+		}
+
+		defer resp.Body.Close()
+		response := &Response{resp}
+
+		if !response.Ok() {
+			body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+			return response, decodeError(resp, body)
+		}
+
+		if out != nil && response.StatusCode != http.StatusNoContent {
+			if err := json.NewDecoder(resp.Body).Decode(out); err != nil && !errors.Is(err, io.EOF) {
+				return response, err
+			}
+		}
+
+		return response, nil
+	}
 }
 
+// Call send a reqeust.
 func (c *Client) Call(ctx context.Context, e *goblox.CompiledEndpoint, body, out any, opts ...goblox.RequestOpt) (*Response, error) {
 	config := c.config(opts)
 
@@ -252,6 +301,7 @@ func (c *Client) CallRequest(ctx context.Context, e *goblox.CompiledEndpoint, re
 	return c.send(ctx, req, e.Endpoint, config, out)
 }
 
+// NewRequest will build a new request.
 func (c *Client) NewRequest(method, urlString string, body any) (*http.Request, error) {
 	u, err := c.BaseURL.Parse(urlString)
 	if err != nil {
@@ -280,6 +330,7 @@ func (c *Client) NewRequest(method, urlString string, body any) (*http.Request, 
 	return req, nil
 }
 
+// NewMultipartRequest will build a request that sends multipart data.
 func (c *Client) NewMultipartRequest(method, urlString string, body *bytes.Buffer, contentType string) (*http.Request, error) {
 	u, err := c.BaseURL.Parse(urlString)
 	if err != nil {
@@ -295,6 +346,11 @@ func (c *Client) NewMultipartRequest(method, urlString string, body *bytes.Buffe
 	return req, nil
 }
 
+// Do will send a request.
+func (c *Client) Do(ctx context.Context, req *http.Request, v any, opts ...goblox.RequestOpt) (*Response, error) {
+	return c.send(ctx, req, nil, c.config(opts), v)
+}
+
 type Response struct {
 	*http.Response
 }
@@ -304,8 +360,9 @@ func (r *Response) Ok() bool {
 	return (r.StatusCode >= 200 && r.StatusCode <= 299)
 }
 
-func (c *Client) Do(ctx context.Context, req *http.Request, v any, opts ...goblox.RequestOpt) (*Response, error) {
-	return c.send(ctx, req, nil, c.config(opts), v)
+// RateLimit will parse the rate limit from the headers.
+func (r *Response) RateLimit() goblox.RateLimit {
+	return goblox.ParseRateLimit(r.Header)
 }
 
 // queryValues encodes a struct with `url` tags as query values for Compile.

@@ -11,6 +11,7 @@ type RequestConfig struct {
 	Credential    auth.Credential
 	HasCredential bool // an option set Credential, possibly to nil
 	Header        http.Header
+	Retry         *bool
 }
 
 // RequestOpt changes a single request.
@@ -47,5 +48,12 @@ func WithHeader(key, value string) RequestOpt {
 		}
 
 		c.Header.Add(key, value)
+	}
+}
+
+// WithRetries returns retries on/off for the specific request.
+func WithRetries(enabled bool) RequestOpt {
+	return func(c *RequestConfig) {
+		c.Retry = &enabled
 	}
 }

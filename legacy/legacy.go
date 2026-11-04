@@ -27,23 +27,23 @@ type Client struct {
 	baseDomain string
 	userAgent  string
 
+	retry        goblox.RetryPolicy
+	retryEnabled bool
+
 	Thumbnails *ThumbnailsService
 }
 
 type ClientOpts func(*Client)
-
-// WithUserAgentApp will let you set the app for the client.
-func WithUserAgentApp(app string) ClientOpts {
-	return func(c *Client) {
-		c.userAgent = goblox.AppUserAgent(app)
-	}
-}
 
 func NewClient(opts ...ClientOpts) *Client {
 	c := &Client{
 		client:     http.DefaultClient,
 		baseDomain: "roblox.com",
 		userAgent:  goblox.UserAgent,
+		retry: goblox.RetryPolicy{
+			MaxRetries: 3,
+		},
+		retryEnabled: true,
 	}
 
 	for _, opt := range opts {
@@ -64,9 +64,12 @@ func (c *Client) init() *Client {
 // withCredential will let you use a custom credential to authenticate with the Opencloud API.
 func (c *Client) withCredential(cred auth.Credential) *Client {
 	nc := &Client{
-		client:     c.client,
-		credential: cred,
-		baseDomain: c.baseDomain,
+		client:       c.client,
+		credential:   cred,
+		baseDomain:   c.baseDomain,
+		userAgent:    c.userAgent,
+		retry:        c.retry,
+		retryEnabled: c.retryEnabled,
 	}
 
 	return nc.init()
@@ -75,6 +78,27 @@ func (c *Client) withCredential(cred auth.Credential) *Client {
 // WithCookie will use a .ROBLOSECURITY cookie to authenticate with APIs.
 func (c *Client) WithCookie(cookie string) *Client {
 	return c.withCredential(auth.NewROBLOSecurityCookie(cookie))
+}
+
+// WithUserAgentApp will let you set the app for the client.
+func WithUserAgentApp(app string) ClientOpts {
+	return func(c *Client) {
+		c.userAgent = goblox.AppUserAgent(app)
+	}
+}
+
+// WithRetryPolicy sets how this client retries failed requests.
+func WithRetryPolicy(p goblox.RetryPolicy) ClientOpts {
+	return func(c *Client) {
+		c.retry = p
+	}
+}
+
+// WithRetries sets whether requests are retried by default.
+func WithRetries(enabled bool) ClientOpts {
+	return func(c *Client) {
+		c.retryEnabled = enabled
+	}
 }
 
 func (c *Client) resolveURL(e *goblox.CompiledEndpoint) (*url.URL, error) {
@@ -126,19 +150,19 @@ func (c *Client) NewRequest(method string, u *url.URL, body any) (*http.Request,
 }
 
 func (c *Client) send(ctx context.Context, req *http.Request, config goblox.RequestConfig, out any) (*Response, error) {
-	handler, canRetry := config.Credential.(auth.ResponseHandler)
+	retryEnabled := c.retryEnabled
+	if config.Retry != nil {
+		retryEnabled = *config.Retry
+	}
 
-	// Only retry when the body can be replayed.
-	canRetry = canRetry && (req.Body == nil || req.Body == http.NoBody || req.GetBody != nil)
+	handler, hasHandler := config.Credential.(auth.ResponseHandler)
+	replayable := req.Body == nil || req.Body == http.NoBody || req.GetBody != nil
+	handlerRetried := false
 
-	var resp *http.Response
-	for attempt := 0; attempt < 2; attempt++ {
-		// A fresh copy each attempt, so headers and credentials aren't added twice.
+	attempt := 0
+	for {
 		r := req.Clone(ctx)
-
-		r.Header.Set("User-Agent", c.userAgent)
-
-		if attempt > 0 && req.GetBody != nil {
+		if req.GetBody != nil {
 			body, err := req.GetBody()
 			if err != nil {
 				return nil, err
@@ -146,6 +170,7 @@ func (c *Client) send(ctx context.Context, req *http.Request, config goblox.Requ
 			r.Body = body
 		}
 
+		r.Header.Set("User-Agent", c.userAgent)
 		for k, vs := range config.Header {
 			r.Header.Del(k)
 			for _, v := range vs {
@@ -159,35 +184,52 @@ func (c *Client) send(ctx context.Context, req *http.Request, config goblox.Requ
 			}
 		}
 
-		var err error
-		resp, err = c.client.Do(r)
-		if err != nil {
-			return nil, err
-		}
+		resp, err := c.client.Do(r)
 
-		// The cookie picks up X-CSRF-Token from a 403 and asks for one retry.
-		if attempt == 0 && canRetry && handler.HandleResponse(resp) {
+		// The credential's own retry (a cookie's new CSRF token). Does not count towards
+		// the retry policy.
+		if err == nil && hasHandler && replayable && !handlerRetried && handler.HandleResponse(resp) {
+			handlerRetried = true
 			_, _ = io.Copy(io.Discard, resp.Body)
 			resp.Body.Close()
 			continue
 		}
-		break
-	}
-	defer resp.Body.Close()
 
-	response := &Response{resp}
-	if !response.Ok() {
-		body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-		return response, decodeError(resp, body)
-	}
-
-	if out != nil && resp.StatusCode != http.StatusNoContent {
-		if err := json.NewDecoder(resp.Body).Decode(out); err != nil && !errors.Is(err, io.EOF) {
-			return response, err
+		// Runs the retry policy if retries are enabled.
+		if retryEnabled {
+			if delay, retry := c.retry.Next(attempt, r, resp, err); retry {
+				if resp != nil {
+					_, _ = io.Copy(io.Discard, resp.Body)
+					resp.Body.Close()
+				}
+				if err := goblox.Sleep(ctx, delay); err != nil {
+					return nil, err
+				}
+				attempt++
+				continue
+			}
 		}
-	}
 
-	return response, nil
+		if err != nil {
+			return nil, err
+		}
+
+		defer resp.Body.Close()
+		response := &Response{resp}
+
+		if !response.Ok() {
+			body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+			return response, decodeError(resp, body)
+		}
+
+		if out != nil && response.StatusCode != http.StatusNoContent {
+			if err := json.NewDecoder(resp.Body).Decode(out); err != nil && !errors.Is(err, io.EOF) {
+				return response, err
+			}
+		}
+
+		return response, nil
+	}
 }
 
 func (c *Client) Call(ctx context.Context, e *goblox.CompiledEndpoint, body, out any, opts ...goblox.RequestOpt) (*Response, error) {
@@ -220,4 +262,9 @@ type Response struct {
 // Ok will check if the status code is 200-299.
 func (r *Response) Ok() bool {
 	return r.StatusCode >= 200 && r.StatusCode <= 299
+}
+
+// RateLimit will parse the rate limit from the headers.
+func (r *Response) RateLimit() goblox.RateLimit {
+	return goblox.ParseRateLimit(r.Header)
 }

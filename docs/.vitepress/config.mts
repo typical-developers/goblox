@@ -74,6 +74,7 @@ export default defineConfig({
         text: 'Introduction',
         items: [
           { text: 'About Goblox', link: '/getting-started/welcome' },
+          { text: 'Ratelimits & Retries', link: '/getting-started/retries_and_ratelimits' },
         ],
       },
       {

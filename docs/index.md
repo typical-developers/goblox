@@ -14,8 +14,11 @@ hero:
       text: What is Goblox?
       link: /getting-started/welcome
     - theme: alt
-      text: Guides
+      text: OpenCloud
       link: /guides/opencloud/authentication
+    - theme: alt
+      text: Legacy
+      link: /guides/legacy/authentication
 
 features:
   - icon: ☁️

@@ -52,36 +52,26 @@ func (p RetryPolicy) backoff(attempt int) time.Duration {
 // Next reports whether a request should be sent again after an attempt.
 // For the first send, the returned duration will be 0.
 func (r RetryPolicy) Next(attempt int, req *http.Request, resp *http.Response, err error) (time.Duration, bool) {
-	if attempt >= r.MaxRetries {
+	if err != nil || attempt >= r.MaxRetries {
+		return 0, false
+	}
+	if resp.StatusCode != http.StatusTooManyRequests {
 		return 0, false
 	}
 
-	switch {
-	case err != nil:
-		if req.Context().Err() != nil {
-			return 0, false
+	delay := parseRetryAfter(resp.Header.Get("Retry-After"))
+	if delay <= 0 {
+		delay = r.backoff(attempt)
+
+		if ratelimit := ParseRateLimit(resp.Header); ratelimit.Remaining == 0 && ratelimit.Reset > 0 {
+			delay = ratelimit.Reset
 		}
-
-		return r.backoff(attempt), true
-	case resp.StatusCode == http.StatusTooManyRequests:
-		delay := parseRetryAfter(resp.Header.Get("Retry-After"))
-
-		if delay <= 0 {
-			delay = r.backoff(attempt)
-
-			if ratelimit := ParseRateLimit(resp.Header); ratelimit.Remaining == 0 && ratelimit.Reset > 0 {
-				delay = ratelimit.Reset
-			}
-		}
-
-		if delay > maxRetryDelay {
-			return 0, false
-		}
-
-		return delay, true
+	}
+	if delay > maxRetryDelay {
+		return 0, false
 	}
 
-	return 0, false
+	return delay, true
 }
 
 // Sleeps waits for duration or until context is done.

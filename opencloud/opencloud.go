@@ -65,11 +65,9 @@ type ClientOpts func(*Client)
 // WithOAuthToken should be used for OAuth applications that are athenticated.
 func NewClient(opts ...ClientOpts) *Client {
 	c := &Client{
-		client:    http.DefaultClient,
-		userAgent: goblox.UserAgent,
-		retry: goblox.RetryPolicy{
-			MaxRetries: 3,
-		},
+		client:       http.DefaultClient,
+		userAgent:    goblox.UserAgent,
+		retry:        goblox.DefaultRetryPolicy,
 		retryEnabled: true,
 	}
 
@@ -118,13 +116,11 @@ func (c *Client) init() *Client {
 // You can use [auth.APIKey] or [auth.OAuthToken] to create a credential.
 func (c *Client) WithCredential(cred auth.Credential) *Client {
 	nc := &Client{
-		client:     c.client,
-		credential: cred,
-		userAgent:  goblox.UserAgent,
-		retry: goblox.RetryPolicy{
-			MaxRetries: 3,
-		},
-		retryEnabled: true,
+		client:       c.client,
+		credential:   cred,
+		userAgent:    c.userAgent,
+		retry:        c.retry,
+		retryEnabled: c.retryEnabled,
 	}
 
 	return nc.init()
@@ -231,6 +227,10 @@ func (c *Client) send(ctx context.Context, req *http.Request, _ *goblox.Endpoint
 		// Runs the retry policy if retries are enabled.
 		if retryEnabled {
 			if delay, retry := c.retry.Next(attempt, r, resp, err); retry {
+				if hook := c.retry.OnRetry; hook != nil {
+					hook(attempt+1, delay, resp)
+				}
+
 				if resp != nil {
 					_, _ = io.Copy(io.Discard, resp.Body)
 					resp.Body.Close()

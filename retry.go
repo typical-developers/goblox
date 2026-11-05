@@ -2,13 +2,14 @@ package goblox
 
 import (
 	"context"
+	"math"
 	"math/rand/v2"
 	"net/http"
 	"strconv"
 	"time"
 )
 
-var (
+const (
 	baseRetryDelay = 500 * time.Millisecond
 	maxRetryDelay  = 30 * time.Second
 )
@@ -37,16 +38,43 @@ func ParseRateLimit(h http.Header) RateLimit {
 
 type RetryPolicy struct {
 	MaxRetries int
+	BaseDelay  time.Duration
+	MaxDelay   time.Duration
+
+	OnRetry func(attempt int, delay time.Duration, resp *http.Response)
 }
 
-func (p RetryPolicy) backoff(attempt int) time.Duration {
-	if attempt < 32 {
-		if d := baseRetryDelay << attempt; d > 0 && d < maxRetryDelay {
-			maxRetryDelay = d
-		}
+var DefaultRetryPolicy = RetryPolicy{
+	MaxRetries: 5,
+	BaseDelay:  baseRetryDelay,
+	MaxDelay:   maxRetryDelay,
+}
+
+func (r RetryPolicy) baseDelay() time.Duration {
+	if r.BaseDelay <= 0 {
+		return baseRetryDelay
 	}
 
-	return time.Duration(rand.Int64N(int64(maxRetryDelay))) + time.Millisecond
+	return r.BaseDelay
+}
+
+func (r RetryPolicy) maxDelay() time.Duration {
+	if r.MaxDelay <= 0 {
+		return maxRetryDelay
+	}
+
+	return r.MaxDelay
+}
+
+// backoff will calculate a jittered duration based on the current attempt.
+func (r RetryPolicy) backoff(attempt int) time.Duration {
+	base := float64(r.baseDelay())
+	maxDelay := float64(r.maxDelay())
+
+	jitter := rand.Float64()
+	ceiling := min(base*math.Pow(2, float64(attempt)), maxDelay)
+
+	return time.Duration(jitter * ceiling)
 }
 
 // Next reports whether a request should be sent again after an attempt.
@@ -67,7 +95,7 @@ func (r RetryPolicy) Next(attempt int, req *http.Request, resp *http.Response, e
 			delay = ratelimit.Reset
 		}
 	}
-	if delay > maxRetryDelay {
+	if delay > r.maxDelay() {
 		return 0, false
 	}
 

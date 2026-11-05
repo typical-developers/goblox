@@ -37,12 +37,10 @@ type ClientOpts func(*Client)
 
 func NewClient(opts ...ClientOpts) *Client {
 	c := &Client{
-		client:     http.DefaultClient,
-		baseDomain: "roblox.com",
-		userAgent:  goblox.UserAgent,
-		retry: goblox.RetryPolicy{
-			MaxRetries: 3,
-		},
+		client:       http.DefaultClient,
+		baseDomain:   "roblox.com",
+		userAgent:    goblox.UserAgent,
+		retry:        goblox.DefaultRetryPolicy,
 		retryEnabled: true,
 	}
 
@@ -198,13 +196,19 @@ func (c *Client) send(ctx context.Context, req *http.Request, config goblox.Requ
 		// Runs the retry policy if retries are enabled.
 		if retryEnabled {
 			if delay, retry := c.retry.Next(attempt, r, resp, err); retry {
+				if hook := c.retry.OnRetry; hook != nil {
+					hook(attempt+1, delay, resp)
+				}
+
 				if resp != nil {
 					_, _ = io.Copy(io.Discard, resp.Body)
 					resp.Body.Close()
 				}
+
 				if err := goblox.Sleep(ctx, delay); err != nil {
 					return nil, err
 				}
+
 				attempt++
 				continue
 			}

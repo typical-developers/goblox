@@ -1,6 +1,6 @@
 # Retries & Ratelimits
 ::: info
-The longest that Goblox will wait is up to 30 seconds before a retry. Even if Roblox gives its own time, it will still return an error instead of waiting.
+By default, the longest that Goblox will wait is up to 30 seconds before a retry. Even if Roblox gives its own time, it will still return an error instead of waiting. You can customize the RetryPolicy to have a longer delay.
 :::
 Enabled by default, Goblox will handle `429 Too Many Request`, or ratelimits. If possible, Goblox will wait as long as Roblox requests and send the request again.
 
@@ -27,9 +27,13 @@ Both `opencloud` and `legacy` clients let you customize the retry policy. You ca
 ```go
 opencloud.NewClient(opencloud.WithRetryPolicy(goblox.RetryPolicy{
     MaxRetries: 5,
+    BaseDelay: 500 * time.Millisecond
+    MaxDelay: 30 * time.Second
 }))
 legacy.NewClient(legacy.WithRetryPolicy(goblox.RetryPolicy{
     MaxRetries: 5,
+    BaseDelay: 500 * time.Millisecond
+    MaxDelay: 30 * time.Second
 }))
 ```
 ### Toggling

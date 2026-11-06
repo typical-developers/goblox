@@ -2,7 +2,7 @@
 ::: info
 By default, the longest that Goblox will wait is up to 30 seconds before a retry. Even if Roblox gives its own time, it will still return an error instead of waiting. You can customize the RetryPolicy to have a longer delay.
 :::
-Enabled by default, Goblox will handle `429 Too Many Request`, or ratelimits. If possible, Goblox will wait as long as Roblox requests and send the request again.
+Enabled by default, Goblox will handle `429 Too Many Requests`, or ratelimits. If possible, Goblox will wait as long as Roblox requests and send the request again.
 
 Goblox will use a few factors to decide on how it should retry a request.
 - If Roblox provides a `Retry-After` header, it will use the duration from that before retrying.
@@ -24,16 +24,24 @@ if err == nil {
 ## Setting Retries & Policies
 Both `opencloud` and `legacy` clients let you customize the retry policy. You can either set a custom client-wide retry policy, toggle retries on for the client without messing with the policy, or toggle retries per endpoint.
 ### Policy
+| Field             | Default                 | Description                                                       |
+|-------------------|-------------------------|-------------------------------------------------------------------|
+| MaxRetries        | `5`                     | The max amount of retries that should run.                        |
+| BaseDelay         | `500 * time.Millisecond`| How long, at minimum, should the shortest retry delay be.         |
+| MaxDelay          | `30 * time.Second`      | How long, at most, should be waited for a retry before erroring.  |
+| RetryServerErrors | `false`                 | Whether or not 502, 503, and 504 errors should be retried as well.|
 ```go
 opencloud.NewClient(opencloud.WithRetryPolicy(goblox.RetryPolicy{
     MaxRetries: 5,
-    BaseDelay: 500 * time.Millisecond
-    MaxDelay: 30 * time.Second
+    BaseDelay: 500 * time.Millisecond,
+    MaxDelay: 30 * time.Second,
+    RetryServerErrors: false,
 }))
 legacy.NewClient(legacy.WithRetryPolicy(goblox.RetryPolicy{
     MaxRetries: 5,
-    BaseDelay: 500 * time.Millisecond
-    MaxDelay: 30 * time.Second
+    BaseDelay: 500 * time.Millisecond,
+    MaxDelay: 30 * time.Second,
+    RetryServerErrors: false,
 }))
 ```
 ### Toggling

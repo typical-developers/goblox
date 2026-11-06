@@ -20,6 +20,22 @@ type RateLimit struct {
 	Reset     time.Duration
 }
 
+// isIdempotent will determine if the current request is idempotent
+// based on the request's method.
+func isIdempotent(method string) bool {
+	switch method {
+	case http.MethodGet,
+		http.MethodHead,
+		http.MethodPut,
+		http.MethodDelete,
+		http.MethodOptions,
+		http.MethodTrace:
+		return true
+	default:
+		return false
+	}
+}
+
 func ParseRateLimit(h http.Header) RateLimit {
 	ratelimit := RateLimit{
 		Limit:     h.Get("x-ratelimit-limit"),
@@ -40,14 +56,22 @@ type RetryPolicy struct {
 	MaxRetries int
 	BaseDelay  time.Duration
 	MaxDelay   time.Duration
+	// RetryOnServerError will retry 502, 503, and 504 status codes
+	// asusming that the HTTP method is considered idempotent.
+	//
+	// GET, HEAD, PUT, DELETE, OPTIONS, and TRACE are labeled idempotent.
+	//
+	// 429s are always retried.
+	RetryServerErrors bool
 
 	OnRetry func(attempt int, delay time.Duration, resp *http.Response)
 }
 
 var DefaultRetryPolicy = RetryPolicy{
-	MaxRetries: 5,
-	BaseDelay:  baseRetryDelay,
-	MaxDelay:   maxRetryDelay,
+	MaxRetries:        5,
+	BaseDelay:         baseRetryDelay,
+	MaxDelay:          maxRetryDelay,
+	RetryServerErrors: false,
 }
 
 func (r RetryPolicy) baseDelay() time.Duration {
@@ -77,29 +101,49 @@ func (r RetryPolicy) backoff(attempt int) time.Duration {
 	return time.Duration(jitter * ceiling)
 }
 
-// Next reports whether a request should be sent again after an attempt.
-// For the first send, the returned duration will be 0.
+// Next returns the retry delay for a request and if it should be made again.
+// The first send, the return duration will always be 0.
 func (r RetryPolicy) Next(attempt int, req *http.Request, resp *http.Response, err error) (time.Duration, bool) {
 	if err != nil || attempt >= r.MaxRetries {
 		return 0, false
 	}
-	if resp.StatusCode != http.StatusTooManyRequests {
-		return 0, false
-	}
 
-	delay := parseRetryAfter(resp.Header.Get("Retry-After"))
-	if delay <= 0 {
-		delay = r.backoff(attempt)
+	switch resp.StatusCode {
+	case http.StatusTooManyRequests:
+		delay := parseRetryAfter(resp.Header.Get("Retry-After"))
+		if delay <= 0 {
+			delay = r.backoff(attempt)
 
-		if ratelimit := ParseRateLimit(resp.Header); ratelimit.Remaining == 0 && ratelimit.Reset > 0 {
-			delay = ratelimit.Reset
+			if ratelimit := ParseRateLimit(resp.Header); ratelimit.Remaining == 0 && ratelimit.Reset > 0 {
+				delay = ratelimit.Reset
+			}
 		}
-	}
-	if delay > r.maxDelay() {
-		return 0, false
+
+		if delay > r.maxDelay() {
+			return 0, false
+		}
+
+		return delay, true
+	case http.StatusBadGateway,
+		http.StatusServiceUnavailable,
+		http.StatusGatewayTimeout:
+		if !r.RetryServerErrors {
+			return 0, false
+		}
+
+		if !isIdempotent(req.Method) {
+			return 0, false
+		}
+
+		delay := r.backoff(attempt)
+		if delay > r.maxDelay() {
+			return 0, false
+		}
+
+		return delay, true
 	}
 
-	return delay, true
+	return 0, false
 }
 
 // Sleeps waits for duration or until context is done.

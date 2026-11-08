@@ -61,7 +61,6 @@ func main() {
 | Groups | ✅ | | Universes | ✅ |
 | Localization | ✅ | | Users | ✅ |
 ### `legacy`
-Contributions are welcome!
 | Service | Status | | Service | Status |
 |---|:-:|---|---|:-:|
 | Account Information | 🚧 | | Groups Moderation | 🚧 |
@@ -71,7 +70,7 @@ Contributions are welcome!
 | Asset Delivery | 🚧 | | Localization Tables | 🚧 |
 | Auth | 🚧 | | Notifications | 🚧 |
 | Avatar | 🚧 | | Premium Features | 🚧 |
-| Badges | 🚧 | | Presence | 🚧 |
+| Badges | ✅ | | Presence | ✅ |
 | Billing | 🚧 | | Private Messages | 🚧 |
 | Catalog | 🚧 | | Publish | 🚧 |
 | Chat | 🚧 | | Search | 🚧 |
@@ -81,9 +80,9 @@ Contributions are welcome!
 | Economy Creator Stats | 🚧 | | Translation Roles | 🚧 |
 | Engagement Payouts | 🚧 | | Translations | 🚧 |
 | Followings | 🚧 | | Two-Step Verification | 🚧 |
-| Friends | 🚧 | | User Moderation | 🚧 |
-| Game Internationalization | 🚧 | | Users | 🚧 |
+| Friends | ✅ | | User Moderation | 🚧 |
+| Game Internationalization | 🚧 | | Users | ✅ |
 | Game Join | 🚧 | | Voice | 🚧 |
 | Game Persistence | 🚧 | | | |
-| Games | 🚧 | | | |
+| Games | ✅ | | | |
 | Groups | 🚧 | | | |

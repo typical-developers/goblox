@@ -1,11 +1,14 @@
 # About <img src="/goblox_icon.png" align="right" width="150" />
-Goblox is a Roblox API wrapper written in Golang to make accessing Roblox's API within your Go projects easy.
 
-Goblox is separated into two separate packages: `opencloud` and `legacy`. The `opencloud` package gives access to all of Roblox's APIs that allow you to use an API key or OAuth2 token. The `legacy` package gives access to all of Roblox's normal/classic APIs, with the additional ability to set a cookie.
+Easily integrate Roblox's OpenCloud & legacy APIs into your Go projects.
 
-::: warning
-While this library is used in some production deployments, it is not considered fully stable. If you want to contribute, feel free to open a PR!
-:::
+<div class="badges">
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/typical-developers/goblox.svg)](https://pkg.go.dev/github.com/typical-developers/goblox)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/typical-developers/goblox)](https://github.com/typical-developers/goblox/blob/main/go.mod)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://github.com/typical-developers/goblox/blob/main/LICENSE)
+
+</div>
 
 ### Features
 - Support for all OpenCloud APIs.
@@ -23,3 +26,44 @@ Go 1.23 or newer is required.
 ```bash
 go get -u github.com/typical-developers/goblox
 ```
+
+## Current Coverage
+### `opencloud`
+| Service | Status | | Service | Status |
+|---|:-:|---|---|:-:|
+| Ads | ✅ | | Luau Execution | ✅ |
+| Analytics | ✅ | | Matchmaking | ✅ |
+| Assets | ✅ | | Monetization | ✅ |
+| Badges | ✅ | | Places | ✅ |
+| Config | ✅ | | Secrets | ✅ |
+| Creator Store | ✅ | | Server Management | ✅ |
+| Data & Memory Stores | ✅ | | Service Efficiency | ✅ |
+| Events | ✅ | | Thumbnails | ✅ |
+| Groups | ✅ | | Universes | ✅ |
+| Localization | ✅ | | Users | ✅ |
+### `legacy`
+| Service | Status | | Service | Status |
+|---|:-:|---|---|:-:|
+| Account Information | 🚧 | | Groups Moderation | 🚧 |
+| Account Settings | 🚧 | | Inventory | 🚧 |
+| Ad Configuration | 🚧 | | Item Configuration | 🚧 |
+| Ads | 🚧 | | Locale | 🚧 |
+| Asset Delivery | 🚧 | | Localization Tables | 🚧 |
+| Auth | 🚧 | | Notifications | 🚧 |
+| Avatar | 🚧 | | Premium Features | 🚧 |
+| Badges | ✅ | | Presence | ✅ |
+| Billing | 🚧 | | Private Messages | 🚧 |
+| Catalog | 🚧 | | Publish | 🚧 |
+| Chat | 🚧 | | Search | 🚧 |
+| Contacts | 🚧 | | Text Filter | 🚧 |
+| Develop | 🚧 | | Thumbnails | ✅ |
+| Economy | 🚧 | | Trades | 🚧 |
+| Economy Creator Stats | 🚧 | | Translation Roles | 🚧 |
+| Engagement Payouts | 🚧 | | Translations | 🚧 |
+| Followings | 🚧 | | Two-Step Verification | 🚧 |
+| Friends | ✅ | | User Moderation | 🚧 |
+| Game Internationalization | 🚧 | | Users | ✅ |
+| Game Join | 🚧 | | Voice | 🚧 |
+| Game Persistence | 🚧 | | | |
+| Games | ✅ | | | |
+| Groups | 🚧 | | | |

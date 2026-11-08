@@ -15,3 +15,13 @@
     --vp-code-block-bg: var(--vp-c-bg-alt);
     --vp-c-bg-soft: var(--vp-c-bg-alt);
 }
+
+.vp-doc .badges p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.vp-doc .badges img {
+    display: inline-block;
+}

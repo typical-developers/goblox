@@ -30,7 +30,12 @@ type Client struct {
 	retry        goblox.RetryPolicy
 	retryEnabled bool
 
+	Badges     *BadgesService
+	Friends    *FriendsService
+	Games      *GamesService
+	Presence   *PresenceService
 	Thumbnails *ThumbnailsService
+	Users      *UsersService
 }
 
 type ClientOpts func(*Client)
@@ -54,7 +59,12 @@ func NewClient(opts ...ClientOpts) *Client {
 func (c *Client) init() *Client {
 	c.common.client = c
 
+	c.Badges = (*BadgesService)(&c.common)
+	c.Friends = (*FriendsService)(&c.common)
+	c.Games = (*GamesService)(&c.common)
+	c.Presence = (*PresenceService)(&c.common)
 	c.Thumbnails = (*ThumbnailsService)(&c.common)
+	c.Users = (*UsersService)(&c.common)
 
 	return c
 }
@@ -143,6 +153,23 @@ func (c *Client) NewRequest(method string, u *url.URL, body any) (*http.Request,
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
+
+	return req, nil
+}
+
+// NewMultipartRequest will build a request that sends multipart data to endpoint e.
+func (c *Client) NewMultipartRequest(e *goblox.CompiledEndpoint, body *bytes.Buffer, contentType string) (*http.Request, error) {
+	u, err := c.resolveURL(e)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(e.Endpoint.Method, u.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", contentType)
 
 	return req, nil
 }
@@ -253,6 +280,21 @@ func (c *Client) Call(ctx context.Context, e *goblox.CompiledEndpoint, body, out
 
 	req, err := c.NewRequest(e.Endpoint.Method, u, body)
 	if err != nil {
+		return nil, err
+	}
+
+	return c.send(ctx, req, config, out)
+}
+
+// CallRequest sends a request built by hand (a multipart upload, for example)
+// for endpoint e. Like Call, it checks the credential against the endpoint first.
+func (c *Client) CallRequest(ctx context.Context, e *goblox.CompiledEndpoint, req *http.Request, out any, opts ...goblox.RequestOpt) (*Response, error) {
+	config := c.config(opts)
+
+	if err := e.Endpoint.Check(config.Credential); err != nil {
+		return nil, err
+	}
+	if err := e.Endpoint.CheckScopes(ctx, config.Credential); err != nil {
 		return nil, err
 	}
 

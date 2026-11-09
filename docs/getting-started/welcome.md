@@ -4,9 +4,9 @@ Easily integrate Roblox's OpenCloud & legacy APIs into your Go projects.
 
 <div class="badges">
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/typical-developers/goblox.svg)](https://pkg.go.dev/github.com/typical-developers/goblox)
-[![Go Version](https://img.shields.io/github/go-mod/go-version/typical-developers/goblox)](https://github.com/typical-developers/goblox/blob/main/go.mod)
-[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://github.com/typical-developers/goblox/blob/main/LICENSE)
+[![Go Reference](https://pkg.go.dev/badge/github.com/luckfire/goblox.svg)](https://pkg.go.dev/github.com/luckfire/goblox)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/luckfire/goblox)](https://github.com/luckfire/goblox/blob/main/go.mod)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://github.com/luckfire/goblox/blob/main/LICENSE)
 
 </div>
 
@@ -24,7 +24,7 @@ Go 1.23 or newer is required.
 :::
 
 ```bash
-go get -u github.com/typical-developers/goblox
+go get -u github.com/luckfire/goblox
 ```
 
 ## Current Coverage

@@ -8,7 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 
-	"github.com/typical-developers/goblox"
+	"github.com/luckfire/goblox"
 )
 
 var (

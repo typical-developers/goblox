@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/typical-developers/goblox"
-	"github.com/typical-developers/goblox/auth"
+	"github.com/luckfire/goblox"
+	"github.com/luckfire/goblox/auth"
 )
 
 var (

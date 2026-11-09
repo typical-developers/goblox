@@ -3,7 +3,7 @@ package goblox
 import (
 	"net/http"
 
-	"github.com/typical-developers/goblox/auth"
+	"github.com/luckfire/goblox/auth"
 )
 
 // RequestConfig is what RequestOpts change. Fields are read by Client.Do.

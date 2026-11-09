@@ -1,4 +1,4 @@
-module github.com/typical-developers/goblox
+module github.com/luckfire/goblox
 
 go 1.23
 

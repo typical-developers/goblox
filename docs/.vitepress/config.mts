@@ -27,7 +27,7 @@ export default defineConfig({
           {
             type: 9,
             components: [
-              { type: 10, content: "## Goblox Documentation\nEasily integrate Roblox's OpenCloud & legacy APIs into your Go projects.\n```sh\ngo get -u github.com/typical-developers/goblox\n```" },
+              { type: 10, content: "## Goblox Documentation\nEasily integrate Roblox's OpenCloud & legacy APIs into your Go projects.\n```sh\ngo get -u github.com/luckfire/goblox\n```" },
             ],
             accessory: { type: 11, media: { url: `https://goblox.dev/goblox_icon.png` } },
           },
@@ -36,7 +36,7 @@ export default defineConfig({
             components: [
               { type: 2, style: 5, label: 'OpenCloud', url: `https://goblox.dev/guides/opencloud/authentication` },
               { type: 2, style: 5, label: 'Legacy', url: `https://goblox.dev/guides/legacy/authentication` },
-              { type: 2, style: 5, label: 'GitHub', url: 'https://github.com/typical-developers/goblox' },
+              { type: 2, style: 5, label: 'GitHub', url: 'https://github.com/luckfire/goblox' },
             ],
           },
         ],
@@ -54,7 +54,7 @@ export default defineConfig({
     logo: '/goblox_icon.png',
     lastUpdated: {},
     editLink: {
-      pattern: "https://github.com/typical-developers/goblox/edit/main/docs/:path"
+      pattern: "https://github.com/luckfire/goblox/edit/main/docs/:path"
     },
 
     search: {
@@ -97,7 +97,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/typical-developers/goblox' },
+      { icon: 'github', link: 'https://github.com/luckfire/goblox' },
       { icon: 'discord', link: 'https://discord.gg/typical' },
       { icon: 'twitter', link: 'https://twitter.com/typicaldevelops' },
       { icon: 'roblox', link: 'https://www.roblox.com/communities/2700233/Typical-Developers' },

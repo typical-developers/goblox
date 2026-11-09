@@ -11,8 +11,8 @@ import (
 	"reflect"
 
 	"github.com/google/go-querystring/query"
-	"github.com/typical-developers/goblox"
-	"github.com/typical-developers/goblox/auth"
+	"github.com/luckfire/goblox"
+	"github.com/luckfire/goblox/auth"
 )
 
 var (

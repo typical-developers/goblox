@@ -18,7 +18,7 @@ import (
     "context"
     "fmt"
 
-    "github.com/typical-developers/goblox/opencloud"
+    "github.com/luckfire/goblox/opencloud"
 )
 
 func main() {
@@ -43,8 +43,8 @@ import (
     "context"
     "fmt"
 
-    "github.com/typical-developers/goblox"
-    "github.com/typical-developers/goblox/opencloud"
+    "github.com/luckfire/goblox"
+    "github.com/luckfire/goblox/opencloud"
 )
 
 func main() {
@@ -66,8 +66,8 @@ import (
     "context"
     "fmt"
 
-    "github.com/typical-developers/goblox"
-    "github.com/typical-developers/goblox/opencloud"
+    "github.com/luckfire/goblox"
+    "github.com/luckfire/goblox/opencloud"
 )
 
 var client = opencloud.NewClient()
@@ -95,9 +95,9 @@ API credentials can be set to be checked at an interval. By default if the durat
 import (
     "time"
 
-    "github.com/typical-developers/goblox"
-    "github.com/typical-developers/goblox/opencloud"
-    "github.com/typical-developers/goblox/auth"
+    "github.com/luckfire/goblox"
+    "github.com/luckfire/goblox/opencloud"
+    "github.com/luckfire/goblox/auth"
 )
 
 func main() {
@@ -111,9 +111,9 @@ An OAuth2 credential will need your app's client ID and secret.
 import (
     "time"
 
-    "github.com/typical-developers/goblox"
-    "github.com/typical-developers/goblox/opencloud"
-    "github.com/typical-developers/goblox/auth"
+    "github.com/luckfire/goblox"
+    "github.com/luckfire/goblox/opencloud"
+    "github.com/luckfire/goblox/auth"
 )
 
 func main() {
@@ -128,8 +128,8 @@ These errors are returned before a request is sent to Roblox's servers.
 import (
     "errors"
 
-    "github.com/typical-developers/goblox"
-    "github.com/typical-developers/goblox/auth"
+    "github.com/luckfire/goblox"
+    "github.com/luckfire/goblox/auth"
 )
 
 var unsupported *goblox.UnsupportedAuthError

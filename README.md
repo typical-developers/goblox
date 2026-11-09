@@ -5,8 +5,8 @@ Easily integrate Roblox's OpenCloud & legacy APIs into your Go projects.
 > [!CAUTION]
 > While this library is used in some production deployments, it is not considered fully stable. If you want to contribute, feel free to open a PR!
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/typical-developers/goblox.svg)](https://pkg.go.dev/github.com/typical-developers/goblox)
-[![Go Version](https://img.shields.io/github/go-mod/go-version/typical-developers/goblox)](go.mod)
+[![Go Reference](https://pkg.go.dev/badge/github.com/luckfire/goblox.svg)](https://pkg.go.dev/github.com/luckfire/goblox)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/luckfire/goblox)](go.mod)
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
 
 **[Documentation](https://goblox.dev)** · **[OpenCloud Guide](https://goblox.dev/guides/opencloud/authentication)** · **[Legacy Guide](https://goblox.dev/guides/legacy/authentication)**
@@ -21,7 +21,7 @@ Easily integrate Roblox's OpenCloud & legacy APIs into your Go projects.
 
 ## Installation
 ```sh
-go get -u github.com/typical-developers/goblox
+go get -u github.com/luckfire/goblox
 ```
 ### Quick Start (OpenCloud)
 ```go
@@ -31,7 +31,7 @@ import (
     "context"
     "fmt"
 
-    "github.com/typical-developers/goblox/opencloud"
+    "github.com/luckfire/goblox/opencloud"
 )
 
 func main() {

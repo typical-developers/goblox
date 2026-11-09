@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/typical-developers/goblox/auth"
+	"github.com/luckfire/goblox/auth"
 )
 
 type MissingScopesError struct {

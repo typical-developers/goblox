@@ -8,7 +8,7 @@ import (
     "context"
     "fmt"
 
-    "github.com/typical-developers/goblox/opencloud"
+    "github.com/luckfire/goblox/opencloud"
 )
 
 func main() {

@@ -11,8 +11,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/typical-developers/goblox"
-	"github.com/typical-developers/goblox/auth"
+	"github.com/luckfire/goblox"
+	"github.com/luckfire/goblox/auth"
 )
 
 var (

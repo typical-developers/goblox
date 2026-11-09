@@ -15,7 +15,7 @@ For endpoints that are locked behind a cookie, you can pass an account's `.ROBLO
 package main
 
 import (
-    "github.com/typical-developers/goblox/legacy"
+    "github.com/luckfire/goblox/legacy"
 )
 
 func main() {
@@ -27,8 +27,8 @@ func main() {
 import (
     "context"
 
-    "github.com/typical-developers/goblox"
-    "github.com/typical-developers/goblox/auth"
+    "github.com/luckfire/goblox"
+    "github.com/luckfire/goblox/auth"
 )
 
 var client = legacy.NewClient()
@@ -51,7 +51,7 @@ If Roblox rejects the cookie itself (for example, because it expired or the acco
 import (
     "errors"
 
-    "github.com/typical-developers/goblox"
+    "github.com/luckfire/goblox"
 )
 
 var unsupported *goblox.UnsupportedAuthError

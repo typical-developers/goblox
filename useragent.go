@@ -5,7 +5,7 @@ import (
 	"runtime/debug"
 )
 
-const modulePath = "github.com/typical-developers/goblox"
+const modulePath = "github.com/luckfire/goblox"
 
 var Version = moduleVersion()
 

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/typical-developers/goblox"
+	"github.com/luckfire/goblox"
 )
 
 type ErrorDetail struct {
